@@ -20,6 +20,7 @@
   - [Useful scripts](#useful-scripts)
 - [Designs](#designs)
   - [Figma mockups](#figma-mockups)
+  - [Figma prototype](#figma-prototype)
   - [App interface screenshots](#app-interface-screenshots)
 - [Deployment plan](#deployment-plan)
 - [Video demo](#video-demo)
@@ -34,25 +35,25 @@ The platform addresses three gaps identified in existing food-redistribution sys
 
 ### Key features
 
-| Area | Functionality |
-| --- | --- |
-| **Public** | Marketing landing page, sign-in, three-step registration, password reset |
-| **Verification gate** | Document upload, admin review, approval/rejection with reasons — no organisation transacts until verified |
-| **Donor portal** | Dashboard, post surplus food, manage listings, review NGO requests, dual-confirmation pickup (QR + PIN), impact dashboard |
-| **NGO portal** | Dashboard with matched listings, browse & filter, request food, capacity management, dual-confirmation pickup |
-| **Admin console** | Overview with anomaly flags, verification queue with SLA tracking, user management (flag/suspend/revoke), listings monitor, impact reports |
-| **Accounts** | Role-specific profiles, settings, notification preferences for all three roles |
-| **Notifications** | In-app notification panel mirroring SMS alerts for new matches, accepted requests, pickup reminders, and confirmations |
+| Area                  | Functionality                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Public**            | Marketing landing page, sign-in, three-step registration, password reset                                                                   |
+| **Verification gate** | Document upload, admin review, approval/rejection with reasons — no organisation transacts until verified                                  |
+| **Donor portal**      | Dashboard, post surplus food, manage listings, review NGO requests, dual-confirmation pickup (QR + PIN), impact dashboard                  |
+| **NGO portal**        | Dashboard with matched listings, browse & filter, request food, capacity management, dual-confirmation pickup                              |
+| **Admin console**     | Overview with anomaly flags, verification queue with SLA tracking, user management (flag/suspend/revoke), listings monitor, impact reports |
+| **Accounts**          | Role-specific profiles, settings, notification preferences for all three roles                                                             |
+| **Notifications**     | In-app notification panel mirroring SMS alerts for new matches, accepted requests, pickup reminders, and confirmations                     |
 
 ---
 
 ### Tech stack
 
-| Layer | Technologies |
-| --- | --- |
+| Layer        | Technologies                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------- |
 | **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4, Shadcn-style UI (Radix + CVA), React Router 7, Axios |
-| **Backend** | Node.js 18+, Express, Mongoose ODM, MongoDB Atlas, Socket.io |
-| **Services** | Cloudinary (documents & food images), SMS gateway (time-critical notifications) |
+| **Backend**  | Node.js 18+, Express, Mongoose ODM, MongoDB Atlas, Socket.io                                      |
+| **Services** | Cloudinary (documents & food images), SMS gateway (time-critical notifications)                   |
 
 ---
 
@@ -60,12 +61,12 @@ The platform addresses three gaps identified in existing food-redistribution sys
 
 ### Prerequisites
 
-| Requirement | Notes |
-| --- | --- |
-| [Node.js](https://nodejs.org/) 18+ | 20 LTS recommended |
-| npm 9+ | Bundled with Node.js |
+| Requirement                                    | Notes                       |
+| ---------------------------------------------- | --------------------------- |
+| [Node.js](https://nodejs.org/) 18+             | 20 LTS recommended          |
+| npm 9+                                         | Bundled with Node.js        |
 | [MongoDB Atlas](https://www.mongodb.com/atlas) | Or a local MongoDB instance |
-| [Git](https://git-scm.com/) | For cloning the repository |
+| [Git](https://git-scm.com/)                    | For cloning the repository  |
 
 ---
 
@@ -96,14 +97,14 @@ npm install
 cp server/.env.example server/.env
 ```
 
-| Variable | Description |
-| --- | --- |
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `JWT_SECRET` | Secret for signing auth tokens |
+| Variable         | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| `MONGODB_URI`    | MongoDB Atlas connection string                   |
+| `JWT_SECRET`     | Secret for signing auth tokens                    |
 | `CLOUDINARY_URL` | Cloudinary credentials for image/document uploads |
-| `SMS_API_KEY` | SMS gateway API key |
-| `CLIENT_URL` | Frontend origin (for CORS + Socket.io) |
-| `PORT` | API port (default `5000`) |
+| `SMS_API_KEY`    | SMS gateway API key                               |
+| `CLIENT_URL`     | Frontend origin (for CORS + Socket.io)            |
+| `PORT`           | API port (default `5000`)                         |
 
 ---
 
@@ -113,8 +114,8 @@ cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-| Variable | Description | Default |
-| --- | --- | --- |
+| Variable       | Description          | Default                     |
+| -------------- | -------------------- | --------------------------- |
 | `VITE_API_URL` | Backend API base URL | `http://localhost:5000/api` |
 
 ---
@@ -154,13 +155,13 @@ npm run preview    # http://localhost:4173
 
 ### Useful scripts
 
-| Command | Location | Description |
-| --- | --- | --- |
-| `npm run dev` | client / server | Start dev server |
-| `npm run build` | client | Type-check + production build |
-| `npm run preview` | client | Preview production build |
-| `npm run lint` | client | Run ESLint |
-| `npm run seed` | server | Seed admin + demo data into MongoDB |
+| Command           | Location        | Description                         |
+| ----------------- | --------------- | ----------------------------------- |
+| `npm run dev`     | client / server | Start dev server                    |
+| `npm run build`   | client          | Type-check + production build       |
+| `npm run preview` | client          | Preview production build            |
+| `npm run lint`    | client          | Run ESLint                          |
+| `npm run seed`    | server          | Seed admin + demo data into MongoDB |
 
 ---
 
@@ -168,9 +169,17 @@ npm run preview    # http://localhost:4173
 
 ### Figma mockups
 
-**[Sangira's Project — Figma](https://www.figma.com/design/rWMDFowhGHlzKt2wqhLLGy/Sangira%22s-Project?node-id=0-1&t=j5CFzHZFXkjFVU20-1)**
+**[Sangira's Project — Figma Design](https://www.figma.com/design/OkPjKY4IEVUa7KgodNeEjB/Sangira-s-Project?node-id=0-1&t=6eg7Vif2RqTzShN0-1)**
 
 The complete UI was designed and reviewed screen by screen before implementation, covering all three roles (donor, NGO, admin) and every state, including the verification gate, the dual-confirmation pickup flow, and the admin review console.
+
+---
+
+### Figma prototype
+
+**[Sangira's Project — Interactive Prototype](https://www.figma.com/proto/OkPjKY4IEVUa7KgodNeEjB/Sangira-s-Project?node-id=0-1&t=6eg7Vif2RqTzShN0-1)**
+
+Click through the full user flows — registration, donor and NGO portals, pickup confirmation, and the admin console — as an interactive preview before diving into the live app.
 
 ---
 
@@ -178,28 +187,28 @@ The complete UI was designed and reviewed screen by screen before implementation
 
 Screenshots of implemented screens live in [`docs/design/screenshots/`](docs/design/screenshots/).
 
-| Screen | Preview |
-| --- | --- |
-| Landing page | [01-landing.png](docs/design/screenshots/01-landing.png) |
-| Registration & verification | [02-registration.png](docs/design/screenshots/02-registration.png) |
-| Donor dashboard | [03-donor-dashboard.png](docs/design/screenshots/03-donor-dashboard.png) |
-| Post a listing | [04-post-listing.png](docs/design/screenshots/04-post-listing.png) |
-| NGO dashboard & matching | [05-ngo-dashboard.png](docs/design/screenshots/05-ngo-dashboard.png) |
-| Dual-confirmation pickup | [06-pickup-confirmation.png](docs/design/screenshots/06-pickup-confirmation.png) |
-| Admin verification queue | [07-admin-verification.png](docs/design/screenshots/07-admin-verification.png) |
+| Screen                      | Preview                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Landing page                | [01-landing.png](docs/design/screenshots/01-landing.png)                         |
+| Registration & verification | [02-registration.png](docs/design/screenshots/02-registration.png)               |
+| Donor dashboard             | [03-donor-dashboard.png](docs/design/screenshots/03-donor-dashboard.png)         |
+| Post a listing              | [04-post-listing.png](docs/design/screenshots/04-post-listing.png)               |
+| NGO dashboard & matching    | [05-ngo-dashboard.png](docs/design/screenshots/05-ngo-dashboard.png)             |
+| Dual-confirmation pickup    | [06-pickup-confirmation.png](docs/design/screenshots/06-pickup-confirmation.png) |
+| Admin verification queue    | [07-admin-verification.png](docs/design/screenshots/07-admin-verification.png)   |
 
 ---
 
 ## Deployment plan
 
-| Phase | Platform | Purpose |
-| --- | --- | --- |
-| **Phase 1 — Frontend** | [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/) | React app, static hosting + CDN |
-| **Phase 2 — Backend** | [Railway](https://railway.app/) or [Render](https://render.com/) | REST API, authentication, business logic, Socket.io |
-| **Phase 3 — Data** | [MongoDB Atlas](https://www.mongodb.com/atlas) | Users, listings, requests, confirmations |
-| **Phase 4 — Assets** | [Cloudinary](https://cloudinary.com/) | Verification documents and food-listing images |
-| **Phase 5 — Notifications** | SMS gateway integration | Time-critical alerts (matches, acceptances, expiry, confirmations) |
-| **Phase 6 — Domain** | Custom domain (e.g. `app.sangira.rw`) | Production URL + SSL |
+| Phase                       | Platform                                       | Purpose                                                            |
+| --------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| **Phase 1 — Frontend**      | [Vercel](https://vercel.com/)                  | React app, static hosting + CDN                                    |
+| **Phase 2 — Backend**       | [Render](https://render.com/)                  | REST API, authentication, business logic, Socket.io                |
+| **Phase 3 — Data**          | [MongoDB Atlas](https://www.mongodb.com/atlas) | Users, listings, requests, confirmations                           |
+| **Phase 4 — Assets**        | [Cloudinary](https://cloudinary.com/)          | Verification documents and food-listing images                     |
+| **Phase 5 — Notifications** | SMS gateway integration                        | Time-critical alerts (matches, acceptances, expiry, confirmations) |
+| **Phase 6 — Domain**        | Custom domain (e.g. `app.sangira.rw`)          | Production URL + SSL                                               |
 
 ---
 

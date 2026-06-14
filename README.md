@@ -185,17 +185,17 @@ Click through the full user flows — registration, donor and NGO portals, picku
 
 ### App interface screenshots
 
-Screenshots of implemented screens live in [`docs/design/screenshots/`](docs/design/screenshots/).
+Screenshots of implemented screens live in [`Docs/`](Docs/).
 
-| Screen                      | Preview                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------- |
-| Landing page                | [01-landing.png](docs/design/screenshots/01-landing.png)                         |
-| Registration & verification | [02-registration.png](docs/design/screenshots/02-registration.png)               |
-| Donor dashboard             | [03-donor-dashboard.png](docs/design/screenshots/03-donor-dashboard.png)         |
-| Post a listing              | [04-post-listing.png](docs/design/screenshots/04-post-listing.png)               |
-| NGO dashboard & matching    | [05-ngo-dashboard.png](docs/design/screenshots/05-ngo-dashboard.png)             |
-| Dual-confirmation pickup    | [06-pickup-confirmation.png](docs/design/screenshots/06-pickup-confirmation.png) |
-| Admin verification queue    | [07-admin-verification.png](docs/design/screenshots/07-admin-verification.png)   |
+| # | Screen | File |
+| --- | --- | --- |
+| 1 | Landing page | [01-landing.jpeg](Docs/01-landing.jpeg) |
+| 2 | Registration — role selection (Step 1 of 3) | [02-registration.jpeg](Docs/02-registration.jpeg) |
+| 3 | Donor dashboard | [03-donor-dashboard.jpeg](Docs/03-donor-dashboard.jpeg) |
+| 4 | Post surplus food | [04-post-listing.jpeg](Docs/04-post-listing.jpeg) |
+| 5 | NGO dashboard & matched listings | [05-ngo-dashboard.jpeg](Docs/05-ngo-dashboard.jpeg) |
+| 6 | Pickup confirmed | [06-pickup-confirmation.jpeg](Docs/06-pickup-confirmation.jpeg) |
+| 7 | Admin verification queue | [07-admin-verification.jpeg](Docs/07-admin-verification.jpeg) |
 
 ---
 

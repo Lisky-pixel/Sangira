@@ -1,20 +1,20 @@
-import { Footer } from '@/components/landing/Footer'
-import { Header } from '@/components/landing/Header'
-import { Hero } from '@/components/landing/Hero'
-import { ImpactStats } from '@/components/landing/ImpactStats'
-import { ProcessSection } from '@/components/landing/ProcessSection'
-import { SectionDivider } from '@/components/landing/SectionDivider'
-import { TransparencySection } from '@/components/landing/TransparencySection'
+import { Footer } from '../components/layout/footer'
+import { PublicHeader } from '../components/layout/public-header'
+import {
+  HeroSection,
+  HowItWorksSection,
+  StatsSection,
+  TransparencySection,
+} from '../components/landing'
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-sangira-cream">
-      <Header />
-      <SectionDivider />
+    <div className="bg-cream flex min-h-screen flex-col font-sans">
+      <PublicHeader />
       <main>
-        <Hero />
-        <ProcessSection />
-        <ImpactStats />
+        <HeroSection />
+        <HowItWorksSection />
+        <StatsSection />
         <TransparencySection />
       </main>
       <Footer />

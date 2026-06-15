@@ -1,15 +1,22 @@
 export const ROUTES = {
   HOME: '/',
-  GET_STARTED: '/get-started',
+  GET_STARTED: '/register',
+  GET_STARTED_LEGACY: '/get-started',
   SIGN_IN: '/signin',
   REGISTER_DONOR: '/register?role=donor',
   REGISTER_NGO: '/register?role=ngo',
   REGISTER: '/register',
+  REGISTER_DETAILS: '/register/details',
+  REGISTER_DOCUMENTS: '/register/documents',
   PRIVACY: '/privacy',
   TERMS: '/terms',
   HELP: '/help',
   CONTACT: '/contact',
 } as const
+
+export function registerDetailsPath(role: 'donor' | 'ngo'): string {
+  return `${ROUTES.REGISTER_DETAILS}?role=${role}`
+}
 
 export const LANDING_SECTION_IDS = {
   HOW_IT_WORKS: 'how-it-works',
@@ -24,9 +31,9 @@ export const LANDING_ANCHORS = {
 } as const
 
 export const COMING_SOON_PATHS = [
-  ROUTES.GET_STARTED,
   ROUTES.SIGN_IN,
-  ROUTES.REGISTER,
+  ROUTES.REGISTER_DETAILS,
+  ROUTES.REGISTER_DOCUMENTS,
   ROUTES.PRIVACY,
   ROUTES.TERMS,
   ROUTES.HELP,

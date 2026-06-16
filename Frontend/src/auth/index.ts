@@ -1,0 +1,8 @@
+export { AuthProvider } from './AuthProvider'
+export { useAuth } from './use-auth'
+export { resolveVerificationRoute } from './verification-routes'
+export type { AuthSession, AuthState, AuthUser } from './types'
+export { RequireAuth } from './guards/require-auth'
+export { VerificationStatusGate } from './guards/verification-status-gate'
+export { RedirectIfAuthed } from './guards/redirect-if-authed'
+export { RequireVerification } from './guards/require-verification'

@@ -12,6 +12,8 @@ type PasswordFieldProps = {
   name: string
   label: string
   placeholder?: string
+  autoComplete?: string
+  showStrength?: boolean
 }
 
 function StrengthMeter({ score }: { score: PasswordStrengthScore }) {
@@ -36,6 +38,8 @@ export function PasswordField({
   name,
   label,
   placeholder,
+  autoComplete = 'new-password',
+  showStrength = true,
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false)
   const {
@@ -57,9 +61,15 @@ export function PasswordField({
           id={name}
           type={visible ? 'text' : 'password'}
           placeholder={placeholder}
-          autoComplete="new-password"
+          autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
-          aria-describedby={`${name}-strength${error ? ` ${name}-error` : ''}`}
+          aria-describedby={
+            showStrength
+              ? `${name}-strength${error ? ` ${name}-error` : ''}`
+              : error
+                ? `${name}-error`
+                : undefined
+          }
           className={cn(
             'border-border text-charcoal placeholder:text-status-neutral w-full rounded-lg border bg-white px-3 py-2.5 pr-10 text-sm',
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
@@ -84,10 +94,12 @@ export function PasswordField({
           )}
         </button>
       </div>
-      <div id={`${name}-strength`} className="flex flex-col gap-1.5">
-        <StrengthMeter score={strength.score} />
-        <p className="text-primary text-xs font-medium">{strength.label}</p>
-      </div>
+      {showStrength ? (
+        <div id={`${name}-strength`} className="flex flex-col gap-1.5">
+          <StrengthMeter score={strength.score} />
+          <p className="text-primary text-xs font-medium">{strength.label}</p>
+        </div>
+      ) : null}
       {error ? (
         <p id={`${name}-error`} className="text-clay-red text-sm">
           {error}

@@ -31,6 +31,11 @@
   --color-status-urgent: #dc2626;
   --color-status-neutral: #6b7280;
   --color-status-suspended: #a8a29e;
+
+  /* verification status chips */
+  --color-status-pending-bg: #fef3c7;
+  --color-status-pending-text: #b45309;
+  --color-status-pending-dot: #d97706;
 }
 
 @import 'tailwindcss';

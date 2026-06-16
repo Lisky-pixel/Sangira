@@ -8,5 +8,6 @@ export {
   landingTransparencyContent,
 } from './landing-content'
 export { landingImageAlt, landingImages } from './landing-images'
+export { pendingVerificationImages } from './pending-verification-images'
 export { placeholderLandingStats, type LandingStat } from './landing-stats'
 export { headerMinimalContent, registerStep1Content } from './register-content'

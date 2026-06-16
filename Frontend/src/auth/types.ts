@@ -1,5 +1,6 @@
 import type { AccountStatus } from '../constants/account-status'
 import type { VerificationStatus } from '../constants/verification-status'
+import type { VerificationDocumentLike } from '../lib/display-filename'
 
 export type AuthUser = {
   _id: string
@@ -11,6 +12,7 @@ export type AuthUser = {
   phone?: string
   verification?: {
     status?: VerificationStatus
+    documents?: VerificationDocumentLike[]
   }
   [key: string]: unknown
 }

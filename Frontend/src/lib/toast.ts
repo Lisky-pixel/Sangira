@@ -6,13 +6,24 @@ type ToastPromiseMessages<T> = {
   error: string | ((error: unknown) => string)
 }
 
+type ToastErrorOptions = {
+  action?: {
+    label: string
+    onClick: () => void
+  }
+}
+
 export const toast = {
-  success(message: string) {
-    return sonnerToast.success(message)
+  success(message: string, options?: { id?: string | number }) {
+    return sonnerToast.success(message, options)
   },
 
-  error(message: string) {
-    return sonnerToast.error(message)
+  error(message: string, options?: ToastErrorOptions & { id?: string | number }) {
+    return sonnerToast.error(message, options)
+  },
+
+  loading(message: string) {
+    return sonnerToast.loading(message)
   },
 
   promise<T>(promise: Promise<T>, messages: ToastPromiseMessages<T>) {

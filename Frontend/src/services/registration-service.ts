@@ -1,11 +1,15 @@
 import type { UserRole } from '../constants/registration-roles'
+import type { VerificationStatus } from '../constants/verification-status'
+import type { AuthUser } from '../auth/types'
 import type { RegistrationDocument } from '../features/registration/registration-reducer'
+import type { ApiEnvelope } from '../types/api'
+import { apiClient } from './api-client'
+import { unwrapApiResponse } from './api-response'
 
 export type RegistrationNgoPayload = {
   registrationNumber: string
   dailyCapacity: number
   transportAvailable: boolean
-  // TODO: sector (orphanage | shelter | community_centre) — unset at registration
 }
 
 export type RegistrationSubmitPayload = {
@@ -20,17 +24,32 @@ export type RegistrationSubmitPayload = {
 }
 
 export type RegistrationSubmitResponse = {
-  success: true
-  data: {
-    status: 'pending_review'
+  user: AuthUser
+  verificationStatus: VerificationStatus
+}
+
+function appendRegistrationFields(
+  formData: FormData,
+  payload: RegistrationSubmitPayload,
+) {
+  formData.append('role', payload.role)
+  formData.append('organisationName', payload.organisationName)
+  formData.append('contactName', payload.contactName)
+  formData.append('phone', payload.phone)
+  formData.append('email', payload.email)
+  formData.append('password', payload.password)
+  formData.append('document', payload.document)
+
+  if (payload.ngo) {
+    formData.append('registrationNumber', payload.ngo.registrationNumber)
+    formData.append('dailyCapacity', String(payload.ngo.dailyCapacity))
+    formData.append(
+      'transportAvailable',
+      String(payload.ngo.transportAvailable),
+    )
   }
 }
 
-/**
- * PLACEHOLDER — replace with real POST /auth/register (multipart) when the backend
- * slice ships. Backend hashes the password and uploads the document to Cloudinary;
- * do not upload from the client.
- */
 export async function submitRegistration(
   payload: RegistrationSubmitPayload,
 ): Promise<RegistrationSubmitResponse> {
@@ -42,16 +61,15 @@ export async function submitRegistration(
     throw new Error('Incomplete NGO registration payload')
   }
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1200)
-  })
+  const formData = new FormData()
+  appendRegistrationFields(formData, payload)
 
-  return {
-    success: true,
-    data: {
-      status: 'pending_review',
-    },
-  }
+  const response = await apiClient.post<ApiEnvelope<RegistrationSubmitResponse>>(
+    '/auth/register',
+    formData,
+  )
+
+  return unwrapApiResponse(response)
 }
 
 export function buildRegistrationSubmitPayload(state: {

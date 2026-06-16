@@ -31,7 +31,10 @@ import {
   type RegisterStep3NgoFormValues,
 } from '../../features/registration/register-step3-schema'
 import type { RegistrationDocument } from '../../features/registration/registration-reducer'
+import { resolveVerificationRoute, useAuth } from '../../auth'
+import { registrationConflictContent } from '../../placeholder/sign-in-content'
 import { registerStep3Content } from '../../placeholder/register-content'
+import { ApiError } from '../../services/api-error'
 import { toast } from '../../lib/toast'
 import { ROUTES } from '../../routes/paths'
 import {
@@ -54,6 +57,7 @@ type Step3SharedProps = {
 function useStep3Submit(role: UserRole) {
   const navigate = useNavigate()
   const { state, dispatch } = useRegistration()
+  const { establishSession } = useAuth()
 
   return async (ngoValues?: RegisterStep3NgoFormValues) => {
     if (!state.documents[0]) return
@@ -84,14 +88,35 @@ function useStep3Submit(role: UserRole) {
 
     if (!payload) return
 
-    await toast.promise(submitRegistration(payload), {
-      loading: registerStep3Content.submit.loading,
-      success: registerStep3Content.submit.success,
-      error: registerStep3Content.submit.error,
-    })
+    const loadingId = toast.loading(registerStep3Content.submit.loading)
 
-    dispatch({ type: 'RESET' })
-    navigate(ROUTES.REGISTER_PENDING)
+    try {
+      const data = await submitRegistration(payload)
+      toast.success(registerStep3Content.submit.success, { id: loadingId })
+
+      establishSession(
+        data.user,
+        data.verificationStatus,
+        data.user.accountStatus,
+      )
+      dispatch({ type: 'RESET' })
+      navigate(resolveVerificationRoute(data.verificationStatus), {
+        replace: true,
+      })
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'EMAIL_EXISTS') {
+        toast.error(registrationConflictContent.emailExists, {
+          id: loadingId,
+          action: {
+            label: registrationConflictContent.signInActionLabel,
+            onClick: () => navigate(registrationConflictContent.signInPath),
+          },
+        })
+        return
+      }
+
+      toast.error(registerStep3Content.submit.error, { id: loadingId })
+    }
   }
 }
 

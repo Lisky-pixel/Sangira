@@ -17,7 +17,9 @@ export function RedirectIfAuthed({ children }: RedirectIfAuthedProps) {
   if (state.status === 'authed') {
     return (
       <Navigate
-        to={resolveVerificationRoute(state.verificationStatus)}
+        to={resolveVerificationRoute(state.verificationStatus, {
+          role: state.user.role,
+        })}
         replace
       />
     )

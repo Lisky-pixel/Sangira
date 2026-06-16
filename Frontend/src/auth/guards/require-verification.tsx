@@ -23,7 +23,9 @@ export function RequireVerification({ children }: RequireVerificationProps) {
   if (state.verificationStatus !== VERIFICATION_STATUS.APPROVED) {
     return (
       <Navigate
-        to={resolveVerificationRoute(state.verificationStatus)}
+        to={resolveVerificationRoute(state.verificationStatus, {
+          role: state.user.role,
+        })}
         replace
       />
     )

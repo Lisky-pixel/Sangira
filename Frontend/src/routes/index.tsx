@@ -9,6 +9,8 @@ import { RegisterStep1Page } from '../pages/register/RegisterStep1Page'
 import { RegisterStep2Page } from '../pages/register/RegisterStep2Page'
 import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
 import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
+import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
+import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
 import { COMING_SOON_PATHS, ROUTES } from './paths'
 
 export const router = createBrowserRouter([
@@ -60,7 +62,38 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <VerificationStatusGate allowed={[VERIFICATION_STATUS.REJECTED]}>
-              {/* TEMPORARY — replace with S3b rejected screen */}
+              <RegisterRejectedPage />
+            </VerificationStatusGate>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: ROUTES.VERIFICATION_APPROVED,
+        element: (
+          <RequireAuth>
+            <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
+              <VerificationApprovedPage />
+            </VerificationStatusGate>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: ROUTES.DONOR_DASHBOARD,
+        element: (
+          <RequireAuth>
+            <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
+              {/* TEMPORARY — replace with donor portal dashboard */}
+              <ComingSoon />
+            </VerificationStatusGate>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: ROUTES.NGO_DASHBOARD,
+        element: (
+          <RequireAuth>
+            <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
+              {/* TEMPORARY — replace with NGO portal dashboard */}
               <ComingSoon />
             </VerificationStatusGate>
           </RequireAuth>

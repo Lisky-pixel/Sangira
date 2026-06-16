@@ -1,16 +1,42 @@
-import { FileText } from 'lucide-react'
+import { AlertCircle, Check, FileText } from 'lucide-react'
 import { pendingVerificationImages } from '../../placeholder/pending-verification-images'
 import { cn } from '../../lib/utils'
 
-type VerificationBannerProps = {
-  className?: string
+export type VerificationBannerVariant = 'pending' | 'rejected' | 'verified'
+
+const badgeConfig: Record<
+  VerificationBannerVariant,
+  { Icon: typeof FileText; className: string }
+> = {
+  pending: {
+    Icon: FileText,
+    className: 'text-primary size-7 sm:size-8',
+  },
+  rejected: {
+    Icon: AlertCircle,
+    className: 'text-clay-red size-7 sm:size-8',
+  },
+  verified: {
+    Icon: Check,
+    className: 'text-stat size-8 sm:size-9',
+  },
 }
 
-export function VerificationBanner({ className }: VerificationBannerProps) {
+type VerificationBannerProps = {
+  className?: string
+  variant?: VerificationBannerVariant
+}
+
+export function VerificationBanner({
+  className,
+  variant = 'pending',
+}: VerificationBannerProps) {
+  const { Icon, className: iconClassName } = badgeConfig[variant]
+
   return (
     <div
       className={cn(
-        'border-border relative overflow-hidden rounded-xl border bg-cream',
+        'border-border relative overflow-hidden bg-cream',
         className,
       )}
     >
@@ -23,7 +49,11 @@ export function VerificationBanner({ className }: VerificationBannerProps) {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex size-14 items-center justify-center rounded-full bg-white shadow-sm sm:size-16">
-          <FileText aria-hidden="true" className="text-primary size-7 sm:size-8" />
+          <Icon
+            aria-hidden="true"
+            className={iconClassName}
+            strokeWidth={variant === 'verified' ? 3 : 2}
+          />
         </div>
       </div>
     </div>

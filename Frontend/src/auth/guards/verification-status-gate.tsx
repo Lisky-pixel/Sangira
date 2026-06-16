@@ -27,7 +27,9 @@ export function VerificationStatusGate({
   if (!allowed.includes(state.verificationStatus)) {
     return (
       <Navigate
-        to={resolveVerificationRoute(state.verificationStatus)}
+        to={resolveVerificationRoute(state.verificationStatus, {
+          role: state.user.role,
+        })}
         replace
       />
     )

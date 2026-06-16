@@ -36,9 +36,14 @@ function SignInForm() {
     try {
       const session = await login(values.email, values.password)
       toast.success(signInContent.toast.success)
-      navigate(resolveVerificationRoute(session.verificationStatus), {
-        replace: true,
-      })
+      navigate(
+        resolveVerificationRoute(session.verificationStatus, {
+          role: session.user.role,
+        }),
+        {
+          replace: true,
+        },
+      )
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.code === 'INVALID_CREDENTIALS') {

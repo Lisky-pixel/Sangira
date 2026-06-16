@@ -36,6 +36,13 @@
   --color-status-pending-bg: #fef3c7;
   --color-status-pending-text: #b45309;
   --color-status-pending-dot: #d97706;
+  --color-status-rejected-bg: #fef2f2;
+  --color-status-rejected-text: #c0452e;
+  --color-status-rejected-dot: #dc2626;
+  --color-rejection-card-border: #fecaca;
+  --color-status-verified-bg: #ecf6ee;
+  --color-status-verified-text: #1f7a44;
+  --color-status-verified-dot: #16a34a;
 }
 
 @import 'tailwindcss';

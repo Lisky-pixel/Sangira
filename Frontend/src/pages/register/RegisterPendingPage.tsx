@@ -11,28 +11,12 @@ import { SUPPORT } from '../../constants/pending-verification'
 import { isUserRole } from '../../constants/registration-roles'
 import { useAuth } from '../../auth'
 import { useVerificationPoll } from '../../hooks/use-verification-poll'
+import {
+  getLatestVerificationDocument,
+  stateIsAuthed,
+} from '../../lib/verification-user'
 import { maskPhone } from '../../lib/mask-phone'
 import { pendingVerificationContent } from '../../placeholder/pending-verification-content'
-
-function getLatestDocument(user: ReturnType<typeof useAuth>['state']) {
-  if (stateIsAuthed(user)) {
-    const documents = user.user.verification?.documents
-
-    if (!documents?.length) {
-      return null
-    }
-
-    return documents[documents.length - 1]
-  }
-
-  return null
-}
-
-function stateIsAuthed(
-  state: ReturnType<typeof useAuth>['state'],
-): state is Extract<typeof state, { status: 'authed' }> {
-  return state.status === 'authed'
-}
 
 export function RegisterPendingPage() {
   const { state, logout } = useAuth()
@@ -45,7 +29,7 @@ export function RegisterPendingPage() {
 
   const { user } = state
   const maskedPhone = maskPhone(user.phone ?? '')
-  const latestDocument = getLatestDocument(state)
+  const latestDocument = getLatestVerificationDocument(user)
   const role = isUserRole(user.role) ? user.role : 'donor'
 
   return (

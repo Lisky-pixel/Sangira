@@ -100,9 +100,14 @@ function useStep3Submit(role: UserRole) {
         data.user.accountStatus,
       )
       dispatch({ type: 'RESET' })
-      navigate(resolveVerificationRoute(data.verificationStatus), {
-        replace: true,
-      })
+      navigate(
+        resolveVerificationRoute(data.verificationStatus, {
+          role: data.user.role,
+        }),
+        {
+          replace: true,
+        },
+      )
     } catch (error) {
       if (error instanceof ApiError && error.code === 'EMAIL_EXISTS') {
         toast.error(registrationConflictContent.emailExists, {

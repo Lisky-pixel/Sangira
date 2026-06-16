@@ -1,36 +1,49 @@
 import { cn } from '../../lib/utils'
+import { approvedVerificationContent } from '../../placeholder/approved-verification-content'
 import { pendingVerificationContent } from '../../placeholder/pending-verification-content'
+import { rejectedVerificationContent } from '../../placeholder/rejected-verification-content'
 
-export type StatusChipVariant = 'pending'
+export type StatusChipVariant = 'pending' | 'rejected' | 'verified'
 
 type StatusChipProps = {
   status: StatusChipVariant
   className?: string
 }
 
-const pendingStyles = {
-  container: 'bg-status-pending-bg text-status-pending-text',
-  dot: 'bg-status-pending-dot',
+const variantStyles = {
+  pending: {
+    container: 'bg-status-pending-bg text-status-pending-text',
+    dot: 'bg-status-pending-dot',
+    label: pendingVerificationContent.statusChipLabel,
+  },
+  rejected: {
+    container: 'bg-status-rejected-bg text-status-rejected-text',
+    dot: 'bg-status-rejected-dot',
+    label: rejectedVerificationContent.statusChipLabel,
+  },
+  verified: {
+    container: 'bg-status-verified-bg text-status-verified-text',
+    dot: 'bg-status-verified-dot',
+    label: approvedVerificationContent.statusChipLabel,
+  },
 } as const
 
 export function StatusChip({ status, className }: StatusChipProps) {
-  if (status === 'pending') {
-    return (
-      <span
-        className={cn(
-          'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-          pendingStyles.container,
-          className,
-        )}
-      >
-        <span
-          aria-hidden="true"
-          className={cn('size-1.5 shrink-0 rounded-full', pendingStyles.dot)}
-        />
-        {pendingVerificationContent.statusChipLabel}
-      </span>
-    )
-  }
+  const styles = variantStyles[status]
 
-  return null
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+        styles.container,
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cn('size-1.5 shrink-0 rounded-full', styles.dot)}
+      />
+      {styles.label}
+    </span>
+  )
 }

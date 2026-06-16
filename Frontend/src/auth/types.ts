@@ -12,6 +12,8 @@ export type AuthUser = {
   phone?: string
   verification?: {
     status?: VerificationStatus
+    reason?: string
+    reviewedAt?: string | Date
     documents?: VerificationDocumentLike[]
   }
   [key: string]: unknown

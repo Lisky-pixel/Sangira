@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils'
 
 type HeaderMinimalProps = {
   className?: string
-  variant?: 'default' | 'authed'
+  variant?: 'default' | 'authed' | 'help-only'
   onSignOut?: () => void
 }
 
@@ -15,6 +15,8 @@ export function HeaderMinimal({
   variant = 'default',
   onSignOut,
 }: HeaderMinimalProps) {
+  const showHelpOnly = variant === 'default' || variant === 'help-only'
+
   return (
     <header className={cn('border-b border-border bg-cream', className)}>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -41,14 +43,14 @@ export function HeaderMinimal({
               {pendingVerificationContent.signOutLabel}
             </button>
           </div>
-        ) : (
+        ) : showHelpOnly ? (
           <Link
             to={ROUTES.HELP}
             className="text-body hover:text-primary shrink-0 text-sm transition-colors"
           >
             {headerMinimalContent.needHelpLabel}
           </Link>
-        )}
+        ) : null}
       </div>
     </header>
   )

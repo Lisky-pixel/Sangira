@@ -10,6 +10,11 @@ export const ROUTES = {
   REGISTER_DOCUMENTS: '/register/documents',
   REGISTER_PENDING: '/register/pending',
   REGISTER_REJECTED: '/register/rejected',
+  VERIFICATION_APPROVED: '/verified',
+  /** TEMPORARY — donor portal until dashboard slice ships */
+  DONOR_DASHBOARD: '/portal/donor',
+  /** TEMPORARY — NGO portal until dashboard slice ships */
+  NGO_DASHBOARD: '/portal/ngo',
   PRIVACY: '/privacy',
   TERMS: '/terms',
   HELP: '/help',

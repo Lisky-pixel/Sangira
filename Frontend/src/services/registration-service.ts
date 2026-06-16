@@ -3,6 +3,7 @@ import type { VerificationStatus } from '../constants/verification-status'
 import type { AuthUser } from '../auth/types'
 import type { RegistrationDocument } from '../features/registration/registration-reducer'
 import type { ApiEnvelope } from '../types/api'
+import { normalizePhone } from '../constants/phone'
 import { apiClient } from './api-client'
 import { unwrapApiResponse } from './api-response'
 
@@ -90,11 +91,16 @@ export function buildRegistrationSubmitPayload(state: {
     return null
   }
 
+  const normalizedPhone = normalizePhone(state.phone)
+  if (!normalizedPhone) {
+    return null
+  }
+
   const payload: RegistrationSubmitPayload = {
     role: state.role,
     organisationName: state.organisationName,
     contactName: state.contactName,
-    phone: state.phone,
+    phone: normalizedPhone,
     email: state.email,
     password: state.password,
     document: document.file,

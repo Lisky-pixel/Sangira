@@ -1,9 +1,50 @@
-export const DEFAULT_COUNTRY_CODE = '+250'
+export const COUNTRY_CODE = '+250' as const
+export const DEFAULT_COUNTRY = 'RW' as const
 
-/** Rwanda-specific: 9-digit mobile numbers (leading 7). // TODO: multi-country support */
-export const RWANDA_MOBILE_DIGIT_COUNT = 9
+/** Rwanda-specific: 9-digit mobile numbers (leading 7). */
 export const RWANDA_MOBILE_REGEX = /^7\d{8}$/
+
+export const RWANDA_MOBILE_DIGIT_COUNT = 9
 
 export function normalizePhoneDigits(value: string): string {
   return value.replace(/\D/g, '').slice(0, RWANDA_MOBILE_DIGIT_COUNT)
+}
+
+function stripSeparators(input: string) {
+  return input.trim().replace(/[\s()-]/g, '')
+}
+
+/**
+ * Converts common Rwanda phone inputs into canonical E.164.
+ *
+ * Returns "+250" + 9 digits, or null if invalid.
+ */
+export function normalizePhone(input: string): string | null {
+  const raw = stripSeparators(input)
+  if (!raw) return null
+
+  let national: string | undefined
+
+  if (raw.startsWith(COUNTRY_CODE)) {
+    national = raw.slice(COUNTRY_CODE.length)
+  } else if (raw.startsWith('250')) {
+    national = raw.slice(3)
+  } else if (raw.startsWith('0')) {
+    national = raw.slice(1)
+  } else if (/^\d{9}$/.test(raw)) {
+    national = raw
+  } else {
+    return null
+  }
+
+  if (!national || !/^\d{9}$/.test(national)) return null
+
+  return `${COUNTRY_CODE}${national}`
+}
+
+export function isValidRwandanMobile(input: string): boolean {
+  const normalized = normalizePhone(input)
+  if (!normalized) return false
+  const national = normalized.slice(COUNTRY_CODE.length)
+  return RWANDA_MOBILE_REGEX.test(national)
 }

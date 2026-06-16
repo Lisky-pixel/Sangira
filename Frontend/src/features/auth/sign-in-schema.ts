@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { signInContent } from '../../placeholder/sign-in-content'
 
 export const signInSchema = z.object({
-  email: z.string().email(signInContent.validation.emailInvalid),
+  identifier: z.string().min(1, signInContent.validation.emailInvalid),
   password: z.string().min(1, signInContent.validation.passwordRequired),
 })
 

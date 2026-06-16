@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form'
 import {
-  DEFAULT_COUNTRY_CODE,
+  COUNTRY_CODE,
   normalizePhoneDigits,
 } from '../../constants/phone'
 import { cn } from '../../lib/utils'
@@ -31,7 +31,7 @@ export function PhoneField({
       </label>
       <div className="flex overflow-hidden rounded-lg border border-border focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
         <span className="bg-sand text-charcoal border-border flex items-center border-r px-3 py-2.5 text-sm font-medium">
-          {DEFAULT_COUNTRY_CODE}
+          {COUNTRY_CODE}
         </span>
         <Controller
           name={name}

@@ -25,7 +25,7 @@ function SignInForm() {
     resolver: zodResolver(signInSchema),
     mode: 'onBlur',
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
   })
@@ -34,7 +34,7 @@ function SignInForm() {
     setFormError(null)
 
     try {
-      const session = await login(values.email, values.password)
+      const session = await login(values.identifier, values.password)
       toast.success(signInContent.toast.success)
       navigate(
         resolveVerificationRoute(session.verificationStatus, {
@@ -79,8 +79,7 @@ function SignInForm() {
 
         <div className="flex flex-col gap-5">
           <TextField
-            name="email"
-            type="email"
+            name="identifier"
             label={signInContent.fields.email.label}
             placeholder={signInContent.fields.email.placeholder}
             autoComplete="email"

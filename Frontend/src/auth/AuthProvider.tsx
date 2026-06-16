@@ -75,8 +75,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [clearSession])
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      const data = await authService.login(email, password)
+    async (identifier: string, password: string) => {
+      const data = await authService.login(identifier, password)
       const session = toSession(data.user, data.verificationStatus)
 
       if (

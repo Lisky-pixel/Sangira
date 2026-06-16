@@ -25,10 +25,10 @@ export const authService = {
     return unwrapApiResponse(response)
   },
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(identifier: string, password: string): Promise<LoginResponse> {
     const response = await apiClient.post<ApiEnvelope<LoginResponse>>(
       '/auth/login',
-      { email, password },
+      { identifier, password },
       { skipAuthRefresh: true },
     )
 

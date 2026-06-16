@@ -1,4 +1,4 @@
-import { DEFAULT_COUNTRY_CODE } from '../constants/phone'
+import { COUNTRY_CODE } from '../constants/phone'
 
 /**
  * Masks a Rwanda mobile number for display — never shows full digits.
@@ -6,7 +6,7 @@ import { DEFAULT_COUNTRY_CODE } from '../constants/phone'
  */
 export function maskPhone(
   phone: string,
-  countryCode: string = DEFAULT_COUNTRY_CODE,
+  countryCode: string = COUNTRY_CODE,
 ): string {
   const digits = phone.replace(/\D/g, '').slice(-9)
 

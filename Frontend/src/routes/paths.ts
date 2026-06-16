@@ -8,6 +8,7 @@ export const ROUTES = {
   REGISTER: '/register',
   REGISTER_DETAILS: '/register/details',
   REGISTER_DOCUMENTS: '/register/documents',
+  REGISTER_PENDING: '/register/pending',
   PRIVACY: '/privacy',
   TERMS: '/terms',
   HELP: '/help',
@@ -28,6 +29,7 @@ export const LANDING_ANCHORS = {
 
 export const COMING_SOON_PATHS = [
   ROUTES.SIGN_IN,
+  ROUTES.REGISTER_PENDING,
   ROUTES.PRIVACY,
   ROUTES.TERMS,
   ROUTES.HELP,

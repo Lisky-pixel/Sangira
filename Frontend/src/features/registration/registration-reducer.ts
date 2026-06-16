@@ -1,8 +1,9 @@
 import type { UserRole } from '../../constants/registration-roles'
 
 export type RegistrationDocument = {
-  id: string
-  name: string
+  file: File
+  filename: string
+  size: number
 }
 
 export type RegistrationState = {
@@ -33,7 +34,7 @@ export type RegistrationDetailsPayload = Pick<
 export type RegistrationAction =
   | { type: 'SET_ROLE'; role: UserRole }
   | { type: 'SET_DETAILS'; payload: RegistrationDetailsPayload }
-  | { type: 'SET_DOCUMENTS'; documents: RegistrationDocument[] }
+  | { type: 'SET_DOCUMENT'; document: RegistrationDocument | null }
   | { type: 'RESET' }
 
 export function registrationReducer(
@@ -45,8 +46,11 @@ export function registrationReducer(
       return { ...state, role: action.role }
     case 'SET_DETAILS':
       return { ...state, ...action.payload }
-    case 'SET_DOCUMENTS':
-      return { ...state, documents: action.documents }
+    case 'SET_DOCUMENT':
+      return {
+        ...state,
+        documents: action.document ? [action.document] : [],
+      }
     case 'RESET':
       return initialRegistrationState
     default:

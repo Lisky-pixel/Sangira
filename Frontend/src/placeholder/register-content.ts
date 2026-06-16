@@ -1,3 +1,5 @@
+import type { UserRole } from '../constants/registration-roles'
+
 export const headerMinimalContent = {
   brand: 'Sangira',
   needHelpLabel: 'Need help?',
@@ -12,7 +14,7 @@ export const registerStep1Content = {
   heading: 'Who are you registering as?',
   continueLabel: 'Continue',
   alreadyRegisteredPrefix: 'Already registered?',
-  signInLink: 'Sign in',
+  signInLabel: 'Sign in',
   reassurance: [
     {
       icon: 'shield' as const,
@@ -66,10 +68,48 @@ export const registerStep2Content = {
 } as const
 
 export const registerStep3Content = {
-  heading: 'Document upload',
-  subcopy: 'Step 3 — verification documents will be collected here.',
-  placeholderNote: 'Coming soon — document upload and final submission.',
+  copyByRole: {
+    donor: {
+      heading: 'Upload your business certificate',
+      description:
+        'Sangira verifies every organisation before activation. Upload a clear photo or PDF of your business registration certificate (max 5 MB).',
+    },
+    ngo: {
+      heading: 'Upload your registration certificate',
+      // TODO: confirm NGO wording with product/design
+      description:
+        'Sangira verifies every organisation before activation. Upload a clear photo or PDF of your NGO registration certificate (max 5 MB).',
+      // TODO: confirm NGO copy with product/design
+    },
+  },
+  slaBanner: 'Most reviews are completed within 2 business days.',
+  confirmationLabel:
+    'I confirm this document is current and belongs to my organisation',
+  submitLabel: 'Submit for verification',
+  dropzone: {
+    ariaLabel: 'Upload verification document',
+    prompt: 'Click to upload or drag and drop',
+    hint: (acceptedLabel: string, maxSizeMb: number) =>
+      `${acceptedLabel} (max ${maxSizeMb} MB)`,
+  },
+  uploadedFile: {
+    readyLabel: 'Ready to submit',
+    replaceLabel: 'Replace',
+  },
+  validation: {
+    invalidType: (acceptedLabel: string) => `File must be ${acceptedLabel}`,
+    tooLarge: (maxSizeMb: number) => `File must be under ${maxSizeMb} MB`,
+  },
+  submit: {
+    loading: 'Submitting for verification…',
+    success: 'Submitted — your organisation is pending review',
+    error: 'Something went wrong, please try again.',
+  },
 } as const
+
+export function getRegisterStep3Copy(role: UserRole) {
+  return registerStep3Content.copyByRole[role]
+}
 
 export const passwordStrengthLabels = {
   weak: 'Weak',

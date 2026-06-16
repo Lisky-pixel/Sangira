@@ -51,7 +51,7 @@ export function RegisterStep1Page() {
           to={ROUTES.SIGN_IN}
           className="text-primary font-medium hover:underline"
         >
-          {registerStep1Content.signInLink}
+          {registerStep1Content.signInLabel}
         </Link>
       </p>
     </>

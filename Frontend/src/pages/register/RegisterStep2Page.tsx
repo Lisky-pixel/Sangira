@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Info } from 'lucide-react'
+import { InfoBanner } from '../../components/ui/info-banner'
 import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -106,15 +106,9 @@ export function RegisterStep2Page() {
         </form>
       </FormProvider>
 
-      <div className="bg-sand mt-6 flex items-start gap-3 rounded-lg p-4">
-        <Info
-          aria-hidden="true"
-          className="text-primary mt-0.5 size-4 shrink-0"
-        />
-        <p className="text-body text-sm leading-relaxed">
-          {registerStep2Content.infoBanner}
-        </p>
-      </div>
+      <InfoBanner variant="neutral" className="mt-6">
+        {registerStep2Content.infoBanner}
+      </InfoBanner>
     </>
   )
 }

@@ -1,12 +1,12 @@
 import { ROUTES } from '../routes/paths'
 
 export const signInContent = {
-  heading: 'Sign in',
-  subcopy: 'Access your Sangira account to manage food redistribution.',
+  heading: 'Welcome back',
+  subcopy: 'Please enter your details to sign in.',
   fields: {
-    email: {
-      label: 'Email',
-      placeholder: 'you@organisation.rw',
+    identifier: {
+      label: 'Phone or email',
+      placeholder: 'e.g. +250 or name@gmail.com',
     },
     password: {
       label: 'Password',
@@ -14,14 +14,22 @@ export const signInContent = {
     },
   },
   submitLabel: 'Sign in',
-  newHerePrefix: 'New here?',
-  getStartedLabel: 'Get started',
+  forgotPasswordLabel: 'Forgot password?',
+  forgotPasswordSubcopy: "We'll send a reset code by Email",
+  orLabel: 'OR',
+  registerLabel: 'Register your organisation',
+  links: {
+    privacy: 'Privacy Policy',
+    help: 'Help Center',
+    contact: 'Contact Us',
+  },
   validation: {
-    emailInvalid: 'Enter a valid email address',
+    identifierInvalid: 'Enter a valid email or Rwanda mobile number',
+    identifierRequired: 'Phone or email is required',
     passwordRequired: 'Password is required',
   },
   errors: {
-    invalidCredentials: 'Invalid email or password',
+    invalidCredentials: 'Invalid email/phone or password',
     accountBlocked:
       'This account has been suspended or revoked. Contact support if you believe this is a mistake.',
   },

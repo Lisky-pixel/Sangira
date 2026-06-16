@@ -14,6 +14,7 @@ import {
   forbidden,
   unauthorized,
   badRequest,
+  ValidationAppError,
 } from '../utils/app-error.js'
 import { resolveStoredDocumentFilename } from '../constants/verification-documents.js'
 import { refreshTokenMaxAgeMs } from '../utils/duration.js'
@@ -24,6 +25,7 @@ import {
   signAccessToken,
 } from '../utils/tokens.js'
 import { buildVerificationDocumentEntry } from '../utils/verification-document.js'
+import { normalizePhone } from '../utils/phone.js'
 import type { LoginInput, RegisterInput } from '../validators/auth.js'
 
 /** Bcrypt hash for a dummy password — used when email is unknown to reduce timing leaks */
@@ -85,6 +87,13 @@ export async function registerUser(
   req: Request,
 ) {
   const email = input.email.toLowerCase().trim()
+  const normalizedPhone = normalizePhone(input.phone)
+  if (!normalizedPhone) {
+    throw new ValidationAppError(
+      { phone: 'Enter a valid Rwanda mobile number' },
+      'Validation failed',
+    )
+  }
 
   const existing = await User.findOne({ email }).select('_id')
   if (existing) {
@@ -128,7 +137,7 @@ export async function registerUser(
         role: ROLES.DONOR,
         organisationName: input.organisationName.trim(),
         contactName: input.contactName.trim(),
-        phone: input.phone.trim(),
+        phone: normalizedPhone,
         businessCertificateUrl: upload.url,
         verification,
       })
@@ -143,7 +152,7 @@ export async function registerUser(
       role: ROLES.NGO,
       organisationName: input.organisationName.trim(),
       contactName: input.contactName.trim(),
-      phone: input.phone.trim(),
+      phone: normalizedPhone,
       registrationNumber: input.registrationNumber.trim(),
       dailyCapacity: input.dailyCapacity,
       transportAvailable: input.transportAvailable,
@@ -164,14 +173,19 @@ export async function registerUser(
 }
 
 export async function loginUser(input: LoginInput, req: Request) {
-  const email = input.email.toLowerCase().trim()
-  const user = await User.findOne({ email }).select('+passwordHash')
+  const identifier = input.identifier.trim()
+  const query =
+    identifier.includes('@')
+      ? { email: identifier.toLowerCase() }
+      : { phone: normalizePhone(identifier) ?? '__invalid__' }
+
+  const user = await User.findOne(query).select('+passwordHash')
 
   const passwordHash = user?.passwordHash ?? DUMMY_PASSWORD_HASH
   const passwordValid = await bcrypt.compare(input.password, passwordHash)
 
   if (!user || !passwordValid) {
-    throw unauthorized('Invalid email or password', 'INVALID_CREDENTIALS')
+    throw unauthorized('Invalid credentials', 'INVALID_CREDENTIALS')
   }
 
   if (

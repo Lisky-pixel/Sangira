@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ROLES } from '../constants/enums.js'
 import { DAILY_CAPACITY_MIN } from '../constants/ngo-registration.js'
-import { RWANDA_MOBILE_REGEX } from '../constants/phone.js'
+import { isValidRwandanMobile } from '../utils/phone.js'
 import { isModerateOrStrongPassword } from '../utils/password-strength.js'
 
 const passwordSchema = z
@@ -20,7 +20,7 @@ const registerBaseSchema = z.object({
   phone: z
     .string()
     .min(1, 'Phone number is required')
-    .regex(RWANDA_MOBILE_REGEX, 'Enter a valid Rwanda mobile number'),
+    .refine(isValidRwandanMobile, 'Enter a valid Rwanda mobile number'),
   email: z.string().email('Enter a valid email address'),
   password: passwordSchema,
 })
@@ -50,7 +50,7 @@ export const registerSchema = z.discriminatedUnion('role', [
 export type RegisterInput = z.infer<typeof registerSchema>
 
 export const loginSchema = z.object({
-  email: z.string().email('Enter a valid email address'),
+  identifier: z.string().min(1, 'Email or phone is required'),
   password: z.string().min(1, 'Password is required'),
 })
 

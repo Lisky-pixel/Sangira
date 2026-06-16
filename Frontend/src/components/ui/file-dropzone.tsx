@@ -14,6 +14,8 @@ type FileDropzoneProps = {
   onFileAccepted: (file: File) => void
   inputRef?: RefObject<HTMLInputElement | null>
   className?: string
+  promptText?: string
+  hintText?: string
 }
 
 function showValidationError(reason: 'type' | 'size') {
@@ -38,6 +40,11 @@ export function FileDropzone({
   onFileAccepted,
   inputRef: externalInputRef,
   className,
+  promptText = registerStep3Content.copyByRole.donor.dropzonePrompt,
+  hintText = registerStep3Content.copyByRole.donor.dropzoneHint(
+    ACCEPTED_DOCUMENT_LABEL,
+    MAX_DOCUMENT_SIZE_MB,
+  ),
 }: FileDropzoneProps) {
   const internalInputRef = useRef<HTMLInputElement>(null)
   const inputRef = externalInputRef ?? internalInputRef
@@ -109,15 +116,8 @@ export function FileDropzone({
           <FileUp aria-hidden="true" className="size-5" />
         </div>
         <div className="text-center">
-          <p className="text-charcoal text-sm font-medium">
-            {registerStep3Content.dropzone.prompt}
-          </p>
-          <p className="text-body mt-1 text-xs">
-            {registerStep3Content.dropzone.hint(
-              ACCEPTED_DOCUMENT_LABEL,
-              MAX_DOCUMENT_SIZE_MB,
-            )}
-          </p>
+          <p className="text-charcoal text-sm font-medium">{promptText}</p>
+          <p className="text-body mt-1 text-xs">{hintText}</p>
         </div>
       </div>
     </div>

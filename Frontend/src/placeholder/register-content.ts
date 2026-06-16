@@ -71,16 +71,28 @@ export const registerStep3Content = {
   copyByRole: {
     donor: {
       heading: 'Upload your business certificate',
-      description:
+      uploadLabel: null,
+      uploadDescription:
         'Sangira verifies every organisation before activation. Upload a clear photo or PDF of your business registration certificate (max 5 MB).',
+      dropzonePrompt: 'Click to upload or drag and drop',
+      dropzoneHint: (acceptedLabel: string, maxSizeMb: number) =>
+        `${acceptedLabel} (max ${maxSizeMb} MB)`,
+      slaBannerPosition: 'above-dropzone' as const,
     },
     ngo: {
-      heading: 'Upload your registration certificate',
-      // TODO: confirm NGO wording with product/design
-      description:
-        'Sangira verifies every organisation before activation. Upload a clear photo or PDF of your NGO registration certificate (max 5 MB).',
-      // TODO: confirm NGO copy with product/design
+      heading: 'Verify your organisation',
+      uploadLabel: 'Proof of organisational registration',
+      uploadDescription:
+        'Sangira verifies every organisation before activation. Upload a clear photo or PDF of your registration certificate (max 5 MB).',
+      dropzonePrompt: 'Drop file here or click to browse',
+      dropzoneHint: 'PNG, JPG, or PDF up to 5MB',
+      slaBannerPosition: 'below-submit' as const,
     },
+  },
+  ngoFields: {
+    registrationNumberLabel: 'Organisational registration number',
+    dailyCapacityLabel: 'Daily intake capacity',
+    transportLabel: 'We have our own transport',
   },
   slaBanner: 'Most reviews are completed within 2 business days.',
   confirmationLabel:
@@ -88,9 +100,6 @@ export const registerStep3Content = {
   submitLabel: 'Submit for verification',
   dropzone: {
     ariaLabel: 'Upload verification document',
-    prompt: 'Click to upload or drag and drop',
-    hint: (acceptedLabel: string, maxSizeMb: number) =>
-      `${acceptedLabel} (max ${maxSizeMb} MB)`,
   },
   uploadedFile: {
     readyLabel: 'Ready to submit',
@@ -99,12 +108,23 @@ export const registerStep3Content = {
   validation: {
     invalidType: (acceptedLabel: string) => `File must be ${acceptedLabel}`,
     tooLarge: (maxSizeMb: number) => `File must be under ${maxSizeMb} MB`,
+    confirmationRequired: 'Please confirm your document is current',
+    registrationNumberRequired:
+      'Organisational registration number is required',
+    dailyCapacityMin: 'Daily intake capacity must be zero or greater',
   },
   submit: {
     loading: 'Submitting for verification…',
     success: 'Submitted — your organisation is pending review',
     error: 'Something went wrong, please try again.',
   },
+} as const
+
+export const numberStepperContent = {
+  decreaseLabel: 'Decrease value',
+  increaseLabel: 'Increase value',
+  ariaLabel: (label: string, value: number, unitLabel: string) =>
+    `${label}: ${value} ${unitLabel}`,
 } as const
 
 export function getRegisterStep3Copy(role: UserRole) {

@@ -1,6 +1,13 @@
 import type { UserRole } from '../constants/registration-roles'
 import type { RegistrationDocument } from '../features/registration/registration-reducer'
 
+export type RegistrationNgoPayload = {
+  registrationNumber: string
+  dailyCapacity: number
+  transportAvailable: boolean
+  // TODO: sector (orphanage | shelter | community_centre) — unset at registration
+}
+
 export type RegistrationSubmitPayload = {
   role: UserRole
   organisationName: string
@@ -9,6 +16,7 @@ export type RegistrationSubmitPayload = {
   email: string
   password: string
   document: File
+  ngo?: RegistrationNgoPayload
 }
 
 export type RegistrationSubmitResponse = {
@@ -29,6 +37,11 @@ export async function submitRegistration(
   if (!payload.document || !payload.role) {
     throw new Error('Incomplete registration payload')
   }
+
+  if (payload.role === 'ngo' && !payload.ngo?.registrationNumber) {
+    throw new Error('Incomplete NGO registration payload')
+  }
+
   await new Promise((resolve) => {
     setTimeout(resolve, 1200)
   })
@@ -49,6 +62,9 @@ export function buildRegistrationSubmitPayload(state: {
   email: string
   password: string
   documents: RegistrationDocument[]
+  registrationNumber: string
+  dailyCapacity: number
+  transportAvailable: boolean
 }): RegistrationSubmitPayload | null {
   const document = state.documents[0]
 
@@ -56,7 +72,7 @@ export function buildRegistrationSubmitPayload(state: {
     return null
   }
 
-  return {
+  const payload: RegistrationSubmitPayload = {
     role: state.role,
     organisationName: state.organisationName,
     contactName: state.contactName,
@@ -65,4 +81,14 @@ export function buildRegistrationSubmitPayload(state: {
     password: state.password,
     document: document.file,
   }
+
+  if (state.role === 'ngo') {
+    payload.ngo = {
+      registrationNumber: state.registrationNumber,
+      dailyCapacity: state.dailyCapacity,
+      transportAvailable: state.transportAvailable,
+    }
+  }
+
+  return payload
 }

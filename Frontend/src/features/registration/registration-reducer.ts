@@ -14,6 +14,10 @@ export type RegistrationState = {
   email: string
   password: string
   documents: RegistrationDocument[]
+  registrationNumber: string
+  dailyCapacity: number
+  transportAvailable: boolean
+  // TODO: NGO sector (orphanage | shelter | community_centre) — unset at registration
 }
 
 export const initialRegistrationState: RegistrationState = {
@@ -24,6 +28,9 @@ export const initialRegistrationState: RegistrationState = {
   email: '',
   password: '',
   documents: [],
+  registrationNumber: '',
+  dailyCapacity: 0,
+  transportAvailable: false,
 }
 
 export type RegistrationDetailsPayload = Pick<
@@ -31,10 +38,16 @@ export type RegistrationDetailsPayload = Pick<
   'organisationName' | 'contactName' | 'phone' | 'email' | 'password'
 >
 
+export type RegistrationNgoFieldsPayload = Pick<
+  RegistrationState,
+  'registrationNumber' | 'dailyCapacity' | 'transportAvailable'
+>
+
 export type RegistrationAction =
   | { type: 'SET_ROLE'; role: UserRole }
   | { type: 'SET_DETAILS'; payload: RegistrationDetailsPayload }
   | { type: 'SET_DOCUMENT'; document: RegistrationDocument | null }
+  | { type: 'SET_NGO_FIELDS'; payload: RegistrationNgoFieldsPayload }
   | { type: 'RESET' }
 
 export function registrationReducer(
@@ -51,6 +64,8 @@ export function registrationReducer(
         ...state,
         documents: action.document ? [action.document] : [],
       }
+    case 'SET_NGO_FIELDS':
+      return { ...state, ...action.payload }
     case 'RESET':
       return initialRegistrationState
     default:

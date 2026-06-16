@@ -14,12 +14,11 @@ import { COOKIE_NAMES } from '../constants/auth.js'
 
 export const authRouter = Router()
 
-authRouter.use(strictRateLimiter)
-
 authRouter.get('/csrf', authController.csrf)
 
 authRouter.post(
   '/register',
+  strictRateLimiter,
   csrfGuard,
   uploadCertificateMiddleware,
   requireCertificateFile,
@@ -29,12 +28,13 @@ authRouter.post(
 
 authRouter.post(
   '/login',
+  strictRateLimiter,
   csrfGuard,
   validateBody(loginSchema),
   authController.login,
 )
 
-authRouter.post('/refresh', csrfGuard, async (req, res, next) => {
+authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next) => {
   const refreshToken = req.cookies?.[COOKIE_NAMES.REFRESH_TOKEN]
   if (!refreshToken) {
     return next(unauthorized('Invalid refresh token', 'INVALID_REFRESH_TOKEN'))
@@ -42,6 +42,6 @@ authRouter.post('/refresh', csrfGuard, async (req, res, next) => {
   return authController.refresh(req, res, next)
 })
 
-authRouter.post('/logout', csrfGuard, authController.logout)
+authRouter.post('/logout', strictRateLimiter, csrfGuard, authController.logout)
 
 authRouter.get('/me', requireAuth, authController.me)

@@ -20,6 +20,7 @@ export type IUser = {
   email: string
   passwordHash: string
   role: Role
+  phone?: string
   accountStatus: string
   notificationPrefs: NotificationPrefs
   createdAt: Date
@@ -63,6 +64,20 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: String,
       required: true,
       enum: Object.values(ROLES),
+    },
+    phone: {
+      type: String,
+      trim: true,
+      sparse: true,
+      unique: true,
+      required(this: { role?: string }) {
+        return this.role !== ROLES.ADMIN
+      },
+      set: (value: string) => normalizePhone(value) ?? value,
+      validate: {
+        validator: (value: string) => normalizePhone(value) !== null,
+        message: 'Invalid phone number',
+      },
     },
     accountStatus: {
       type: String,
@@ -109,23 +124,12 @@ userSchema.methods.comparePassword = async function comparePassword(
 
 userSchema.index({ role: 1 })
 userSchema.index({ 'verification.status': 1 })
-userSchema.index({ phone: 1 }, { unique: true, sparse: true })
 
 export const User = mongoose.model<IUser, UserModel>('User', userSchema)
 
 const donorSchema = new Schema({
   organisationName: { type: String, required: true, trim: true },
   contactName: { type: String, required: true, trim: true },
-  phone: {
-    type: String,
-    required: true,
-    trim: true,
-    set: (value: string) => normalizePhone(value) ?? value,
-    validate: {
-      validator: (value: string) => normalizePhone(value) !== null,
-      message: 'Invalid phone number',
-    },
-  },
   businessCertificateUrl: { type: String, trim: true },
   pickupLocation: { type: geoPointSchema },
   verification: {
@@ -137,16 +141,6 @@ const donorSchema = new Schema({
 const ngoSchema = new Schema({
   organisationName: { type: String, required: true, trim: true },
   contactName: { type: String, required: true, trim: true },
-  phone: {
-    type: String,
-    required: true,
-    trim: true,
-    set: (value: string) => normalizePhone(value) ?? value,
-    validate: {
-      validator: (value: string) => normalizePhone(value) !== null,
-      message: 'Invalid phone number',
-    },
-  },
   registrationNumber: { type: String, trim: true },
   dailyCapacity: { type: Number, min: 0 },
   transportAvailable: { type: Boolean, default: false },

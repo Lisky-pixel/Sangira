@@ -4,6 +4,7 @@ export const ROUTES = {
   GET_STARTED_LEGACY: '/get-started',
   SIGN_IN: '/signin',
   FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
   REGISTER_DONOR: '/register?role=donor',
   REGISTER_NGO: '/register?role=ngo',
   REGISTER: '/register',
@@ -39,5 +40,4 @@ export const COMING_SOON_PATHS = [
   ROUTES.TERMS,
   ROUTES.HELP,
   ROUTES.CONTACT,
-  ROUTES.FORGOT_PASSWORD,
 ] as const

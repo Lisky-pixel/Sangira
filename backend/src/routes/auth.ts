@@ -9,8 +9,13 @@ import {
 } from '../middleware/upload.js'
 import { validateBody } from '../middleware/validate.js'
 import { loginSchema, registerSchema } from '../validators/auth.js'
+import {
+  passwordRequestCodeSchema,
+  passwordVerifySchema,
+} from '../validators/password-reset.js'
 import { unauthorized } from '../utils/app-error.js'
 import { COOKIE_NAMES } from '../constants/auth.js'
+import * as passwordResetController from '../controllers/password-reset-controller.js'
 
 export const authRouter = Router()
 
@@ -32,6 +37,22 @@ authRouter.post(
   csrfGuard,
   validateBody(loginSchema),
   authController.login,
+)
+
+authRouter.post(
+  '/password/request-code',
+  strictRateLimiter,
+  csrfGuard,
+  validateBody(passwordRequestCodeSchema),
+  passwordResetController.requestCode,
+)
+
+authRouter.post(
+  '/password/verify',
+  strictRateLimiter,
+  csrfGuard,
+  validateBody(passwordVerifySchema),
+  passwordResetController.verify,
 )
 
 authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next) => {

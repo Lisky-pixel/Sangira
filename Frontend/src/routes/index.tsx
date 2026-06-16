@@ -5,6 +5,8 @@ import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
+import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { RegisterStep1Page } from '../pages/register/RegisterStep1Page'
 import { RegisterStep2Page } from '../pages/register/RegisterStep2Page'
 import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
@@ -28,6 +30,14 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.SIGN_IN,
         element: <SignInPage />,
+      },
+      {
+        path: ROUTES.FORGOT_PASSWORD,
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: ROUTES.RESET_PASSWORD,
+        element: <ResetPasswordPage />,
       },
       {
         path: ROUTES.REGISTER,

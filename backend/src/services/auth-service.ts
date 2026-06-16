@@ -26,6 +26,7 @@ import {
 } from '../utils/tokens.js'
 import { buildVerificationDocumentEntry } from '../utils/verification-document.js'
 import { normalizePhone } from '../utils/phone.js'
+import { findUserByIdentifier } from '../utils/auth-identifier.js'
 import type { LoginInput, RegisterInput } from '../validators/auth.js'
 
 /** Bcrypt hash for a dummy password — used when email is unknown to reduce timing leaks */
@@ -174,12 +175,9 @@ export async function registerUser(
 
 export async function loginUser(input: LoginInput, req: Request) {
   const identifier = input.identifier.trim()
-  const query =
-    identifier.includes('@')
-      ? { email: identifier.toLowerCase() }
-      : { phone: normalizePhone(identifier) ?? '__invalid__' }
-
-  const user = await User.findOne(query).select('+passwordHash')
+  const user = (await findUserByIdentifier(identifier, '+passwordHash')) as
+    | (typeof User)['prototype']
+    | null
 
   const passwordHash = user?.passwordHash ?? DUMMY_PASSWORD_HASH
   const passwordValid = await bcrypt.compare(input.password, passwordHash)

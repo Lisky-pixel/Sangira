@@ -25,6 +25,16 @@ const envSchema = z
     COOKIE_SECURE: z
       .union([z.boolean(), z.enum(['true', 'false'])])
       .optional(),
+    CLOUDINARY_CLOUD_NAME: z
+      .string()
+      .min(1, 'CLOUDINARY_CLOUD_NAME is required'),
+    CLOUDINARY_API_KEY: z.string().min(1, 'CLOUDINARY_API_KEY is required'),
+    CLOUDINARY_API_SECRET: z
+      .string()
+      .min(1, 'CLOUDINARY_API_SECRET is required'),
+    CSRF_SECRET: z
+      .string()
+      .min(32, 'CSRF_SECRET must be at least 32 characters'),
   })
   .transform((env) => {
     const isProduction = env.NODE_ENV === 'production'

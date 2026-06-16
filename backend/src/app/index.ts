@@ -8,6 +8,8 @@ import { mongoSanitizeMiddleware } from './middleware/mongo-sanitize.js'
 import { notFoundHandler } from './middleware/not-found.js'
 import { globalRateLimiter } from './middleware/rate-limit.js'
 import { healthRouter } from './routes/health.js'
+import { authRouter } from '../routes/auth.js'
+import { verificationRouter } from '../routes/verification.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
@@ -31,6 +33,8 @@ export function createApp() {
   app.use(globalRateLimiter)
 
   app.use(healthRouter)
+  app.use('/auth', authRouter)
+  app.use('/verification', verificationRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

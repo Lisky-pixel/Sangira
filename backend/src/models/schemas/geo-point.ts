@@ -37,6 +37,14 @@ export const geoPointSchema = new Schema(
 export const verificationDocumentSchema = new Schema(
   {
     url: { type: String, required: true },
+    publicId: { type: String, trim: true },
+    resourceType: { type: String, enum: ['image', 'raw'] },
+    format: { type: String, trim: true },
+    accessType: {
+      type: String,
+      enum: ['authenticated'],
+      default: 'authenticated',
+    },
     filename: { type: String, required: true },
     size: { type: Number, required: true },
     uploadedAt: { type: Date, default: Date.now },

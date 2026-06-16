@@ -15,6 +15,7 @@ import {
   unauthorized,
   badRequest,
 } from '../utils/app-error.js'
+import { resolveStoredDocumentFilename } from '../constants/verification-documents.js'
 import { refreshTokenMaxAgeMs } from '../utils/duration.js'
 import {
   generateFamilyId,
@@ -22,6 +23,7 @@ import {
   hashOpaqueToken,
   signAccessToken,
 } from '../utils/tokens.js'
+import { buildVerificationDocumentEntry } from '../utils/verification-document.js'
 import type { LoginInput, RegisterInput } from '../validators/auth.js'
 
 /** Bcrypt hash for a dummy password — used when email is unknown to reduce timing leaks */
@@ -101,12 +103,16 @@ export async function registerUser(
     },
   )
   const now = new Date()
-  const documentEntry = {
-    url: upload.url,
-    filename: upload.filename,
-    size: upload.size,
-    uploadedAt: now,
-  }
+  const storedFilename = resolveStoredDocumentFilename(
+    file.originalname,
+    file.mimetype,
+    input.role,
+  )
+  const documentEntry = buildVerificationDocumentEntry(
+    upload,
+    storedFilename,
+    now,
+  )
 
   const verification = {
     status: VERIFICATION_STATUS.PENDING,

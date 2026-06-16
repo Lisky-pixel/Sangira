@@ -12,6 +12,12 @@ export const verificationRouter = Router()
 
 verificationRouter.use(globalRateLimiter)
 
+verificationRouter.get(
+  '/document/view',
+  requireAuth,
+  verificationController.viewDocument,
+)
+
 verificationRouter.post(
   '/resubmit',
   csrfGuard,

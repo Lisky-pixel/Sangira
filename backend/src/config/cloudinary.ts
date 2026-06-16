@@ -2,8 +2,15 @@ import { v2 as cloudinary } from 'cloudinary'
 import { config } from './env.js'
 import {
   CLOUDINARY_FOLDER,
+  DOCUMENT_VIEW_URL_TTL_SECONDS,
   SIGNED_CERTIFICATE_URL_TTL_SECONDS,
 } from '../constants/auth.js'
+import {
+  CLOUDINARY_AUTHENTICATED_ACCESS_TYPE,
+  CLOUDINARY_RESOURCE_TYPES,
+  type CloudinaryAccessType,
+  type CloudinaryResourceType,
+} from '../constants/cloudinary.js'
 
 cloudinary.config({
   cloud_name: config.CLOUDINARY_CLOUD_NAME,
@@ -17,6 +24,17 @@ export type CertificateUploadResult = {
   publicId: string
   filename: string
   size: number
+  resourceType: CloudinaryResourceType
+  format: string
+  accessType: CloudinaryAccessType
+}
+
+function normalizeUploadResourceType(
+  resourceType: string | undefined,
+): CloudinaryResourceType {
+  return resourceType === CLOUDINARY_RESOURCE_TYPES.RAW
+    ? CLOUDINARY_RESOURCE_TYPES.RAW
+    : CLOUDINARY_RESOURCE_TYPES.IMAGE
 }
 
 export async function uploadCertificate(
@@ -27,7 +45,7 @@ export async function uploadCertificate(
     const upload = cloudinary.uploader.upload_stream(
       {
         folder: CLOUDINARY_FOLDER,
-        type: 'authenticated',
+        type: CLOUDINARY_AUTHENTICATED_ACCESS_TYPE,
         resource_type: 'auto',
         use_filename: true,
         unique_filename: true,
@@ -44,6 +62,9 @@ export async function uploadCertificate(
           publicId: result.public_id,
           filename,
           size: result.bytes,
+          resourceType: normalizeUploadResourceType(result.resource_type),
+          format: result.format,
+          accessType: CLOUDINARY_AUTHENTICATED_ACCESS_TYPE,
         })
       },
     )
@@ -52,15 +73,51 @@ export async function uploadCertificate(
   })
 }
 
-/** Short-lived signed URL for admin document viewing — used in a later slice */
+export type SignedDocumentViewInput = {
+  publicId: string
+  resourceType: CloudinaryResourceType
+  format?: string
+  accessType?: CloudinaryAccessType
+}
+
+/** Short-lived signed URL for authenticated Cloudinary assets */
+export function getSignedCertificateView(
+  document: SignedDocumentViewInput,
+  ttlSeconds = DOCUMENT_VIEW_URL_TTL_SECONDS,
+): { url: string; expiresAt: string } {
+  const expiresAtUnix = Math.floor(Date.now() / 1000) + ttlSeconds
+  const accessType = document.accessType ?? CLOUDINARY_AUTHENTICATED_ACCESS_TYPE
+
+  const url =
+    document.resourceType === CLOUDINARY_RESOURCE_TYPES.RAW
+      ? cloudinary.utils.private_download_url(
+          document.publicId,
+          document.format ?? 'pdf',
+          {
+            resource_type: CLOUDINARY_RESOURCE_TYPES.RAW,
+            type: accessType,
+            expires_at: expiresAtUnix,
+          },
+        )
+      : cloudinary.url(document.publicId, {
+          resource_type: CLOUDINARY_RESOURCE_TYPES.IMAGE,
+          type: accessType,
+          sign_url: true,
+          secure: true,
+          expires_at: expiresAtUnix,
+          ...(document.format ? { format: document.format } : {}),
+        })
+
+  return {
+    url,
+    expiresAt: new Date(expiresAtUnix * 1000).toISOString(),
+  }
+}
+
+/** Admin document viewing — separate admin-gated route in a later slice */
 export function getSignedCertificateUrl(
-  publicId: string,
+  document: SignedDocumentViewInput,
   ttlSeconds = SIGNED_CERTIFICATE_URL_TTL_SECONDS,
 ): string {
-  return cloudinary.url(publicId, {
-    type: 'authenticated',
-    sign_url: true,
-    secure: true,
-    expires_at: Math.floor(Date.now() / 1000) + ttlSeconds,
-  })
+  return getSignedCertificateView(document, ttlSeconds).url
 }

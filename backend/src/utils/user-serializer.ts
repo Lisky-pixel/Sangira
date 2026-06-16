@@ -1,7 +1,11 @@
 import { VERIFICATION_STATUS } from '../constants/enums.js'
 
 type SerializableUser = {
-  verification?: { status?: string }
+  verification?: {
+    status?: string
+    reason?: string | null
+    documents?: unknown[]
+  }
   toJSON?: () => Record<string, unknown>
 }
 

@@ -1,5 +1,5 @@
 import { cn } from '../../lib/utils'
-import { registerStep1Content } from '../../placeholder/register-content'
+import { registerWizardContent } from '../../placeholder/register-content'
 
 type StepPillProps = {
   step: number
@@ -15,7 +15,7 @@ export function StepPill({ step, total, className }: StepPillProps) {
         className,
       )}
     >
-      {registerStep1Content.stepOfTotal(step, total)}
+      {registerWizardContent.stepOfTotal(step, total)}
     </span>
   )
 }

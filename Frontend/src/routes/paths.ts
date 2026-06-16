@@ -14,10 +14,6 @@ export const ROUTES = {
   CONTACT: '/contact',
 } as const
 
-export function registerDetailsPath(role: 'donor' | 'ngo'): string {
-  return `${ROUTES.REGISTER_DETAILS}?role=${role}`
-}
-
 export const LANDING_SECTION_IDS = {
   HOW_IT_WORKS: 'how-it-works',
   IMPACT: 'impact',
@@ -32,8 +28,6 @@ export const LANDING_ANCHORS = {
 
 export const COMING_SOON_PATHS = [
   ROUTES.SIGN_IN,
-  ROUTES.REGISTER_DETAILS,
-  ROUTES.REGISTER_DOCUMENTS,
   ROUTES.PRIVACY,
   ROUTES.TERMS,
   ROUTES.HELP,

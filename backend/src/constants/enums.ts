@@ -91,4 +91,6 @@ export const RATE_LIMIT = {
   GLOBAL_MAX: 200,
   STRICT_WINDOW_MS: 15 * 60 * 1000,
   STRICT_MAX: 20,
+  DEV_WINDOW_MS: 15 * 60 * 1000,
+  DEV_MAX: 5,
 } as const

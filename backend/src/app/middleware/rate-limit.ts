@@ -29,3 +29,18 @@ export const strictRateLimiter = rateLimit({
     },
   },
 })
+
+/** Very low ceiling for /dev test routes — never enabled in production */
+export const devTestRateLimiter = rateLimit({
+  windowMs: RATE_LIMIT.DEV_WINDOW_MS,
+  max: RATE_LIMIT.DEV_MAX,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      message: 'Too many requests, please try again later',
+      code: 'DEV_RATE_LIMIT_EXCEEDED',
+    },
+  },
+})

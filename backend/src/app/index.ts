@@ -10,6 +10,7 @@ import { globalRateLimiter } from './middleware/rate-limit.js'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from '../routes/auth.js'
 import { verificationRouter } from '../routes/verification.js'
+import { devNotificationsRouter } from '../routes/dev-notifications.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
@@ -35,6 +36,9 @@ export function createApp() {
   app.use(healthRouter)
   app.use('/auth', authRouter)
   app.use('/verification', verificationRouter)
+  if (config.NODE_ENV !== 'production') {
+    app.use('/dev/notifications', devNotificationsRouter)
+  }
 
   app.use(notFoundHandler)
   app.use(errorHandler)

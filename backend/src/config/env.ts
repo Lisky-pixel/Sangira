@@ -11,6 +11,11 @@ const envSchema = z
     PORT: z.coerce.number().int().positive().default(5000),
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
     CLIENT_URL: z.string().url('CLIENT_URL must be a valid URL'),
+    BREVO_API_KEY: z.string().min(1, 'BREVO_API_KEY is required'),
+    EMAIL_FROM_ADDRESS: z
+      .string()
+      .email('EMAIL_FROM_ADDRESS must be a valid email address'),
+    EMAIL_FROM_NAME: z.string().min(1).default('Sangira'),
     JWT_ACCESS_SECRET: z
       .string()
       .min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),

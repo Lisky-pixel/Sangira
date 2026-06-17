@@ -40,6 +40,10 @@ const envSchema = z
     CSRF_SECRET: z
       .string()
       .min(32, 'CSRF_SECRET must be at least 32 characters'),
+    GEOCODER: z
+      .enum(['nominatim', 'google'])
+      .default('nominatim'),
+    GOOGLE_MAPS_API_KEY: z.string().optional(),
   })
   .transform((env) => {
     const isProduction = env.NODE_ENV === 'production'

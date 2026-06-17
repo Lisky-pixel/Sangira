@@ -12,20 +12,17 @@ export type Listing = {
   donor: string
   title: string
   description?: string
-  servings: number
-  storageConditions?: string
+  foodType: FoodType
+  quantity: number
+  quantityUnit: QuantityUnit
+  storageCondition: StorageCondition
+  foodLabels: FoodLabel[]
+  pickupInstructions?: string
   photos: string[]
+  pickupAddress?: string
   expiresAt: string
   status: ListingStatus
   createdAt: string
   updatedAt: string
   requestCount?: number
-  /** Agreed create-listing fields — populated when Listing API ships */
-  foodType?: FoodType
-  quantity?: number
-  quantityUnit?: QuantityUnit
-  storageCondition?: StorageCondition
-  foodLabels?: FoodLabel[]
-  pickupAddress?: string
-  pickupInstructions?: string
 }

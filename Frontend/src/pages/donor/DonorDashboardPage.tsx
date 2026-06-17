@@ -1,10 +1,12 @@
 import { ArrowRight, Building2, CircleHelp, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { DonorListingCard } from '../../components/donor'
 import { ButtonLink } from '../../components/ui/button'
 import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
+import { LISTING_STATUS } from '../../constants/listing-status'
 import { getGreeting } from '../../lib/greeting'
 import {
   formatActivityTimestamp,
@@ -13,12 +15,13 @@ import {
 } from '../../lib/relative-time'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import {
-  donorActiveListings,
   donorMonthlyImpact,
   donorPendingRequests,
   donorRecentActivity,
 } from '../../placeholder/donor-dashboard-data'
 import { donorRequestReviewPath, ROUTES } from '../../routes/paths'
+import { listingService } from '../../services/listing-service'
+import type { Listing } from '../../types/listing'
 
 function MonthlyImpactChart({ values }: { values: number[] }) {
   const max = Math.max(...values, 1)
@@ -52,6 +55,39 @@ function MonthlyImpactChart({ values }: { values: number[] }) {
 
 export function DonorDashboardPage() {
   const { state } = useAuth()
+  const [activeListings, setActiveListings] = useState<Listing[]>([])
+  const [listingsStatus, setListingsStatus] = useState<
+    'loading' | 'ready' | 'error'
+  >('loading')
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadActiveListings() {
+      setListingsStatus('loading')
+      try {
+        const listings = await listingService.getMyListings({
+          status: LISTING_STATUS.ACTIVE,
+        })
+        if (!cancelled) {
+          setActiveListings(listings)
+          setListingsStatus('ready')
+        }
+      } catch {
+        if (!cancelled) {
+          setListingsStatus('error')
+        }
+      }
+    }
+
+    if (state.status === 'authed') {
+      void loadActiveListings()
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [state.status])
 
   if (state.status !== 'authed') {
     return null
@@ -108,11 +144,25 @@ export function DonorDashboardPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            {donorActiveListings.map((listing) => (
-              <DonorListingCard key={listing._id} listing={listing} />
-            ))}
-          </div>
+          {listingsStatus === 'loading' ? (
+            <p className="text-body text-sm">
+              {donorDashboardContent.activeListings.loading}
+            </p>
+          ) : listingsStatus === 'error' ? (
+            <p className="text-clay-red text-sm">
+              {donorDashboardContent.activeListings.loadError}
+            </p>
+          ) : activeListings.length === 0 ? (
+            <p className="text-body text-sm">
+              {donorDashboardContent.activeListings.empty}
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {activeListings.map((listing) => (
+                <DonorListingCard key={listing._id} listing={listing} />
+              ))}
+            </div>
+          )}
         </section>
 
         <section>

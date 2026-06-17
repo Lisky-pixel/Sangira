@@ -11,6 +11,11 @@ import {
   type CloudinaryAccessType,
   type CloudinaryResourceType,
 } from '../constants/cloudinary.js'
+import {
+  CLOUDINARY_LISTING_ACCESS_TYPE,
+  CLOUDINARY_LISTING_FOLDER,
+  CLOUDINARY_LISTING_RESOURCE_TYPE,
+} from '../constants/cloudinary-listings.js'
 
 cloudinary.config({
   cloud_name: config.CLOUDINARY_CLOUD_NAME,
@@ -65,6 +70,42 @@ export async function uploadCertificate(
           resourceType: normalizeUploadResourceType(result.resource_type),
           format: result.format,
           accessType: CLOUDINARY_AUTHENTICATED_ACCESS_TYPE,
+        })
+      },
+    )
+
+    upload.end(buffer)
+  })
+}
+
+export type ListingPhotoUploadResult = {
+  secureUrl: string
+  publicId: string
+}
+
+export async function uploadListingPhoto(
+  buffer: Buffer,
+  filename: string,
+): Promise<ListingPhotoUploadResult> {
+  return new Promise((resolve, reject) => {
+    const upload = cloudinary.uploader.upload_stream(
+      {
+        folder: CLOUDINARY_LISTING_FOLDER,
+        type: CLOUDINARY_LISTING_ACCESS_TYPE,
+        resource_type: CLOUDINARY_LISTING_RESOURCE_TYPE,
+        use_filename: true,
+        unique_filename: true,
+        filename_override: filename,
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error('Cloudinary listing upload failed'))
+          return
+        }
+
+        resolve({
+          secureUrl: result.secure_url,
+          publicId: result.public_id,
         })
       },
     )

@@ -1,54 +1,15 @@
 /**
  * Swappable donor dashboard data — replace imports with live API services
- * in the listing-backend slice. Typed to real Listing/Request shapes.
+ * as each backend slice ships. Active listings now load from GET /listings/mine.
  */
-import { LISTING_STATUS } from '../constants/listing-status'
 import { REQUEST_STATUS } from '../constants/request-status'
-import type { Listing } from '../types/listing'
 import type { DonorPendingRequest } from '../types/request'
 
 const now = Date.now()
 
-function hoursFromNow(hours: number) {
-  return new Date(now + hours * 60 * 60 * 1000).toISOString()
-}
-
 function hoursAgo(hours: number) {
   return new Date(now - hours * 60 * 60 * 1000).toISOString()
 }
-
-export const donorActiveListings: Listing[] = [
-  {
-    _id: 'listing-rice-beans',
-    donor: 'donor-hotel-inema',
-    title: 'Cooked rice & beans — 40 servings',
-    description: 'Freshly prepared surplus from breakfast service.',
-    servings: 40,
-    photos: [
-      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-    ],
-    expiresAt: hoursFromNow(5),
-    status: LISTING_STATUS.ACTIVE,
-    createdAt: hoursAgo(2),
-    updatedAt: hoursAgo(2),
-    requestCount: 1,
-  },
-  {
-    _id: 'listing-vegetables',
-    donor: 'donor-hotel-inema',
-    title: 'Mixed vegetables — 25 servings',
-    description: 'Assorted cooked vegetables, suitable for immediate pickup.',
-    servings: 25,
-    photos: [
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-    ],
-    expiresAt: hoursFromNow(2),
-    status: LISTING_STATUS.ACTIVE,
-    createdAt: hoursAgo(5),
-    updatedAt: hoursAgo(5),
-    requestCount: 0,
-  },
-]
 
 export const donorPendingRequests: DonorPendingRequest[] = [
   {

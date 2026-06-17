@@ -34,6 +34,10 @@ export const donorDashboardContent = {
     requestCount: (count: number) =>
       count === 1 ? '1 request' : `${count} requests`,
     noRequests: 'No requests yet',
+    empty: 'No active listings yet. Post surplus food to get started.',
+    loading: 'Loading your listings…',
+    loadError:
+      'Unable to load your listings right now. Refresh the page or try again shortly.',
   },
   needsAction: {
     heading: 'Needs your action',

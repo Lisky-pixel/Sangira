@@ -6,6 +6,7 @@ import {
   refreshSession,
   registerUser,
 } from '../services/auth-service.js'
+import { updateNotificationPreferencesForUser } from '../services/notification-preferences-service.js'
 import { COOKIE_NAMES } from '../constants/auth.js'
 import { clearAuthCookies, setAuthCookies, setCsrfCookie } from '../utils/cookies.js'
 import {
@@ -91,6 +92,23 @@ export async function me(req: Request, res: Response, next: NextFunction) {
       verificationStatus: result.verificationStatus,
       accountStatus: result.accountStatus,
     })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function patchNotificationPreferences(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const notificationPrefs = await updateNotificationPreferencesForUser({
+      userId: req.auth!.userId,
+      patch: req.body,
+    })
+
+    return sendSuccess(res, { notificationPrefs })
   } catch (error) {
     return next(error)
   }

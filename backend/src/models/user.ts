@@ -11,10 +11,10 @@ import {
 import { geoPointSchema, verificationSchema } from './schemas/geo-point.js'
 import { normalizePhone } from '../utils/phone.js'
 
-export type NotificationPrefs = {
-  sms: boolean
-  inApp: boolean
-}
+import {
+  DEFAULT_NOTIFICATION_PREFS,
+  type NotificationPreferences,
+} from '../constants/notification-preferences.js'
 
 export type IUser = {
   email: string
@@ -22,7 +22,7 @@ export type IUser = {
   role: Role
   phone?: string
   accountStatus: string
-  notificationPrefs: NotificationPrefs
+  notificationPrefs: NotificationPreferences
   createdAt: Date
   updatedAt: Date
 }
@@ -85,8 +85,22 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       default: ACCOUNT_STATUS.ACTIVE,
     },
     notificationPrefs: {
-      sms: { type: Boolean, default: true },
-      inApp: { type: Boolean, default: true },
+      newRequest: {
+        type: Boolean,
+        default: DEFAULT_NOTIFICATION_PREFS.newRequest,
+      },
+      pickupReminders: {
+        type: Boolean,
+        default: DEFAULT_NOTIFICATION_PREFS.pickupReminders,
+      },
+      listingExpiring: {
+        type: Boolean,
+        default: DEFAULT_NOTIFICATION_PREFS.listingExpiring,
+      },
+      impactSummary: {
+        type: Boolean,
+        default: DEFAULT_NOTIFICATION_PREFS.impactSummary,
+      },
     },
   },
   {

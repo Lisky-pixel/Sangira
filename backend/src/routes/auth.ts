@@ -9,6 +9,7 @@ import {
 } from '../middleware/upload.js'
 import { validateBody } from '../middleware/validate.js'
 import { loginSchema, registerSchema } from '../validators/auth.js'
+import { updateNotificationPreferencesSchema } from '../validators/notification-preferences.js'
 import {
   passwordRequestCodeSchema,
   passwordVerifySchema,
@@ -66,3 +67,11 @@ authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next)
 authRouter.post('/logout', strictRateLimiter, csrfGuard, authController.logout)
 
 authRouter.get('/me', requireAuth, authController.me)
+
+authRouter.patch(
+  '/me/notification-preferences',
+  csrfGuard,
+  requireAuth,
+  validateBody(updateNotificationPreferencesSchema),
+  authController.patchNotificationPreferences,
+)

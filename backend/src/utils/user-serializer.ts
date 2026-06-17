@@ -1,6 +1,9 @@
 import { VERIFICATION_STATUS } from '../constants/enums.js'
+import type { NotificationPreferences } from '../constants/notification-preferences.js'
+import { normalizeNotificationPrefs } from './normalize-notification-prefs.js'
 
 type SerializableUser = {
+  notificationPrefs?: Partial<NotificationPreferences>
   verification?: {
     status?: string
     reason?: string | null
@@ -10,11 +13,15 @@ type SerializableUser = {
 }
 
 export function serializeUser(user: SerializableUser) {
-  if (typeof user.toJSON === 'function') {
-    return user.toJSON()
-  }
+  const json =
+    typeof user.toJSON === 'function'
+      ? user.toJSON()
+      : (user as unknown as Record<string, unknown>)
 
-  return user as unknown as Record<string, unknown>
+  return {
+    ...json,
+    notificationPrefs: normalizeNotificationPrefs(user.notificationPrefs),
+  }
 }
 
 export function getVerificationStatus(user: SerializableUser): string {

@@ -5,6 +5,7 @@ import type {
   QuantityUnit,
   StorageCondition,
 } from '../constants/listing-form.js'
+import { resolveEffectiveListingStatus } from './resolve-effective-listing-status.js'
 
 export type SerializedListing = {
   _id: string
@@ -78,7 +79,7 @@ export function serializeListing(
     pickupAddress:
       listing.pickupAddress ?? listing.pickupLocation?.address ?? undefined,
     expiresAt: listing.expiresAt.toISOString(),
-    status: listing.status,
+    status: resolveEffectiveListingStatus(listing.status, listing.expiresAt),
     createdAt: listing.createdAt.toISOString(),
     updatedAt: listing.updatedAt.toISOString(),
     ...(listing.requestCount !== undefined

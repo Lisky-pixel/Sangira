@@ -1,10 +1,13 @@
 import { createApp } from './app/index.js'
 import { connectDatabase, disconnectDatabase } from './config/db.js'
 import { config } from './config/env.js'
+import { startListingExpiryJob } from './jobs/listing-expiry-job.js'
 import './models/index.js'
 
 async function bootstrap() {
   await connectDatabase()
+
+  const stopListingExpiryJob = startListingExpiryJob()
 
   const app = createApp()
 
@@ -14,6 +17,7 @@ async function bootstrap() {
 
   const shutdown = async (signal: string) => {
     console.info(`Received ${signal}, shutting down`)
+    stopListingExpiryJob()
     server.close(async () => {
       await disconnectDatabase()
       process.exit(0)

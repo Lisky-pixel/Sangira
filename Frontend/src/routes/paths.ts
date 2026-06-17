@@ -67,7 +67,6 @@ export const COMING_SOON_PATHS = [
 /** TEMPORARY — donor portal routes not yet implemented */
 export const DONOR_COMING_SOON_PATHS = [
   ROUTES.DONOR_LISTINGS,
-  ROUTES.POST_LISTING,
   ROUTES.DONOR_IMPACT,
   ROUTES.DONOR_PROFILE,
   ROUTES.DONOR_SETTINGS,

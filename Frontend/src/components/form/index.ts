@@ -1,4 +1,5 @@
 export { PasswordField } from './password-field'
 export { PhoneField } from './phone-field'
 export { TextField } from './text-field'
+export { TextAreaField } from './text-area-field'
 export { OtpInput } from './otp-input'

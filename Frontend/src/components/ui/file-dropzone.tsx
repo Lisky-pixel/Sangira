@@ -16,9 +16,13 @@ type FileDropzoneProps = {
   className?: string
   promptText?: string
   hintText?: string
+  accept?: string
+  validateFile?: (file: File) => 'type' | 'size' | null
+  onValidationError?: (reason: 'type' | 'size') => void
+  ariaLabel?: string
 }
 
-function showValidationError(reason: 'type' | 'size') {
+function showDocumentValidationError(reason: 'type' | 'size') {
   const message =
     reason === 'type'
       ? registerStep3Content.validation.invalidType(ACCEPTED_DOCUMENT_LABEL)
@@ -26,10 +30,15 @@ function showValidationError(reason: 'type' | 'size') {
   toast.error(message)
 }
 
-function processFile(file: File, onFileAccepted: (file: File) => void) {
-  const error = validateDocumentFile(file)
+function processFile(
+  file: File,
+  onFileAccepted: (file: File) => void,
+  validate: (file: File) => 'type' | 'size' | null,
+  onValidationError: (reason: 'type' | 'size') => void,
+) {
+  const error = validate(file)
   if (error) {
-    showValidationError(error)
+    onValidationError(error)
     return
   }
 
@@ -45,6 +54,10 @@ export function FileDropzone({
     ACCEPTED_DOCUMENT_LABEL,
     MAX_DOCUMENT_SIZE_MB,
   ),
+  accept = ACCEPTED_DOCUMENT_ACCEPT,
+  validateFile = validateDocumentFile,
+  onValidationError = showDocumentValidationError,
+  ariaLabel = registerStep3Content.dropzone.ariaLabel,
 }: FileDropzoneProps) {
   const internalInputRef = useRef<HTMLInputElement>(null)
   const inputRef = externalInputRef ?? internalInputRef
@@ -58,7 +71,7 @@ export function FileDropzone({
   const handleFiles = (files: FileList | null) => {
     const file = files?.[0]
     if (!file) return
-    processFile(file, onFileAccepted)
+    processFile(file, onFileAccepted, validateFile, onValidationError)
   }
 
   return (
@@ -67,7 +80,7 @@ export function FileDropzone({
         ref={inputRef}
         id={inputId}
         type="file"
-        accept={ACCEPTED_DOCUMENT_ACCEPT}
+        accept={accept}
         className="sr-only"
         onChange={(event) => {
           handleFiles(event.target.files)
@@ -78,7 +91,7 @@ export function FileDropzone({
         role="button"
         tabIndex={0}
         aria-controls={inputId}
-        aria-label={registerStep3Content.dropzone.ariaLabel}
+        aria-label={ariaLabel}
         onClick={openPicker}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {

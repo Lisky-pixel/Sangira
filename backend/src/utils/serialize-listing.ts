@@ -24,6 +24,11 @@ export type SerializedListing = {
   createdAt: string
   updatedAt: string
   requestCount?: number
+  pendingRequestCount?: number
+  awaitingPickup?: {
+    ngoName: string
+    pickupBy: string
+  }
 }
 
 type ListingDocumentLike = {
@@ -48,6 +53,11 @@ type ListingDocumentLike = {
   createdAt: Date
   updatedAt: Date
   requestCount?: number
+  pendingRequestCount?: number
+  awaitingPickup?: {
+    ngoName: string
+    pickupBy: string
+  }
 }
 
 export function serializeListing(
@@ -74,5 +84,9 @@ export function serializeListing(
     ...(listing.requestCount !== undefined
       ? { requestCount: listing.requestCount }
       : {}),
+    ...(listing.pendingRequestCount !== undefined
+      ? { pendingRequestCount: listing.pendingRequestCount }
+      : {}),
+    ...(listing.awaitingPickup ? { awaitingPickup: listing.awaitingPickup } : {}),
   }
 }

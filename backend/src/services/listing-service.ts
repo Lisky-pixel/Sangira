@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
 import { uploadListingPhoto } from '../config/cloudinary.js'
-import { LISTING_STATUS } from '../constants/enums.js'
+import { LISTING_STATUS, REQUEST_STATUS } from '../constants/enums.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
+import { User } from '../models/user.js'
 import { geocodeAddress } from './geocoding/geocode-address.js'
 import type { CreateListingInput } from '../validators/listing.js'
 import { deriveListingTitle } from '../utils/derive-listing-title.js'
@@ -15,6 +16,22 @@ import {
 type CreateListingFile = {
   buffer: Buffer
   originalname: string
+}
+
+type AcceptedRequestRow = {
+  _id: mongoose.Types.ObjectId
+  listing: mongoose.Types.ObjectId
+  ngo: {
+    organisationName?: string
+  }
+}
+
+function resolvePickupBy(
+  pickupWindow: { end?: Date | null } | null | undefined,
+  expiresAt: Date,
+) {
+  const end = pickupWindow?.end ?? undefined
+  return (end ?? expiresAt).toISOString()
 }
 
 export async function createListingForDonor(input: {
@@ -99,16 +116,68 @@ export async function listDonorListings(input: {
     { $group: { _id: '$listing', count: { $sum: 1 } } },
   ])
 
+  const pendingCounts = await FoodRequest.aggregate<{
+    _id: typeof listingIds[number]
+    count: number
+  }>([
+    {
+      $match: {
+        listing: { $in: listingIds },
+        status: REQUEST_STATUS.REQUESTED,
+      },
+    },
+    { $group: { _id: '$listing', count: { $sum: 1 } } },
+  ])
+
   const countByListingId = new Map(
     requestCounts.map((entry) => [entry._id.toString(), entry.count]),
   )
 
-  return listings.map((listing) =>
-    serializeListing({
+  const pendingByListingId = new Map(
+    pendingCounts.map((entry) => [entry._id.toString(), entry.count]),
+  )
+
+  const matchedListingIds = listings
+    .filter((listing) => listing.status === LISTING_STATUS.MATCHED)
+    .map((listing) => listing._id)
+
+  const acceptedByListingId = new Map<
+    string,
+    { ngoName: string; pickupBy: string }
+  >()
+
+  if (matchedListingIds.length > 0) {
+    const acceptedRequests = await FoodRequest.find({
+      listing: { $in: matchedListingIds },
+      status: REQUEST_STATUS.ACCEPTED,
+    })
+      .populate({ path: 'ngo', model: User, select: 'organisationName' })
+      .lean<AcceptedRequestRow[]>()
+
+    for (const request of acceptedRequests) {
+      const listingId = request.listing.toString()
+      const listing = listings.find((item) => item._id.toString() === listingId)
+      if (!listing || acceptedByListingId.has(listingId)) {
+        continue
+      }
+
+      acceptedByListingId.set(listingId, {
+        ngoName: request.ngo.organisationName?.trim() || 'Verified NGO',
+        pickupBy: resolvePickupBy(listing.pickupWindow, listing.expiresAt),
+      })
+    }
+  }
+
+  return listings.map((listing) => {
+    const listingId = listing._id.toString()
+
+    return serializeListing({
       ...listing,
       _id: listing._id,
       donor: listing.donor,
-      requestCount: countByListingId.get(listing._id.toString()) ?? 0,
-    }),
-  )
+      requestCount: countByListingId.get(listingId) ?? 0,
+      pendingRequestCount: pendingByListingId.get(listingId) ?? 0,
+      awaitingPickup: acceptedByListingId.get(listingId),
+    })
+  })
 }

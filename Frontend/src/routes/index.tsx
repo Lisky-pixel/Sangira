@@ -11,6 +11,7 @@ import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
 import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
+import { DonorSettingsPage } from '../pages/donor/DonorSettingsPage'
 import { EditListingPage } from '../pages/donor/EditListingPage'
 import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
@@ -152,7 +153,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'settings',
-            element: <DonorComingSoon />,
+            element: <DonorSettingsPage />,
           },
           {
             path: 'notifications',

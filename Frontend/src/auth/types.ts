@@ -1,4 +1,5 @@
 import type { AccountStatus } from '../constants/account-status'
+import type { NotificationPreferences } from '../constants/notification-preferences'
 import type { VerificationStatus } from '../constants/verification-status'
 import type { VerificationDocumentLike } from '../lib/display-filename'
 
@@ -7,6 +8,7 @@ export type AuthUser = {
   email: string
   role: string
   accountStatus: AccountStatus
+  notificationPrefs?: NotificationPreferences
   organisationName?: string
   contactName?: string
   phone?: string

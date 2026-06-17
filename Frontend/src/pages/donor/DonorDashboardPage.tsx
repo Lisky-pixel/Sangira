@@ -8,7 +8,7 @@ import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
 import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT } from '../../constants/donor-dashboard'
 import { getGreeting } from '../../lib/greeting'
-import { filterOngoingListings } from '../../lib/my-listings-filters'
+import { filterOngoingListings, filterVisibleListings } from '../../lib/my-listings-filters'
 import {
   formatActivityTimestamp,
   formatRelativeMinutes,
@@ -67,7 +67,7 @@ export function DonorDashboardPage() {
     async function loadActiveListings() {
       setListingsStatus('loading')
       try {
-        const listings = await listingService.getMyListings()
+        const listings = filterVisibleListings(await listingService.getMyListings())
         const ongoing = filterOngoingListings(listings)
           .sort(
             (a, b) =>

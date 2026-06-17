@@ -88,7 +88,8 @@ function DetailRow({
 }
 
 function MapThumbnail({ listing }: { listing: Listing }) {
-  const coordinates = listing.pickupCoordinates
+  const coordinates =
+    listing.pickupLocation?.coordinates ?? listing.pickupCoordinates
   const staticMapUrl = coordinates
     ? buildStaticMapUrl(
         coordinates,

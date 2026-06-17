@@ -9,6 +9,10 @@ import type { Listing } from '../types/listing'
 export function resolveListingTabStatus(
   listing: Listing,
 ): ListingStatus | typeof LISTING_STATUS.REQUESTED {
+  if (listing.status === LISTING_STATUS.CANCELLED) {
+    return LISTING_STATUS.CANCELLED
+  }
+
   if (listing.status === LISTING_STATUS.MATCHED) {
     return LISTING_STATUS.AWAITING_PICKUP
   }
@@ -44,7 +48,20 @@ const ONGOING_DISPLAY_STATUSES = new Set<
 ])
 
 export function isOngoingListing(listing: Listing): boolean {
+  if (listing.status === LISTING_STATUS.CANCELLED) {
+    return false
+  }
+
   return ONGOING_DISPLAY_STATUSES.has(resolveListingTabStatus(listing))
+}
+
+/** Cancelled listings are hidden from all My-listings tabs for now */
+export function isHiddenListing(listing: Listing): boolean {
+  return resolveListingTabStatus(listing) === LISTING_STATUS.CANCELLED
+}
+
+export function filterVisibleListings(listings: Listing[]): Listing[] {
+  return listings.filter((listing) => !isHiddenListing(listing))
 }
 
 export function filterOngoingListings(listings: Listing[]): Listing[] {

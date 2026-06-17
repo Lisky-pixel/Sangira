@@ -7,6 +7,7 @@ import { MY_LISTINGS_TAB, type MyListingsTab } from '../../constants/my-listings
 import {
   countAllTabs,
   filterListingsByTab,
+  filterVisibleListings,
 } from '../../lib/my-listings-filters'
 import { paginateTabItems } from '../../lib/my-listings-pagination'
 import { toast } from '../../lib/toast'
@@ -32,7 +33,7 @@ export function MyListingsPage() {
       try {
         const data = await listingService.getMyListings()
         if (!cancelled) {
-          setListings(data)
+          setListings(filterVisibleListings(data))
           setLoadState('ready')
         }
       } catch {

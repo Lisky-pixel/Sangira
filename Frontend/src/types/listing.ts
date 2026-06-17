@@ -6,6 +6,11 @@ import type {
   StorageCondition,
 } from '../constants/listing-form'
 
+export type ListingPickupLocation = {
+  address: string
+  coordinates?: [number, number]
+}
+
 /** Mirrors backend Listing document shape for portal UI */
 export type Listing = {
   _id: string
@@ -20,6 +25,8 @@ export type Listing = {
   pickupInstructions?: string
   photos: string[]
   pickupAddress?: string
+  pickupLocation?: ListingPickupLocation
+  /** @deprecated Prefer pickupLocation.coordinates */
   pickupCoordinates?: [number, number]
   expiresAt: string
   status: ListingStatus

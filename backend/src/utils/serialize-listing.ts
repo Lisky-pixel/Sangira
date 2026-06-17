@@ -7,6 +7,11 @@ import type {
 } from '../constants/listing-form.js'
 import { resolveEffectiveListingStatus } from './resolve-effective-listing-status.js'
 
+export type SerializedPickupLocation = {
+  address: string
+  coordinates?: [number, number]
+}
+
 export type SerializedListing = {
   _id: string
   donor: string
@@ -20,6 +25,8 @@ export type SerializedListing = {
   pickupInstructions?: string
   photos: string[]
   pickupAddress?: string
+  pickupLocation?: SerializedPickupLocation
+  /** @deprecated Prefer pickupLocation.coordinates */
   pickupCoordinates?: [number, number]
   expiresAt: string
   status: ListingStatus
@@ -65,6 +72,23 @@ type ListingDocumentLike = {
 export function serializeListing(
   listing: ListingDocumentLike,
 ): SerializedListing {
+  const address =
+    listing.pickupAddress ?? listing.pickupLocation?.address ?? undefined
+  const coordinates =
+    listing.pickupLocation?.coordinates?.length === 2
+      ? ([
+          listing.pickupLocation.coordinates[0]!,
+          listing.pickupLocation.coordinates[1]!,
+        ] as [number, number])
+      : undefined
+
+  const pickupLocation = address
+    ? {
+        address,
+        ...(coordinates ? { coordinates } : {}),
+      }
+    : undefined
+
   return {
     _id: listing._id.toString(),
     donor: listing.donor.toString(),
@@ -77,16 +101,9 @@ export function serializeListing(
     foodLabels: listing.foodLabels ?? [],
     pickupInstructions: listing.pickupInstructions ?? undefined,
     photos: listing.photos ?? [],
-    pickupAddress:
-      listing.pickupAddress ?? listing.pickupLocation?.address ?? undefined,
-    ...(listing.pickupLocation?.coordinates?.length === 2
-      ? {
-          pickupCoordinates: [
-            listing.pickupLocation.coordinates[0]!,
-            listing.pickupLocation.coordinates[1]!,
-          ] as [number, number],
-        }
-      : {}),
+    pickupAddress: address,
+    ...(pickupLocation ? { pickupLocation } : {}),
+    ...(coordinates ? { pickupCoordinates: coordinates } : {}),
     expiresAt: listing.expiresAt.toISOString(),
     status: resolveEffectiveListingStatus(listing.status, listing.expiresAt),
     createdAt: listing.createdAt.toISOString(),

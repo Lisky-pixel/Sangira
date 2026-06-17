@@ -3,7 +3,9 @@ import { uploadListingPhoto } from '../config/cloudinary.js'
 import { LISTING_STATUS, REQUEST_STATUS } from '../constants/enums.js'
 import {
   LISTING_CANCELLABLE_STATUSES,
+  LISTING_CANCEL_REJECT_MESSAGE,
   LISTING_EDITABLE_STATUSES,
+  LISTING_EDIT_REJECT_MESSAGE,
 } from '../constants/listing-editing.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
@@ -16,6 +18,7 @@ import type {
 import { deriveListingTitle } from '../utils/derive-listing-title.js'
 import {
   badRequest,
+  conflict,
   forbidden,
   notFound,
 } from '../utils/app-error.js'
@@ -109,6 +112,8 @@ export async function listDonorListings(input: {
 
   if (input.status) {
     match.status = input.status
+  } else {
+    match.status = { $ne: LISTING_STATUS.CANCELLED }
   }
 
   const listings = await Listing.find(match).sort({ createdAt: -1 }).lean()
@@ -281,20 +286,6 @@ export async function getListingForDonor(input: {
   return enrichListingWithRequestData(listing.toObject())
 }
 
-async function assertListingEditable(listingId: mongoose.Types.ObjectId) {
-  const acceptedRequest = await FoodRequest.findOne({
-    listing: listingId,
-    status: REQUEST_STATUS.ACCEPTED,
-  }).lean()
-
-  if (acceptedRequest) {
-    throw badRequest(
-      'This listing can no longer be edited',
-      'LISTING_NOT_EDITABLE',
-    )
-  }
-}
-
 export async function updateListingForDonor(input: {
   donorId: string
   listingId: string
@@ -308,13 +299,8 @@ export async function updateListingForDonor(input: {
       listing.status as (typeof LISTING_EDITABLE_STATUSES)[number],
     )
   ) {
-    throw badRequest(
-      'This listing can no longer be edited',
-      'LISTING_NOT_EDITABLE',
-    )
+    throw conflict(LISTING_EDIT_REJECT_MESSAGE, 'LISTING_NOT_EDITABLE')
   }
-
-  await assertListingEditable(listing._id)
 
   let photoUrl: string | undefined
 
@@ -331,15 +317,25 @@ export async function updateListingForDonor(input: {
     photoUrl = photoUpload.secureUrl
   }
 
-  const geocoded = await geocodeAddress(input.data.pickupAddress)
+  const addressChanged = listing.pickupAddress !== input.data.pickupAddress
 
-  const pickupLocation = geocoded
-    ? {
-        type: 'Point' as const,
-        coordinates: [geocoded.lng, geocoded.lat],
-        address: input.data.pickupAddress,
-      }
-    : undefined
+  if (addressChanged) {
+    const geocoded = await geocodeAddress(input.data.pickupAddress)
+
+    const pickupLocation = geocoded
+      ? {
+          type: 'Point' as const,
+          coordinates: [geocoded.lng, geocoded.lat],
+          address: input.data.pickupAddress,
+        }
+      : undefined
+
+    if (pickupLocation) {
+      listing.pickupLocation = pickupLocation
+    } else {
+      listing.set('pickupLocation', undefined)
+    }
+  }
 
   const title =
     input.data.title ??
@@ -363,12 +359,6 @@ export async function updateListingForDonor(input: {
     listing.photos = [photoUrl]
   }
 
-  if (pickupLocation) {
-    listing.pickupLocation = pickupLocation
-  } else {
-    listing.set('pickupLocation', undefined)
-  }
-
   await listing.save()
 
   return enrichListingWithRequestData(listing.toObject())
@@ -385,10 +375,7 @@ export async function cancelListingForDonor(input: {
       listing.status as (typeof LISTING_CANCELLABLE_STATUSES)[number],
     )
   ) {
-    throw badRequest(
-      'This listing cannot be cancelled',
-      'LISTING_NOT_CANCELLABLE',
-    )
+    throw conflict(LISTING_CANCEL_REJECT_MESSAGE, 'LISTING_NOT_CANCELLABLE')
   }
 
   listing.status = LISTING_STATUS.CANCELLED

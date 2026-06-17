@@ -67,3 +67,35 @@ export const postListingSchema = z.object({
 })
 
 export type PostListingFormValues = z.infer<typeof postListingSchema>
+
+const optionalPhotoSchema = z
+  .custom<File | undefined>(
+    (value) => value === undefined || value instanceof File,
+  )
+  .optional()
+  .superRefine((file, context) => {
+    if (!file) return
+    const error = validateListingPhotoFile(file)
+    if (error === 'type') {
+      context.addIssue({
+        code: 'custom',
+        message: postListingContent.validation.photoInvalidType(
+          ACCEPTED_LISTING_PHOTO_LABEL,
+        ),
+      })
+    }
+    if (error === 'size') {
+      context.addIssue({
+        code: 'custom',
+        message: postListingContent.validation.photoTooLarge(
+          MAX_LISTING_PHOTO_SIZE_MB,
+        ),
+      })
+    }
+  })
+
+export const editListingSchema = postListingSchema.extend({
+  photo: optionalPhotoSchema,
+})
+
+export type EditListingFormValues = z.infer<typeof editListingSchema>

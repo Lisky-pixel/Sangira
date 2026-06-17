@@ -107,4 +107,16 @@ export const postListingContent = {
   },
   // TODO: confirm submit destination when My listings ships
   successNavigateTo: ROUTES.DONOR_LISTINGS,
+  edit: {
+    pageTitle: 'Edit listing',
+    backToManage: 'Back to listing',
+    submit: 'Save changes',
+    note: 'Changes are visible to nearby NGOs immediately.',
+    toast: {
+      saving: 'Saving changes…',
+      success: 'Listing updated',
+      error: 'Could not update listing',
+    },
+    notEditable: 'This listing can no longer be edited.',
+  },
 } as const

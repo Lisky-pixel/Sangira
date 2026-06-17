@@ -11,6 +11,8 @@ import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
 import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
+import { EditListingPage } from '../pages/donor/EditListingPage'
+import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { LandingPage } from '../pages/LandingPage'
@@ -129,8 +131,12 @@ export const router = createBrowserRouter([
             element: <PostListingPage />,
           },
           {
+            path: 'listings/:id/edit',
+            element: <EditListingPage />,
+          },
+          {
             path: 'listings/:id',
-            element: <DonorComingSoon />,
+            element: <ManageListingPage />,
           },
           {
             path: 'requests/:id',

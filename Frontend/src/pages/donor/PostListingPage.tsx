@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { MapPin, Sparkles, Timer, Utensils, ChevronDown } from 'lucide-react'
+import { ArrowLeft, MapPin, Sparkles, Timer, Utensils, ChevronDown } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../../auth'
 import { TextAreaField, TextField } from '../../components/form'
 import { ListingPhotoUpload } from '../../components/listing/listing-photo-upload'
@@ -29,10 +29,13 @@ import {
 } from '../../constants/listing-form'
 import { POST_LISTING_SECTION_ID } from '../../constants/post-listing-steps'
 import {
+  editListingSchema,
   postListingSchema,
+  type EditListingFormValues,
   type PostListingFormValues,
 } from '../../features/post-listing/post-listing-schema'
 import { getDonorPickupAddress } from '../../lib/donor-pickup-address'
+import { canEditListing } from '../../lib/listing-manage'
 import {
   getAvailableDatetimePresets,
   toDatetimeLocalValue,
@@ -41,8 +44,14 @@ import {
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { postListingContent } from '../../placeholder/post-listing-content'
+import { donorListingManagePath, ROUTES } from '../../routes/paths'
 import { listingService } from '../../services/listing-service'
 import type { CreateListingPayload } from '../../types/create-listing'
+import type { UpdateListingPayload } from '../../types/update-listing'
+
+type PostListingPageProps = {
+  editListingId?: string
+}
 
 const sectionOrder = [
   POST_LISTING_SECTION_ID.WHAT,
@@ -89,9 +98,10 @@ function SectionHeader({
   )
 }
 
-export function PostListingPage() {
+export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
   const navigate = useNavigate()
   const { state } = useAuth()
+  const isEditMode = Boolean(editListingId)
   const [unitOverridden, setUnitOverridden] = useState(false)
   const [activeSectionId, setActiveSectionId] = useState<string>(
     POST_LISTING_SECTION_ID.WHAT,
@@ -99,12 +109,14 @@ export function PostListingPage() {
   const [selectedPresetId, setSelectedPresetId] = useState<
     DatetimePresetId | null
   >(null)
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | undefined>()
+  const [loadingListing, setLoadingListing] = useState(isEditMode)
 
   const pickupAddressDefault =
     state.status === 'authed' ? getDonorPickupAddress(state.user) : ''
 
-  const methods = useForm<PostListingFormValues>({
-    resolver: zodResolver(postListingSchema),
+  const methods = useForm<PostListingFormValues | EditListingFormValues>({
+    resolver: zodResolver(isEditMode ? editListingSchema : postListingSchema),
     mode: 'onBlur',
     defaultValues: buildDefaultValues(pickupAddressDefault),
   })
@@ -120,6 +132,55 @@ export function PostListingPage() {
 
   const watched = useWatch({ control })
   const availablePresets = useMemo(() => getAvailableDatetimePresets(), [])
+
+  useEffect(() => {
+    if (!isEditMode || !editListingId) {
+      return
+    }
+
+    let cancelled = false
+
+    const loadListing = async () => {
+      setLoadingListing(true)
+      try {
+        const listing = await listingService.getListing(editListingId)
+        if (cancelled) return
+
+        if (!canEditListing(listing)) {
+          toast.info(postListingContent.edit.notEditable)
+          navigate(donorListingManagePath(listing._id), { replace: true })
+          return
+        }
+
+        setExistingPhotoUrl(listing.photos[0])
+        setUnitOverridden(true)
+        reset({
+          foodType: listing.foodType,
+          quantity: listing.quantity,
+          quantityUnit: listing.quantityUnit,
+          expiresAt: toDatetimeLocalValue(new Date(listing.expiresAt)),
+          storageCondition: listing.storageCondition,
+          foodLabels: listing.foodLabels,
+          pickupAddress: listing.pickupAddress ?? pickupAddressDefault,
+          pickupInstructions: listing.pickupInstructions ?? '',
+        })
+      } catch {
+        if (cancelled) return
+        toast.error(postListingContent.edit.toast.error)
+        navigate(ROUTES.DONOR_LISTINGS, { replace: true })
+      } finally {
+        if (!cancelled) {
+          setLoadingListing(false)
+        }
+      }
+    }
+
+    void loadListing()
+
+    return () => {
+      cancelled = true
+    }
+  }, [editListingId, isEditMode, navigate, pickupAddressDefault, reset])
 
   useEffect(() => {
     const observers: IntersectionObserver[] = []
@@ -152,14 +213,14 @@ export function PostListingPage() {
         watched.foodType &&
           (watched.quantity ?? 0) > 0 &&
           watched.quantityUnit &&
-          watched.photo,
+          (watched.photo || (isEditMode && existingPhotoUrl)),
       ),
       [POST_LISTING_SECTION_ID.SAFETY]: Boolean(
         watched.expiresAt && watched.storageCondition,
       ),
       [POST_LISTING_SECTION_ID.PICKUP]: Boolean(watched.pickupAddress?.trim()),
     }
-  }, [watched])
+  }, [watched, isEditMode, existingPhotoUrl])
 
   const steps: PostListingStep[] = [
     {
@@ -222,12 +283,46 @@ export function PostListingPage() {
   }
 
   const onSubmit = handleSubmit(async (values) => {
+    if (isEditMode && editListingId) {
+      const payload: UpdateListingPayload = {
+        foodType: values.foodType,
+        quantity: values.quantity,
+        quantityUnit: values.quantityUnit,
+        expiresAt: new Date(values.expiresAt).toISOString(),
+        storageCondition: values.storageCondition,
+        foodLabels: values.foodLabels,
+        pickupAddress: values.pickupAddress.trim(),
+        pickupInstructions: values.pickupInstructions?.trim() || undefined,
+      }
+
+      if (values.photo) {
+        payload.photo = values.photo
+      }
+
+      try {
+        await toast.promise(
+          listingService.updateListing(editListingId, payload),
+          {
+            loading: postListingContent.edit.toast.saving,
+            success: postListingContent.edit.toast.success,
+            error: postListingContent.edit.toast.error,
+          },
+        )
+
+        navigate(donorListingManagePath(editListingId))
+      } catch {
+        // toast.promise surfaces the error
+      }
+
+      return
+    }
+
     const payload: CreateListingPayload = {
       foodType: values.foodType,
       quantity: values.quantity,
       quantityUnit: values.quantityUnit,
       // TODO: multi-photo later — schema supports an array; v1 allows one photo
-      photos: [values.photo],
+      photos: [values.photo as File],
       expiresAt: new Date(values.expiresAt).toISOString(),
       storageCondition: values.storageCondition,
       foodLabels: values.foodLabels,
@@ -255,11 +350,29 @@ export function PostListingPage() {
     return null
   }
 
+  if (loadingListing) {
+    return (
+      <p className="text-body text-sm">{postListingContent.edit.toast.saving}</p>
+    )
+  }
+
   return (
     <div className="mx-auto w-full max-w-3xl">
+      {isEditMode && editListingId ? (
+        <Link
+          to={donorListingManagePath(editListingId)}
+          className="text-body hover:text-primary mb-6 inline-flex items-center gap-1 text-sm font-medium transition-colors"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
+          {postListingContent.edit.backToManage}
+        </Link>
+      ) : null}
+
       <header className="mb-8">
         <h1 className="text-charcoal font-display mb-6 text-2xl font-bold sm:text-3xl">
-          {postListingContent.pageTitle}
+          {isEditMode
+            ? postListingContent.edit.pageTitle
+            : postListingContent.pageTitle}
         </h1>
         <PostListingStepper
           steps={steps}
@@ -369,6 +482,7 @@ export function PostListingPage() {
                     value={field.value}
                     onChange={field.onChange}
                     error={errors.photo?.message}
+                    existingPhotoUrl={isEditMode ? existingPhotoUrl : undefined}
                   />
                 )}
               />
@@ -510,14 +624,18 @@ export function PostListingPage() {
               disabled={isSubmitting}
               className="w-full"
             >
-              {postListingContent.submit.publish}
+              {isEditMode
+                ? postListingContent.edit.submit
+                : postListingContent.submit.publish}
             </Button>
             <p className="text-body flex items-start justify-center gap-2 text-center text-sm">
               <Sparkles
                 aria-hidden="true"
                 className="text-primary mt-0.5 size-4 shrink-0"
               />
-              {postListingContent.submit.note}
+              {isEditMode
+                ? postListingContent.edit.note
+                : postListingContent.submit.note}
             </p>
           </div>
         </form>

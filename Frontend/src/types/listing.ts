@@ -20,6 +20,7 @@ export type Listing = {
   pickupInstructions?: string
   photos: string[]
   pickupAddress?: string
+  pickupCoordinates?: [number, number]
   expiresAt: string
   status: ListingStatus
   createdAt: string

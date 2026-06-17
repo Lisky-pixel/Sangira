@@ -22,6 +22,10 @@ export const toast = {
     return sonnerToast.error(message, options)
   },
 
+  info(message: string, options?: { id?: string | number }) {
+    return sonnerToast.info(message, options)
+  },
+
   loading(message: string) {
     return sonnerToast.loading(message)
   },

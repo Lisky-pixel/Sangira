@@ -16,6 +16,7 @@ type ListingPhotoUploadProps = {
   onChange: (file: File | undefined) => void
   error?: string
   className?: string
+  existingPhotoUrl?: string
 }
 
 export function ListingPhotoUpload({
@@ -23,13 +24,14 @@ export function ListingPhotoUpload({
   onChange,
   error,
   className,
+  existingPhotoUrl,
 }: ListingPhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const previewUrl = useMemo(() => {
-    if (!value) return null
-    return URL.createObjectURL(value)
-  }, [value])
+    if (value) return URL.createObjectURL(value)
+    return existingPhotoUrl ?? null
+  }, [value, existingPhotoUrl])
 
   useEffect(() => {
     return () => {

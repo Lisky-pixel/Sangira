@@ -8,6 +8,7 @@ declare global {
         role: Role
       }
       validatedQuery?: unknown
+      validatedParams?: unknown
     }
   }
 }

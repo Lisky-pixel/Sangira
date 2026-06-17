@@ -20,6 +20,7 @@ export type SerializedListing = {
   pickupInstructions?: string
   photos: string[]
   pickupAddress?: string
+  pickupCoordinates?: [number, number]
   expiresAt: string
   status: ListingStatus
   createdAt: string
@@ -78,6 +79,14 @@ export function serializeListing(
     photos: listing.photos ?? [],
     pickupAddress:
       listing.pickupAddress ?? listing.pickupLocation?.address ?? undefined,
+    ...(listing.pickupLocation?.coordinates?.length === 2
+      ? {
+          pickupCoordinates: [
+            listing.pickupLocation.coordinates[0]!,
+            listing.pickupLocation.coordinates[1]!,
+          ] as [number, number],
+        }
+      : {}),
     expiresAt: listing.expiresAt.toISOString(),
     status: resolveEffectiveListingStatus(listing.status, listing.expiresAt),
     createdAt: listing.createdAt.toISOString(),

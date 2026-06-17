@@ -57,6 +57,16 @@ export const createListingSchema = z.object({
 
 export type CreateListingInput = z.infer<typeof createListingSchema>
 
+export const updateListingSchema = createListingSchema
+
+export type UpdateListingInput = z.infer<typeof updateListingSchema>
+
+export const listingIdParamSchema = z.object({
+  id: z.string().min(1),
+})
+
+export type ListingIdParam = z.infer<typeof listingIdParamSchema>
+
 export const listMineListingsQuerySchema = z.object({
   status: z.enum(LISTING_STATUS_VALUES).optional(),
 })

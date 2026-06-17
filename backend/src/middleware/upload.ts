@@ -108,6 +108,13 @@ export function requireListingPhoto(
     return next(badRequest('Listing photo is required', 'LISTING_PHOTO_REQUIRED'))
   }
 
+  return validateListingPhotoFile(file, next)
+}
+
+function validateListingPhotoFile(
+  file: Express.Multer.File,
+  next: NextFunction,
+) {
   if (!isAcceptedListingPhotoMime(file.mimetype)) {
     return next(
       badRequest(
@@ -124,4 +131,18 @@ export function requireListingPhoto(
   }
 
   return next()
+}
+
+export function validateOptionalListingPhoto(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) {
+  const file = req.file
+
+  if (!file) {
+    return next()
+  }
+
+  return validateListingPhotoFile(file, next)
 }

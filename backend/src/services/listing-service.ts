@@ -1,13 +1,24 @@
 import mongoose from 'mongoose'
 import { uploadListingPhoto } from '../config/cloudinary.js'
 import { LISTING_STATUS, REQUEST_STATUS } from '../constants/enums.js'
+import {
+  LISTING_CANCELLABLE_STATUSES,
+  LISTING_EDITABLE_STATUSES,
+} from '../constants/listing-editing.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
 import { User } from '../models/user.js'
 import { geocodeAddress } from './geocoding/geocode-address.js'
-import type { CreateListingInput } from '../validators/listing.js'
+import type {
+  CreateListingInput,
+  UpdateListingInput,
+} from '../validators/listing.js'
 import { deriveListingTitle } from '../utils/derive-listing-title.js'
-import { badRequest } from '../utils/app-error.js'
+import {
+  badRequest,
+  forbidden,
+  notFound,
+} from '../utils/app-error.js'
 import {
   serializeListing,
   type SerializedListing,
@@ -180,4 +191,208 @@ export async function listDonorListings(input: {
       awaitingPickup: acceptedByListingId.get(listingId),
     })
   })
+}
+
+async function getOwnedListingOrThrow(listingId: string, donorId: string) {
+  if (!mongoose.Types.ObjectId.isValid(listingId)) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  const listing = await Listing.findById(listingId)
+
+  if (!listing) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  if (listing.donor.toString() !== donorId) {
+    throw forbidden('You do not have access to this listing', 'LISTING_FORBIDDEN')
+  }
+
+  return listing
+}
+
+async function enrichListingWithRequestData(
+  listing: {
+    _id: mongoose.Types.ObjectId
+    status: string
+    pickupWindow?: { end?: Date | null } | null
+    expiresAt: Date
+    donor: mongoose.Types.ObjectId
+    title: string
+    description?: string | null
+    foodType: string
+    quantity: number
+    quantityUnit: string
+    storageCondition: string
+    foodLabels?: string[]
+    pickupInstructions?: string | null
+    pickupAddress?: string | null
+    photos?: string[] | null
+    pickupLocation?: {
+      address?: string | null
+      coordinates?: number[] | null
+    } | null
+    createdAt: Date
+    updatedAt: Date
+  },
+): Promise<SerializedListing> {
+  const listingId = listing._id
+
+  const [requestCount, pendingRequestCount, acceptedRequest] = await Promise.all([
+    FoodRequest.countDocuments({ listing: listingId }),
+    FoodRequest.countDocuments({
+      listing: listingId,
+      status: REQUEST_STATUS.REQUESTED,
+    }),
+    listing.status === LISTING_STATUS.MATCHED
+      ? FoodRequest.findOne({
+          listing: listingId,
+          status: REQUEST_STATUS.ACCEPTED,
+        })
+          .populate({ path: 'ngo', model: User, select: 'organisationName' })
+          .lean<AcceptedRequestRow | null>()
+      : Promise.resolve(null),
+  ])
+
+  const awaitingPickup =
+    acceptedRequest && listing.status === LISTING_STATUS.MATCHED
+      ? {
+          ngoName:
+            acceptedRequest.ngo.organisationName?.trim() || 'Verified NGO',
+          pickupBy: resolvePickupBy(listing.pickupWindow, listing.expiresAt),
+        }
+      : undefined
+
+  return serializeListing({
+    ...listing,
+    _id: listing._id,
+    donor: listing.donor,
+    requestCount,
+    pendingRequestCount,
+    awaitingPickup,
+  } as Parameters<typeof serializeListing>[0])
+}
+
+export async function getListingForDonor(input: {
+  donorId: string
+  listingId: string
+}): Promise<SerializedListing> {
+  const listing = await getOwnedListingOrThrow(input.listingId, input.donorId)
+  return enrichListingWithRequestData(listing.toObject())
+}
+
+async function assertListingEditable(listingId: mongoose.Types.ObjectId) {
+  const acceptedRequest = await FoodRequest.findOne({
+    listing: listingId,
+    status: REQUEST_STATUS.ACCEPTED,
+  }).lean()
+
+  if (acceptedRequest) {
+    throw badRequest(
+      'This listing can no longer be edited',
+      'LISTING_NOT_EDITABLE',
+    )
+  }
+}
+
+export async function updateListingForDonor(input: {
+  donorId: string
+  listingId: string
+  data: UpdateListingInput
+  photo?: CreateListingFile
+}): Promise<SerializedListing> {
+  const listing = await getOwnedListingOrThrow(input.listingId, input.donorId)
+
+  if (
+    !LISTING_EDITABLE_STATUSES.includes(
+      listing.status as (typeof LISTING_EDITABLE_STATUSES)[number],
+    )
+  ) {
+    throw badRequest(
+      'This listing can no longer be edited',
+      'LISTING_NOT_EDITABLE',
+    )
+  }
+
+  await assertListingEditable(listing._id)
+
+  let photoUrl: string | undefined
+
+  if (input.photo) {
+    const photoUpload = await uploadListingPhoto(
+      input.photo.buffer,
+      input.photo.originalname,
+    ).catch(() => {
+      throw badRequest(
+        'Failed to upload listing photo',
+        'LISTING_PHOTO_UPLOAD_FAILED',
+      )
+    })
+    photoUrl = photoUpload.secureUrl
+  }
+
+  const geocoded = await geocodeAddress(input.data.pickupAddress)
+
+  const pickupLocation = geocoded
+    ? {
+        type: 'Point' as const,
+        coordinates: [geocoded.lng, geocoded.lat],
+        address: input.data.pickupAddress,
+      }
+    : undefined
+
+  const title =
+    input.data.title ??
+    deriveListingTitle({
+      quantity: input.data.quantity,
+      quantityUnit: input.data.quantityUnit,
+      foodType: input.data.foodType,
+    })
+
+  listing.title = title
+  listing.foodType = input.data.foodType
+  listing.quantity = input.data.quantity
+  listing.quantityUnit = input.data.quantityUnit
+  listing.storageCondition = input.data.storageCondition
+  listing.foodLabels = input.data.foodLabels
+  listing.pickupInstructions = input.data.pickupInstructions
+  listing.pickupAddress = input.data.pickupAddress
+  listing.expiresAt = input.data.expiresAt
+
+  if (photoUrl) {
+    listing.photos = [photoUrl]
+  }
+
+  if (pickupLocation) {
+    listing.pickupLocation = pickupLocation
+  } else {
+    listing.set('pickupLocation', undefined)
+  }
+
+  await listing.save()
+
+  return enrichListingWithRequestData(listing.toObject())
+}
+
+export async function cancelListingForDonor(input: {
+  donorId: string
+  listingId: string
+}): Promise<SerializedListing> {
+  const listing = await getOwnedListingOrThrow(input.listingId, input.donorId)
+
+  if (
+    !LISTING_CANCELLABLE_STATUSES.includes(
+      listing.status as (typeof LISTING_CANCELLABLE_STATUSES)[number],
+    )
+  ) {
+    throw badRequest(
+      'This listing cannot be cancelled',
+      'LISTING_NOT_CANCELLABLE',
+    )
+  }
+
+  listing.status = LISTING_STATUS.CANCELLED
+  await listing.save()
+
+  return enrichListingWithRequestData(listing.toObject())
 }

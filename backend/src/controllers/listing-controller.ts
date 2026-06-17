@@ -1,11 +1,16 @@
 import type { Request, Response, NextFunction } from 'express'
 import {
+  cancelListingForDonor,
   createListingForDonor,
+  getListingForDonor,
   listDonorListings,
+  updateListingForDonor,
 } from '../services/listing-service.js'
 import type {
   CreateListingInput,
   ListMineListingsQuery,
+  ListingIdParam,
+  UpdateListingInput,
 } from '../validators/listing.js'
 import { sendSuccess } from '../utils/response.js'
 
@@ -45,6 +50,62 @@ export async function listMine(
     })
 
     return sendSuccess(res, { listings })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function getById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const params = req.validatedParams as ListingIdParam
+    const listing = await getListingForDonor({
+      donorId: req.auth!.userId,
+      listingId: params.id,
+    })
+
+    return sendSuccess(res, { listing })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function updateListing(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const params = req.validatedParams as ListingIdParam
+    const listing = await updateListingForDonor({
+      donorId: req.auth!.userId,
+      listingId: params.id,
+      data: req.body as UpdateListingInput,
+      photo: req.file,
+    })
+
+    return sendSuccess(res, { listing })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function cancelListing(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const params = req.validatedParams as ListingIdParam
+    const listing = await cancelListingForDonor({
+      donorId: req.auth!.userId,
+      listingId: params.id,
+    })
+
+    return sendSuccess(res, { listing })
   } catch (error) {
     return next(error)
   }

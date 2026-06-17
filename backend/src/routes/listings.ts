@@ -8,14 +8,23 @@ import { requireVerified } from '../middleware/require-verified.js'
 import {
   requireListingPhoto,
   uploadListingPhotoMiddleware,
+  validateOptionalListingPhoto,
 } from '../middleware/upload.js'
-import { validateBody, validateQuery } from '../middleware/validate.js'
+import { validateBody, validateParams, validateQuery } from '../middleware/validate.js'
 import {
   createListingSchema,
   listMineListingsQuerySchema,
+  listingIdParamSchema,
+  updateListingSchema,
 } from '../validators/listing.js'
 
 export const listingsRouter = Router()
+
+const donorListingGuards = [
+  requireAuth,
+  requireVerified,
+  requireRole(ROLES.DONOR),
+] as const
 
 listingsRouter.get(
   '/mine',
@@ -28,11 +37,35 @@ listingsRouter.get(
 listingsRouter.post(
   '/',
   csrfGuard,
-  requireAuth,
-  requireVerified,
-  requireRole(ROLES.DONOR),
+  ...donorListingGuards,
   uploadListingPhotoMiddleware,
   requireListingPhoto,
   validateBody(createListingSchema),
   listingController.createListing,
+)
+
+listingsRouter.get(
+  '/:id',
+  ...donorListingGuards,
+  validateParams(listingIdParamSchema),
+  listingController.getById,
+)
+
+listingsRouter.patch(
+  '/:id',
+  csrfGuard,
+  ...donorListingGuards,
+  validateParams(listingIdParamSchema),
+  uploadListingPhotoMiddleware,
+  validateOptionalListingPhoto,
+  validateBody(updateListingSchema),
+  listingController.updateListing,
+)
+
+listingsRouter.post(
+  '/:id/cancel',
+  csrfGuard,
+  ...donorListingGuards,
+  validateParams(listingIdParamSchema),
+  listingController.cancelListing,
 )

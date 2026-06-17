@@ -28,6 +28,19 @@ export function validateQuery<T>(schema: ZodType<T>) {
   }
 }
 
+export function validateParams<T>(schema: ZodType<T>) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.params)
+
+    if (!result.success) {
+      return next(toValidationError(result.error))
+    }
+
+    req.validatedParams = result.data
+    return next()
+  }
+}
+
 function toValidationError(error: ZodError): ValidationAppError {
   const fields: Record<string, string> = {}
 

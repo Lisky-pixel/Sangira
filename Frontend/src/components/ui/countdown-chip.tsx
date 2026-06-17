@@ -1,4 +1,5 @@
 import { cn } from '../../lib/utils'
+import { isPastListingExpiry } from '../../lib/listing-expiry'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 
 type CountdownTone = 'green' | 'amber' | 'red' | 'neutral'
@@ -43,16 +44,18 @@ const toneStyles: Record<CountdownTone, { container: string; dot: string }> = {
 
 export function CountdownChip({ expiresAt, className }: CountdownChipProps) {
   const remainingMs = getRemainingMs(expiresAt)
+
+  if (remainingMs <= 0 || isPastListingExpiry(expiresAt)) {
+    return null
+  }
+
   const tone = getTone(remainingMs)
   const styles = toneStyles[tone]
 
-  let label: string = donorDashboardContent.countdownChip.expired
-  if (remainingMs > 0) {
-    const totalMinutes = Math.floor(remainingMs / (60 * 1000))
-    const hours = Math.floor(totalMinutes / 60)
-    const minutes = totalMinutes % 60
-    label = donorDashboardContent.countdownChip.expiresIn(hours, minutes)
-  }
+  const totalMinutes = Math.floor(remainingMs / (60 * 1000))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  const label = donorDashboardContent.countdownChip.expiresIn(hours, minutes)
 
   return (
     <span

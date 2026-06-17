@@ -3,6 +3,7 @@ import {
   MY_LISTINGS_TAB,
   type MyListingsTab,
 } from '../constants/my-listings'
+import { isPastListingExpiry } from './listing-expiry'
 import type { Listing } from '../types/listing'
 
 export function resolveListingTabStatus(
@@ -10,6 +11,18 @@ export function resolveListingTabStatus(
 ): ListingStatus | typeof LISTING_STATUS.REQUESTED {
   if (listing.status === LISTING_STATUS.MATCHED) {
     return LISTING_STATUS.AWAITING_PICKUP
+  }
+
+  if (listing.status === LISTING_STATUS.COMPLETED) {
+    return LISTING_STATUS.COMPLETED
+  }
+
+  if (
+    listing.status === LISTING_STATUS.EXPIRED ||
+    (listing.status === LISTING_STATUS.ACTIVE &&
+      isPastListingExpiry(listing.expiresAt))
+  ) {
+    return LISTING_STATUS.EXPIRED
   }
 
   if (

@@ -25,4 +25,9 @@ export type Listing = {
   createdAt: string
   updatedAt: string
   requestCount?: number
+  pendingRequestCount?: number
+  awaitingPickup?: {
+    ngoName: string
+    pickupBy: string
+  }
 }

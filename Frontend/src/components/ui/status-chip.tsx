@@ -1,8 +1,10 @@
+import { Check, Clock } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { myListingsContent } from '../../placeholder/my-listings-content'
 import { approvedVerificationContent } from '../../placeholder/approved-verification-content'
-import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import { pendingVerificationContent } from '../../placeholder/pending-verification-content'
 import { rejectedVerificationContent } from '../../placeholder/rejected-verification-content'
+import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 
 export type StatusChipVariant =
   | 'pending'
@@ -10,13 +12,16 @@ export type StatusChipVariant =
   | 'verified'
   | 'active'
   | 'requested'
+  | 'awaiting_pickup'
+  | 'completed'
+  | 'expired'
 
 type StatusChipProps = {
   status: StatusChipVariant
   className?: string
 }
 
-const variantStyles = {
+const dotVariantStyles = {
   pending: {
     container: 'bg-status-pending-bg text-status-pending-text',
     dot: 'bg-status-pending-dot',
@@ -42,10 +47,52 @@ const variantStyles = {
     dot: 'bg-verified',
     label: donorDashboardContent.statusChip.requested,
   },
+  expired: {
+    container: 'bg-sand text-status-neutral',
+    dot: 'bg-status-neutral',
+    label: myListingsContent.statusChip.expired,
+  },
 } as const
 
+const iconVariantStyles = {
+  awaiting_pickup: {
+    container: 'bg-status-amber text-white',
+    Icon: Clock,
+    label: myListingsContent.statusChip.awaitingPickup,
+  },
+  completed: {
+    container: 'bg-status-completed text-status-active',
+    Icon: Check,
+    label: myListingsContent.statusChip.completed,
+  },
+} as const
+
+function isIconVariant(
+  status: StatusChipVariant,
+): status is keyof typeof iconVariantStyles {
+  return status in iconVariantStyles
+}
+
 export function StatusChip({ status, className }: StatusChipProps) {
-  const styles = variantStyles[status]
+  if (isIconVariant(status)) {
+    const styles = iconVariantStyles[status]
+    const Icon = styles.Icon
+
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+          styles.container,
+          className,
+        )}
+      >
+        <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+        {styles.label}
+      </span>
+    )
+  }
+
+  const styles = dotVariantStyles[status]
 
   return (
     <span

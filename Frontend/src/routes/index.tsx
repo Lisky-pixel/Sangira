@@ -1,8 +1,16 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router'
-import { AuthProvider, RequireAuth, VerificationStatusGate } from '../auth'
+import {
+  AuthProvider,
+  RequireAuth,
+  RequireRole,
+  RequireVerification,
+  VerificationStatusGate,
+} from '../auth'
+import { DonorComingSoon, DonorPortalLayout } from '../components/donor'
 import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
+import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -13,7 +21,10 @@ import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
 import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
-import { COMING_SOON_PATHS, ROUTES } from './paths'
+import {
+  COMING_SOON_PATHS,
+  ROUTES,
+} from './paths'
 
 export const router = createBrowserRouter([
   {
@@ -88,15 +99,58 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.DONOR_DASHBOARD,
+        path: ROUTES.DONOR_DASHBOARD_LEGACY,
+        element: <Navigate replace to={ROUTES.DONOR_DASHBOARD} />,
+      },
+      {
+        path: '/donor',
         element: (
           <RequireAuth>
-            <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
-              {/* TEMPORARY — replace with donor portal dashboard */}
-              <ComingSoon />
-            </VerificationStatusGate>
+            <RequireVerification>
+              <RequireRole role="donor">
+                <DonorPortalLayout />
+              </RequireRole>
+            </RequireVerification>
           </RequireAuth>
         ),
+        children: [
+          {
+            path: 'dashboard',
+            element: <DonorDashboardPage />,
+          },
+          {
+            path: 'listings',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'listings/new',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'listings/:id',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'requests/:id',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'impact',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'profile',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'settings',
+            element: <DonorComingSoon />,
+          },
+          {
+            path: 'notifications',
+            element: <DonorComingSoon />,
+          },
+        ],
       },
       {
         path: ROUTES.NGO_DASHBOARD,

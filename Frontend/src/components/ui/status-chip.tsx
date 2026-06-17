@@ -1,9 +1,15 @@
 import { cn } from '../../lib/utils'
 import { approvedVerificationContent } from '../../placeholder/approved-verification-content'
+import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import { pendingVerificationContent } from '../../placeholder/pending-verification-content'
 import { rejectedVerificationContent } from '../../placeholder/rejected-verification-content'
 
-export type StatusChipVariant = 'pending' | 'rejected' | 'verified'
+export type StatusChipVariant =
+  | 'pending'
+  | 'rejected'
+  | 'verified'
+  | 'active'
+  | 'requested'
 
 type StatusChipProps = {
   status: StatusChipVariant
@@ -25,6 +31,16 @@ const variantStyles = {
     container: 'bg-status-verified-bg text-status-verified-text',
     dot: 'bg-status-verified-dot',
     label: approvedVerificationContent.statusChipLabel,
+  },
+  active: {
+    container: 'bg-status-completed text-status-active',
+    dot: 'bg-status-active',
+    label: donorDashboardContent.statusChip.active,
+  },
+  requested: {
+    container: 'bg-mint-card text-verified',
+    dot: 'bg-verified',
+    label: donorDashboardContent.statusChip.requested,
   },
 } as const
 

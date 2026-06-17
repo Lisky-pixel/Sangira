@@ -13,8 +13,17 @@ export const ROUTES = {
   REGISTER_PENDING: '/register/pending',
   REGISTER_REJECTED: '/register/rejected',
   VERIFICATION_APPROVED: '/verified',
-  /** TEMPORARY — donor portal until dashboard slice ships */
-  DONOR_DASHBOARD: '/portal/donor',
+  DONOR_DASHBOARD: '/donor/dashboard',
+  /** TEMPORARY — donor portal screens until slices ship */
+  DONOR_LISTINGS: '/donor/listings',
+  POST_LISTING: '/donor/listings/new',
+  DONOR_IMPACT: '/donor/impact',
+  DONOR_PROFILE: '/donor/profile',
+  DONOR_SETTINGS: '/donor/settings',
+  /** TEMPORARY — notifications until slice ships */
+  DONOR_NOTIFICATIONS: '/donor/notifications',
+  /** TEMPORARY — legacy redirect target */
+  DONOR_DASHBOARD_LEGACY: '/portal/donor',
   /** TEMPORARY — NGO portal until dashboard slice ships */
   NGO_DASHBOARD: '/portal/ngo',
   PRIVACY: '/privacy',
@@ -22,6 +31,19 @@ export const ROUTES = {
   HELP: '/help',
   CONTACT: '/contact',
 } as const
+
+export const DONOR_ROUTE_PATTERNS = {
+  LISTING_MANAGE: '/donor/listings/:id',
+  REQUEST_REVIEW: '/donor/requests/:id',
+} as const
+
+export function donorListingManagePath(id: string) {
+  return `/donor/listings/${id}`
+}
+
+export function donorRequestReviewPath(id: string) {
+  return `/donor/requests/${id}`
+}
 
 export const LANDING_SECTION_IDS = {
   HOW_IT_WORKS: 'how-it-works',
@@ -40,4 +62,16 @@ export const COMING_SOON_PATHS = [
   ROUTES.TERMS,
   ROUTES.HELP,
   ROUTES.CONTACT,
+] as const
+
+/** TEMPORARY — donor portal routes not yet implemented */
+export const DONOR_COMING_SOON_PATHS = [
+  ROUTES.DONOR_LISTINGS,
+  ROUTES.POST_LISTING,
+  ROUTES.DONOR_IMPACT,
+  ROUTES.DONOR_PROFILE,
+  ROUTES.DONOR_SETTINGS,
+  ROUTES.DONOR_NOTIFICATIONS,
+  DONOR_ROUTE_PATTERNS.LISTING_MANAGE,
+  DONOR_ROUTE_PATTERNS.REQUEST_REVIEW,
 ] as const

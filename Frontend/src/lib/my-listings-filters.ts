@@ -22,6 +22,22 @@ export function resolveListingTabStatus(
   return listing.status
 }
 
+const ONGOING_DISPLAY_STATUSES = new Set<
+  ListingStatus | typeof LISTING_STATUS.REQUESTED
+>([
+  LISTING_STATUS.ACTIVE,
+  LISTING_STATUS.REQUESTED,
+  LISTING_STATUS.AWAITING_PICKUP,
+])
+
+export function isOngoingListing(listing: Listing): boolean {
+  return ONGOING_DISPLAY_STATUSES.has(resolveListingTabStatus(listing))
+}
+
+export function filterOngoingListings(listings: Listing[]): Listing[] {
+  return listings.filter(isOngoingListing)
+}
+
 export function listingBelongsToTab(
   listing: Listing,
   tab: MyListingsTab,

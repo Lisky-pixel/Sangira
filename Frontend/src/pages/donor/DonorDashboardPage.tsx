@@ -6,8 +6,9 @@ import { ButtonLink } from '../../components/ui/button'
 import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
-import { LISTING_STATUS } from '../../constants/listing-status'
+import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT } from '../../constants/donor-dashboard'
 import { getGreeting } from '../../lib/greeting'
+import { filterOngoingListings } from '../../lib/my-listings-filters'
 import {
   formatActivityTimestamp,
   formatRelativeMinutes,
@@ -66,11 +67,15 @@ export function DonorDashboardPage() {
     async function loadActiveListings() {
       setListingsStatus('loading')
       try {
-        const listings = await listingService.getMyListings({
-          status: LISTING_STATUS.ACTIVE,
-        })
+        const listings = await listingService.getMyListings()
+        const ongoing = filterOngoingListings(listings)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
+          .slice(0, DONOR_DASHBOARD_ONGOING_LISTING_LIMIT)
         if (!cancelled) {
-          setActiveListings(listings)
+          setActiveListings(ongoing)
           setListingsStatus('ready')
         }
       } catch {
@@ -153,9 +158,14 @@ export function DonorDashboardPage() {
               {donorDashboardContent.activeListings.loadError}
             </p>
           ) : activeListings.length === 0 ? (
-            <p className="text-body text-sm">
-              {donorDashboardContent.activeListings.empty}
-            </p>
+            <div className="flex flex-col items-start gap-4">
+              <p className="text-body text-sm">
+                {donorDashboardContent.activeListings.empty}
+              </p>
+              <ButtonLink to={ROUTES.POST_LISTING}>
+                {donorDashboardContent.activeListings.emptyCta}
+              </ButtonLink>
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {activeListings.map((listing) => (

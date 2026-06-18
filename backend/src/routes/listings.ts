@@ -64,6 +64,13 @@ listingsRouter.post(
 )
 
 listingsRouter.get(
+  '/:id/requests',
+  ...donorListingGuards,
+  validateParams(listingIdParamSchema),
+  listingController.listListingRequests,
+)
+
+listingsRouter.get(
   '/:id',
   ...donorListingGuards,
   validateParams(listingIdParamSchema),

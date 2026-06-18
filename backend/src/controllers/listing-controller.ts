@@ -6,6 +6,7 @@ import {
   getBrowseListingForNgo,
   getListingForDonor,
   listDonorListings,
+  listRequestsForDonorListing,
   updateListingForDonor,
 } from '../services/listing-service.js'
 import type {
@@ -77,8 +78,29 @@ export async function browseById(
 ) {
   try {
     const params = req.validatedParams as ListingIdParam
-    const listing = await getBrowseListingForNgo(params.id)
+    const listing = await getBrowseListingForNgo({
+      listingId: params.id,
+      ngoId: req.auth!.userId,
+    })
     return sendSuccess(res, { listing })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function listListingRequests(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const params = req.validatedParams as ListingIdParam
+    const result = await listRequestsForDonorListing({
+      donorId: req.auth!.userId,
+      listingId: params.id,
+    })
+
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

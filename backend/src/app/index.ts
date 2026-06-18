@@ -10,6 +10,7 @@ import { globalRateLimiter } from './middleware/rate-limit.js'
 import { healthRouter } from './routes/health.js'
 import { authRouter } from '../routes/auth.js'
 import { listingsRouter } from '../routes/listings.js'
+import { requestsRouter } from '../routes/requests.js'
 import { verificationRouter } from '../routes/verification.js'
 import { devNotificationsRouter } from '../routes/dev-notifications.js'
 
@@ -37,6 +38,7 @@ export function createApp() {
 
   app.use('/auth', authRouter)
   app.use('/listings', listingsRouter)
+  app.use('/requests', requestsRouter)
   app.use('/verification', verificationRouter)
   if (config.NODE_ENV !== 'production') {
     app.use('/dev/notifications', devNotificationsRouter)

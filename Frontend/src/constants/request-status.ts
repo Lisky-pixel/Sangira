@@ -1,4 +1,4 @@
-/** Mirrors backend REQUEST_STATUS — swap via shared constants only */
+/** Mirrors backend REQUEST_STATUS — donor accept slice uses accepted/declined */
 export const REQUEST_STATUS = {
   REQUESTED: 'requested',
   ACCEPTED: 'accepted',

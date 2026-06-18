@@ -30,6 +30,11 @@ import {
   serializeBrowseListing,
   type SerializedBrowseListing,
 } from '../utils/serialize-browse-listing.js'
+import {
+  serializeDonorListingRequest,
+  type SerializedDonorListingRequest,
+} from '../utils/serialize-request.js'
+import { ngoHasActiveRequestForListing } from './request-service.js'
 
 type CreateListingFile = {
   buffer: Buffer
@@ -426,41 +431,23 @@ export async function browseActiveListingsForNgo(): Promise<
     return []
   }
 
-  const listingIds = listings.map((listing) => listing._id)
-
-  const pendingCounts = await FoodRequest.aggregate<{
-    _id: typeof listingIds[number]
-    count: number
-  }>([
-    {
-      $match: {
-        listing: { $in: listingIds },
-        status: REQUEST_STATUS.REQUESTED,
-      },
-    },
-    { $group: { _id: '$listing', count: { $sum: 1 } } },
-  ])
-
-  const pendingByListingId = new Map(
-    pendingCounts.map((entry) => [entry._id.toString(), entry.count]),
-  )
-
-  return listings
-    .filter((listing) => (pendingByListingId.get(listing._id.toString()) ?? 0) === 0)
-    .map((listing) => {
-      const donorMeta = donorMetaById.get(listing.donor.toString())
-      return serializeBrowseListing({
-        ...listing,
-        donor: listing.donor,
-        donorOrganisationName: donorMeta?.organisationName ?? 'Verified donor',
-        donorCreatedAt: donorMeta?.createdAt ?? listing.createdAt,
-      })
+  return listings.map((listing) => {
+    const donorMeta = donorMetaById.get(listing.donor.toString())
+    return serializeBrowseListing({
+      ...listing,
+      donor: listing.donor,
+      donorOrganisationName: donorMeta?.organisationName ?? 'Verified donor',
+      donorCreatedAt: donorMeta?.createdAt ?? listing.createdAt,
     })
+  })
 }
 
-export async function getBrowseListingForNgo(
-  listingId: string,
-): Promise<SerializedBrowseListing> {
+export async function getBrowseListingForNgo(input: {
+  listingId: string
+  ngoId: string
+}): Promise<SerializedBrowseListing> {
+  const { listingId, ngoId } = input
+
   if (!mongoose.isValidObjectId(listingId)) {
     throw notFound('Listing not found', 'LISTING_NOT_FOUND')
   }
@@ -488,19 +475,48 @@ export async function getBrowseListingForNgo(
     throw notFound('Listing not found', 'LISTING_NOT_FOUND')
   }
 
-  const pendingRequestCount = await FoodRequest.countDocuments({
-    listing: listing._id,
+  const hasRequested = await ngoHasActiveRequestForListing({
+    listingId,
+    ngoId,
+  })
+
+  return {
+    ...serializeBrowseListing({
+      ...listing,
+      donor: listing.donor,
+      donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
+      donorCreatedAt: donor.createdAt,
+    }),
+    hasRequested,
+  }
+}
+
+/** Minimal donor read — donor accept slice will flesh out accept/decline actions */
+export async function listRequestsForDonorListing(input: {
+  donorId: string
+  listingId: string
+}): Promise<{
+  requestCount: number
+  requests: SerializedDonorListingRequest[]
+}> {
+  await getOwnedListingOrThrow(input.listingId, input.donorId)
+
+  const requests = await FoodRequest.find({
+    listing: input.listingId,
     status: REQUEST_STATUS.REQUESTED,
   })
+    .populate({ path: 'ngo', model: User, select: 'organisationName' })
+    .sort({ createdAt: -1 })
+    .lean()
 
-  if (pendingRequestCount > 0) {
-    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  const serialized = requests.map((request) =>
+    serializeDonorListingRequest(
+      request as Parameters<typeof serializeDonorListingRequest>[0],
+    ),
+  )
+
+  return {
+    requestCount: serialized.length,
+    requests: serialized,
   }
-
-  return serializeBrowseListing({
-    ...listing,
-    donor: listing.donor,
-    donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
-    donorCreatedAt: donor.createdAt,
-  })
 }

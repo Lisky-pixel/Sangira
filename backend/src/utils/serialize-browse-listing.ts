@@ -9,6 +9,8 @@ export type SerializedBrowseDonor = {
 
 export type SerializedBrowseListing = Omit<SerializedListing, 'donor'> & {
   donor: SerializedBrowseDonor
+  /** Present on NGO detail reads — whether the signed-in NGO has an active request */
+  hasRequested?: boolean
 }
 
 type BrowseListingDocumentLike = Parameters<typeof serializeListing>[0] & {

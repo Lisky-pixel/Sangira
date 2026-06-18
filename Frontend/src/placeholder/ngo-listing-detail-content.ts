@@ -41,6 +41,7 @@ export const ngoListingDetailContent = {
       loading: 'Sending request…',
       success: 'Request sent',
       error: 'Could not send request',
+      listingUnavailableAction: 'Back to browse',
     },
     // TODO: route to NGO "My requests" when /ngo/requests ships
     myRequestsRoute: ROUTES.NGO_REQUESTS,

@@ -19,6 +19,7 @@ const requestSchema = new Schema(
       default: REQUEST_STATUS.REQUESTED,
     },
     confirmation: {
+      // Pickup handover placeholder — QR token, PIN, and confirmation flags filled by pickup slice
       donorConfirmed: { type: Boolean, default: false },
       ngoConfirmed: { type: Boolean, default: false },
       pickupPin: { type: String, select: false },

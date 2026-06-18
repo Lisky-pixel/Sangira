@@ -10,7 +10,8 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { REQUEST_ERROR_CODES } from '../../constants/request'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
 import type { FoodLabel, StorageCondition } from '../../constants/listing-form'
 import { formatMemberSince } from '../../lib/format-listing-time'
@@ -20,6 +21,7 @@ import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-co
 import { NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER } from '../../placeholder/ngo-listing-detail-donor-stats'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { requestService } from '../../services/request-service'
+import { ApiError } from '../../services/api-error'
 import { toast } from '../../lib/toast'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 import { Button } from '../ui/button'
@@ -78,6 +80,7 @@ function resolvePickupAddress(listing: NgoBrowseListing) {
 }
 
 export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
+  const navigate = useNavigate()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [hasRequested, setHasRequested] = useState(
     listing.hasRequested ?? false,
@@ -103,13 +106,38 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
       await toast.promise(createPromise, {
         loading: ngoListingDetailContent.confirm.toast.loading,
         success: ngoListingDetailContent.confirm.toast.success,
-        error: ngoListingDetailContent.confirm.toast.error,
+        error: (error) =>
+          error instanceof ApiError
+            ? error.message
+            : ngoListingDetailContent.confirm.toast.error,
       })
       setHasRequested(true)
       setConfirmOpen(false)
       // TODO: route to ngoListingDetailContent.confirm.myRequestsRoute when My requests ships
-    } catch {
-      // toast.promise surfaces the error
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        return
+      }
+
+      if (error.code === REQUEST_ERROR_CODES.REQUEST_ALREADY_EXISTS) {
+        setHasRequested(true)
+        setConfirmOpen(false)
+        return
+      }
+
+      if (
+        error.code === REQUEST_ERROR_CODES.LISTING_NOT_AVAILABLE ||
+        error.code === REQUEST_ERROR_CODES.LISTING_NOT_ACCEPTING
+      ) {
+        toast.error(error.message, {
+          action: {
+            label: ngoListingDetailContent.confirm.toast.listingUnavailableAction,
+            onClick: () => {
+              navigate(ngoListingDetailContent.routes.browse)
+            },
+          },
+        })
+      }
     }
   }
 

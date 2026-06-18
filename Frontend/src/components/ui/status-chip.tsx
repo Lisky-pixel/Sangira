@@ -19,6 +19,7 @@ export type StatusChipVariant =
 type StatusChipProps = {
   status: StatusChipVariant
   className?: string
+  label?: string
 }
 
 const dotVariantStyles = {
@@ -73,7 +74,7 @@ function isIconVariant(
   return status in iconVariantStyles
 }
 
-export function StatusChip({ status, className }: StatusChipProps) {
+export function StatusChip({ status, className, label }: StatusChipProps) {
   if (isIconVariant(status)) {
     const styles = iconVariantStyles[status]
     const Icon = styles.Icon
@@ -87,7 +88,7 @@ export function StatusChip({ status, className }: StatusChipProps) {
         )}
       >
         <Icon aria-hidden="true" className="size-3.5 shrink-0" />
-        {styles.label}
+        {label ?? styles.label}
       </span>
     )
   }
@@ -106,7 +107,7 @@ export function StatusChip({ status, className }: StatusChipProps) {
         aria-hidden="true"
         className={cn('size-1.5 shrink-0 rounded-full', styles.dot)}
       />
-      {styles.label}
+      {label ?? styles.label}
     </span>
   )
 }

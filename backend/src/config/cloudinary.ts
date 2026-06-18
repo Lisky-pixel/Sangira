@@ -12,6 +12,11 @@ import {
   type CloudinaryResourceType,
 } from '../constants/cloudinary.js'
 import {
+  CLOUDINARY_AVATAR_ACCESS_TYPE,
+  CLOUDINARY_AVATAR_FOLDER,
+  CLOUDINARY_AVATAR_RESOURCE_TYPE,
+} from '../constants/cloudinary-avatars.js'
+import {
   CLOUDINARY_LISTING_ACCESS_TYPE,
   CLOUDINARY_LISTING_FOLDER,
   CLOUDINARY_LISTING_RESOURCE_TYPE,
@@ -70,6 +75,42 @@ export async function uploadCertificate(
           resourceType: normalizeUploadResourceType(result.resource_type),
           format: result.format,
           accessType: CLOUDINARY_AUTHENTICATED_ACCESS_TYPE,
+        })
+      },
+    )
+
+    upload.end(buffer)
+  })
+}
+
+export type AvatarUploadResult = {
+  secureUrl: string
+  publicId: string
+}
+
+export async function uploadAvatarPhoto(
+  buffer: Buffer,
+  filename: string,
+): Promise<AvatarUploadResult> {
+  return new Promise((resolve, reject) => {
+    const upload = cloudinary.uploader.upload_stream(
+      {
+        folder: CLOUDINARY_AVATAR_FOLDER,
+        type: CLOUDINARY_AVATAR_ACCESS_TYPE,
+        resource_type: CLOUDINARY_AVATAR_RESOURCE_TYPE,
+        use_filename: true,
+        unique_filename: true,
+        filename_override: filename,
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error('Cloudinary avatar upload failed'))
+          return
+        }
+
+        resolve({
+          secureUrl: result.secure_url,
+          publicId: result.public_id,
         })
       },
     )

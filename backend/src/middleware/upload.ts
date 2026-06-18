@@ -11,6 +11,12 @@ import {
   LISTING_PHOTO_FIELD,
   MAX_LISTING_PHOTO_SIZE_BYTES,
 } from '../constants/listing-photo.js'
+import {
+  ACCEPTED_AVATAR_PHOTO_TYPES,
+  AVATAR_PHOTO_FIELD,
+  isAcceptedAvatarPhotoMime,
+  MAX_AVATAR_PHOTO_SIZE_BYTES,
+} from '../constants/avatar-photo.js'
 import { badRequest } from '../utils/app-error.js'
 
 const upload = multer({
@@ -145,4 +151,58 @@ export function validateOptionalListingPhoto(
   }
 
   return validateListingPhotoFile(file, next)
+}
+
+function singleAvatarPhotoUpload(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  upload.single(AVATAR_PHOTO_FIELD)(req, res, (err: unknown) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return next(
+          badRequest('Photo must be under 5 MB', 'AVATAR_PHOTO_TOO_LARGE'),
+        )
+      }
+      return next(badRequest(err.message, 'UPLOAD_ERROR'))
+    }
+
+    if (err) {
+      return next(err)
+    }
+
+    return next()
+  })
+}
+
+export const uploadAvatarPhotoMiddleware = singleAvatarPhotoUpload
+
+export function requireAvatarPhoto(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) {
+  const file = req.file
+
+  if (!file) {
+    return next(badRequest('Avatar photo is required', 'AVATAR_PHOTO_REQUIRED'))
+  }
+
+  if (!isAcceptedAvatarPhotoMime(file.mimetype)) {
+    return next(
+      badRequest(
+        `Photo must be one of: ${ACCEPTED_AVATAR_PHOTO_TYPES.join(', ')}`,
+        'INVALID_AVATAR_PHOTO_TYPE',
+      ),
+    )
+  }
+
+  if (file.size > MAX_AVATAR_PHOTO_SIZE_BYTES) {
+    return next(
+      badRequest('Photo must be under 5 MB', 'AVATAR_PHOTO_TOO_LARGE'),
+    )
+  }
+
+  return next()
 }

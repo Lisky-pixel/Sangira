@@ -24,6 +24,8 @@ export type IUser = {
   phone?: string
   accountStatus: string
   notificationPrefs: NotificationPreferences
+  profileImageUrl?: string
+  passwordChangedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -119,6 +121,8 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         },
       },
     },
+    profileImageUrl: { type: String, trim: true },
+    passwordChangedAt: { type: Date },
   },
   {
     timestamps: true,
@@ -162,7 +166,10 @@ const donorSchema = new Schema({
   organisationName: { type: String, required: true, trim: true },
   contactName: { type: String, required: true, trim: true },
   businessCertificateUrl: { type: String, trim: true },
-  pickupLocation: { type: geoPointSchema },
+  /** Set during verification — read-only in donor profile */
+  businessRegistrationNumber: { type: String, trim: true },
+  pickupAddress: { type: String, trim: true },
+  pickupLocation: { type: geoPointSchema, required: false },
   verification: {
     type: verificationSchema,
     default: () => ({ status: VERIFICATION_STATUS.PENDING }),

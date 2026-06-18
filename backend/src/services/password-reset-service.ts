@@ -138,6 +138,7 @@ export async function verifyPasswordResetCode(
 
   // Update password (pre-save hook will hash).
   user.passwordHash = input.newPassword
+  user.passwordChangedAt = new Date()
   await user.save()
 
   reset.consumedAt = new Date()

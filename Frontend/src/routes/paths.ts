@@ -19,6 +19,7 @@ export const ROUTES = {
   POST_LISTING: '/donor/listings/new',
   DONOR_IMPACT: '/donor/impact',
   DONOR_PROFILE: '/donor/profile',
+  DONOR_CHANGE_PASSWORD: '/donor/change-password',
   DONOR_SETTINGS: '/donor/settings',
   /** TEMPORARY — notifications until slice ships */
   DONOR_NOTIFICATIONS: '/donor/notifications',
@@ -72,7 +73,6 @@ export const COMING_SOON_PATHS = [
 /** TEMPORARY — donor portal routes not yet implemented */
 export const DONOR_COMING_SOON_PATHS = [
   ROUTES.DONOR_IMPACT,
-  ROUTES.DONOR_PROFILE,
   ROUTES.DONOR_NOTIFICATIONS,
   DONOR_ROUTE_PATTERNS.REQUEST_REVIEW,
 ] as const

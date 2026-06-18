@@ -81,8 +81,8 @@ export function DonorTopNav({ className }: DonorTopNavProps) {
     state.user.organisationName?.trim() || donorDashboardContent.topNav.brand
   const role = isUserRole(state.user.role) ? state.user.role : 'donor'
   const avatarUrl =
-    typeof state.user.profileImageUrl === 'string'
-      ? state.user.profileImageUrl
+    typeof state.user.avatarUrl === 'string'
+      ? state.user.avatarUrl
       : undefined
 
   const closeMobile = () => setMobileOpen(false)

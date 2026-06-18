@@ -9,6 +9,7 @@ import {
   requireAvatarPhoto,
   uploadAvatarPhotoMiddleware,
 } from '../middleware/upload.js'
+import { rejectReadonlyProfileFields } from '../middleware/reject-readonly-profile-fields.js'
 import { validateBody } from '../middleware/validate.js'
 import { loginSchema, registerSchema } from '../validators/auth.js'
 import { updateNotificationPreferencesSchema } from '../validators/notification-preferences.js'
@@ -95,6 +96,7 @@ authRouter.patch(
   '/me/profile',
   csrfGuard,
   requireAuth,
+  rejectReadonlyProfileFields,
   validateBody(patchProfileSchema),
   profileController.patchProfile,
 )

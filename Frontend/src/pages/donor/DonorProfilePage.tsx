@@ -37,7 +37,7 @@ export function DonorProfilePage() {
   const memberSince = formatMemberMonthYear(user.createdAt)
   const passwordChangedLabel = formatPasswordLastChanged(user.passwordChangedAt)
   const avatarUrl =
-    typeof user.profileImageUrl === 'string' ? user.profileImageUrl : undefined
+    typeof user.avatarUrl === 'string' ? user.avatarUrl : undefined
 
   const sublineParts = [
     locationLabel,

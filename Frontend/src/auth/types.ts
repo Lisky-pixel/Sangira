@@ -12,7 +12,7 @@ export type AuthUser = {
   organisationName?: string
   contactName?: string
   phone?: string
-  profileImageUrl?: string
+  avatarUrl?: string
   pickupAddress?: string
   businessRegistrationNumber?: string
   passwordChangedAt?: string

@@ -1,6 +1,6 @@
-import { RefreshToken } from '../models/refresh-token.js'
 import { User } from '../models/user.js'
 import { PASSWORD_CHANGE } from '../constants/password-change.js'
+import { revokeAllUserRefreshTokens } from './session-revocation.js'
 import { unauthorized } from '../utils/app-error.js'
 import type { ChangePasswordInput } from '../validators/password-change.js'
 
@@ -25,5 +25,5 @@ export async function changePasswordForUser(
   user.passwordChangedAt = new Date()
   await user.save()
 
-  await RefreshToken.updateMany({ user: user._id }, { revoked: true })
+  await revokeAllUserRefreshTokens(user._id.toString())
 }

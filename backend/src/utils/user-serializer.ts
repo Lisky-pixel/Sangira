@@ -12,14 +12,36 @@ type SerializableUser = {
   toJSON?: () => Record<string, unknown>
 }
 
+type UserJson = Record<string, unknown> & {
+  avatarUrl?: string
+  /** @deprecated Legacy field — mapped to avatarUrl in API responses */
+  profileImageUrl?: string
+  passwordChangedAt?: Date | string
+  pickupAddress?: string
+  pickupLocation?: {
+    type?: string
+    coordinates?: number[]
+    address?: string
+  }
+}
+
 export function serializeUser(user: SerializableUser) {
-  const json =
+  const json: UserJson =
     typeof user.toJSON === 'function'
-      ? user.toJSON()
-      : (user as unknown as Record<string, unknown>)
+      ? (user.toJSON() as UserJson)
+      : (user as unknown as UserJson)
+
+  const { profileImageUrl: legacyAvatar, ...rest } = json
+  const avatarUrl =
+    typeof rest.avatarUrl === 'string'
+      ? rest.avatarUrl
+      : typeof legacyAvatar === 'string'
+        ? legacyAvatar
+        : undefined
 
   return {
-    ...json,
+    ...rest,
+    ...(avatarUrl ? { avatarUrl } : {}),
     notificationPrefs: normalizeNotificationPrefs(user.notificationPrefs),
   }
 }

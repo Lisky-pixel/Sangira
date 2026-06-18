@@ -8,7 +8,7 @@ import { maskEmail } from '../utils/mask-email.js'
 import { generateResetCode, hashResetCode } from '../utils/reset-code.js'
 import { sendVerificationCodeEmail, NotificationError } from '../notifications/index.js'
 import { unauthorized } from '../utils/app-error.js'
-import { RefreshToken } from '../models/refresh-token.js'
+import { revokeAllUserRefreshTokens } from './session-revocation.js'
 import { issueAuthTokens } from './auth-service.js'
 import { VERIFICATION_STATUS } from '../constants/enums.js'
 import type { Role } from '../constants/enums.js'
@@ -145,7 +145,7 @@ export async function verifyPasswordResetCode(
   await reset.save()
 
   // Revoke all sessions.
-  await RefreshToken.updateMany({ user: user._id }, { revoked: true })
+  await revokeAllUserRefreshTokens(user._id.toString())
 
   const tokens = await issueAuthTokens(user._id.toString(), user.role as Role, req)
 

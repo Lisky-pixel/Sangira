@@ -66,6 +66,12 @@ export async function updateProfileForDonor(input: {
         'INVALID_PHONE',
       )
     }
+
+    const phoneOwner = await User.findOne({ phone: normalizedPhone }).select('_id')
+    if (phoneOwner && phoneOwner._id.toString() !== user._id.toString()) {
+      throw conflict(PROFILE_PHONE_TAKEN_MESSAGE, PROFILE_PHONE_TAKEN_CODE)
+    }
+
     user.phone = normalizedPhone
   }
 
@@ -81,7 +87,7 @@ export async function updateProfileForDonor(input: {
         address,
       }
     } else {
-      user.set('pickupLocation', undefined)
+      user.pickupLocation = { address }
     }
   }
 
@@ -118,7 +124,7 @@ export async function updateAvatarForUser(input: {
     throw badRequest('Failed to upload avatar photo', 'AVATAR_UPLOAD_FAILED')
   })
 
-  user.profileImageUrl = upload.secureUrl
+  user.avatarUrl = upload.secureUrl
   await user.save()
 
   return serializeUser(user)

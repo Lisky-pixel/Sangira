@@ -8,6 +8,7 @@ import {
   VERIFICATION_STATUS,
   type Role,
 } from '../constants/enums.js'
+import { listingPickupLocationSchema } from './schemas/listing-pickup-location.js'
 import { geoPointSchema, verificationSchema } from './schemas/geo-point.js'
 import { normalizePhone } from '../utils/phone.js'
 
@@ -24,7 +25,7 @@ export type IUser = {
   phone?: string
   accountStatus: string
   notificationPrefs: NotificationPreferences
-  profileImageUrl?: string
+  avatarUrl?: string
   passwordChangedAt?: Date
   createdAt: Date
   updatedAt: Date
@@ -121,7 +122,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         },
       },
     },
-    profileImageUrl: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true },
     passwordChangedAt: { type: Date },
   },
   {
@@ -169,7 +170,7 @@ const donorSchema = new Schema({
   /** Set during verification — read-only in donor profile */
   businessRegistrationNumber: { type: String, trim: true },
   pickupAddress: { type: String, trim: true },
-  pickupLocation: { type: geoPointSchema, required: false },
+  pickupLocation: { type: listingPickupLocationSchema, required: false },
   verification: {
     type: verificationSchema,
     default: () => ({ status: VERIFICATION_STATUS.PENDING }),

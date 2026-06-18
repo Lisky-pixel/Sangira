@@ -3,7 +3,7 @@ import type { NotificationPreferences } from '../constants/notification-preferen
 import { normalizeNotificationPrefs } from './normalize-notification-prefs.js'
 
 type SerializableUser = {
-  notificationPrefs?: Partial<NotificationPreferences>
+  notificationPrefs?: NotificationPreferences | Record<string, unknown>
   verification?: {
     status?: string
     reason?: string | null

@@ -1,6 +1,6 @@
 import {
-  NOTIFICATION_PREF_KEY,
-  type NotificationPrefKey,
+  NOTIFICATION_EVENT_KEY,
+  type NotificationEventKey,
   type NotificationPreferences,
 } from '../constants/notification-preferences'
 import type { ApiEnvelope } from '../types/api'
@@ -12,16 +12,18 @@ type UpdateNotificationPreferencesResponse = {
 }
 
 export const notificationPreferencesService = {
-  async updatePreference(
-    key: NotificationPrefKey,
+  async updateEventPreference(
+    key: NotificationEventKey,
     value: boolean,
   ): Promise<NotificationPreferences> {
     const response = await apiClient.patch<
       ApiEnvelope<UpdateNotificationPreferencesResponse>
-    >('/auth/me/notification-preferences', { [key]: value })
+    >('/auth/me/notification-preferences', {
+      events: { [key]: value },
+    })
 
     return unwrapApiResponse(response).notificationPrefs
   },
 }
 
-export { NOTIFICATION_PREF_KEY }
+export { NOTIFICATION_EVENT_KEY }

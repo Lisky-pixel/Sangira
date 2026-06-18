@@ -1,4 +1,5 @@
 import {
+  mergeNotificationPrefs,
   normalizeNotificationPrefs,
 } from '../utils/normalize-notification-prefs.js'
 import type { NotificationPreferences } from '../constants/notification-preferences.js'
@@ -17,7 +18,7 @@ export async function updateNotificationPreferencesForUser(input: {
   }
 
   const current = normalizeNotificationPrefs(user.notificationPrefs)
-  const next = { ...current, ...input.patch }
+  const next = mergeNotificationPrefs(current, input.patch)
 
   user.notificationPrefs = next
   await user.save()

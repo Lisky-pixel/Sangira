@@ -1,6 +1,6 @@
 import {
-  NOTIFICATION_PREF_KEY,
-  type NotificationPrefKey,
+  NOTIFICATION_EVENT_KEY,
+  type NotificationEventKey,
 } from '../constants/notification-preferences'
 
 export const donorSettingsContent = {
@@ -10,24 +10,24 @@ export const donorSettingsContent = {
     title: 'Notifications',
     subtitle: 'Choose how you hear from Sangira',
     rows: {
-      [NOTIFICATION_PREF_KEY.NEW_REQUEST]: {
+      [NOTIFICATION_EVENT_KEY.NEW_REQUEST]: {
         title: 'New request received',
         description: 'When an NGO requests one of your listings',
       },
-      [NOTIFICATION_PREF_KEY.PICKUP_REMINDERS]: {
+      [NOTIFICATION_EVENT_KEY.PICKUP_REMINDERS]: {
         title: 'Pickup reminders',
         description: 'Before a scheduled pickup time',
       },
-      [NOTIFICATION_PREF_KEY.LISTING_EXPIRING]: {
+      [NOTIFICATION_EVENT_KEY.LISTING_EXPIRING]: {
         title: 'Listing expiring soon',
         description: 'One hour before a listing expires unmatched',
       },
-      [NOTIFICATION_PREF_KEY.IMPACT_SUMMARY]: {
+      [NOTIFICATION_EVENT_KEY.IMPACT_SUMMARY]: {
         title: 'Impact summary',
         description: 'A monthly summary of your redistribution',
       },
     } satisfies Record<
-      NotificationPrefKey,
+      NotificationEventKey,
       { title: string; description: string }
     >,
   },

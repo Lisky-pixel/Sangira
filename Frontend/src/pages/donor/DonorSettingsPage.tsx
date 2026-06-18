@@ -3,8 +3,8 @@ import { useAuth } from '../../auth'
 import { Toggle } from '../../components/ui/toggle'
 import { Button } from '../../components/ui/button'
 import {
-  NOTIFICATION_PREF_KEYS,
-  type NotificationPrefKey,
+  NOTIFICATION_EVENT_KEYS,
+  type NotificationEventKey,
   type NotificationPreferences,
 } from '../../constants/notification-preferences'
 import { normalizeNotificationPrefs } from '../../lib/notification-preferences'
@@ -59,7 +59,7 @@ export function DonorSettingsPage() {
   const [draftPrefs, setDraftPrefs] = useState<NotificationPreferences | null>(
     null,
   )
-  const [savingKey, setSavingKey] = useState<NotificationPrefKey | null>(null)
+  const [savingKey, setSavingKey] = useState<NotificationEventKey | null>(null)
 
   const authPrefs =
     state.status === 'authed'
@@ -68,22 +68,28 @@ export function DonorSettingsPage() {
   const prefs = draftPrefs ?? authPrefs
 
   const handlePreferenceChange = useCallback(
-    async (key: NotificationPrefKey, nextValue: boolean) => {
+    async (key: NotificationEventKey, nextValue: boolean) => {
       if (!prefs) return
 
-      const previousValue = prefs[key]
+      const previousValue = prefs.events[key]
       if (previousValue === nextValue) return
 
-      setDraftPrefs({ ...prefs, [key]: nextValue })
+      setDraftPrefs({
+        ...prefs,
+        events: { ...prefs.events, [key]: nextValue },
+      })
       setSavingKey(key)
 
       try {
-        await notificationPreferencesService.updatePreference(key, nextValue)
+        await notificationPreferencesService.updateEventPreference(key, nextValue)
         setDraftPrefs(null)
         await refreshMe()
         toast.success(donorSettingsContent.toast.preferenceSaved)
       } catch {
-        setDraftPrefs({ ...prefs, [key]: previousValue })
+        setDraftPrefs({
+          ...prefs,
+          events: { ...prefs.events, [key]: previousValue },
+        })
         toast.error(donorSettingsContent.toast.preferenceError)
       } finally {
         setSavingKey(null)
@@ -112,7 +118,7 @@ export function DonorSettingsPage() {
         subtitle={donorSettingsContent.notifications.subtitle}
       >
         <ul className="flex flex-col gap-4">
-          {NOTIFICATION_PREF_KEYS.map((key, index) => {
+          {NOTIFICATION_EVENT_KEYS.map((key, index) => {
             const row = donorSettingsContent.notifications.rows[key]
             return (
               <li
@@ -123,7 +129,7 @@ export function DonorSettingsPage() {
                   id={`notification-pref-${key}`}
                   label={row.title}
                   description={row.description}
-                  checked={prefs[key]}
+                  checked={prefs.events[key]}
                   disabled={savingKey === key}
                   onChange={(checked) => void handlePreferenceChange(key, checked)}
                 />

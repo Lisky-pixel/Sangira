@@ -12,7 +12,8 @@ import { geoPointSchema, verificationSchema } from './schemas/geo-point.js'
 import { normalizePhone } from '../utils/phone.js'
 
 import {
-  DEFAULT_NOTIFICATION_PREFS,
+  DEFAULT_NOTIFICATION_CHANNEL_PREFS,
+  DEFAULT_NOTIFICATION_EVENT_PREFS,
   type NotificationPreferences,
 } from '../constants/notification-preferences.js'
 
@@ -85,21 +86,37 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       default: ACCOUNT_STATUS.ACTIVE,
     },
     notificationPrefs: {
-      newRequest: {
-        type: Boolean,
-        default: DEFAULT_NOTIFICATION_PREFS.newRequest,
+      channels: {
+        email: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_CHANNEL_PREFS.email,
+        },
+        inApp: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_CHANNEL_PREFS.inApp,
+        },
+        sms: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_CHANNEL_PREFS.sms,
+        },
       },
-      pickupReminders: {
-        type: Boolean,
-        default: DEFAULT_NOTIFICATION_PREFS.pickupReminders,
-      },
-      listingExpiring: {
-        type: Boolean,
-        default: DEFAULT_NOTIFICATION_PREFS.listingExpiring,
-      },
-      impactSummary: {
-        type: Boolean,
-        default: DEFAULT_NOTIFICATION_PREFS.impactSummary,
+      events: {
+        newRequest: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_EVENT_PREFS.newRequest,
+        },
+        pickupReminders: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_EVENT_PREFS.pickupReminders,
+        },
+        listingExpiring: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_EVENT_PREFS.listingExpiring,
+        },
+        impactSummary: {
+          type: Boolean,
+          default: DEFAULT_NOTIFICATION_EVENT_PREFS.impactSummary,
+        },
       },
     },
   },

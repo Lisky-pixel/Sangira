@@ -96,17 +96,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [],
   )
 
+  const clearLocalSession = useCallback(() => {
+    clearCsrfToken()
+    clearSession()
+  }, [clearSession])
+
   const logout = useCallback(async () => {
     try {
       await authService.logout()
     } catch {
       // Clear local session even if the network call fails.
     } finally {
-      clearCsrfToken()
-      clearSession()
+      clearLocalSession()
       navigate(ROUTES.HOME, { replace: true })
     }
-  }, [clearSession, navigate])
+  }, [clearLocalSession, navigate])
 
   useEffect(() => {
     let cancelled = false
@@ -144,25 +148,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     setAuthFailureHandler(() => {
-      clearCsrfToken()
-      clearSession()
+      clearLocalSession()
       navigate(ROUTES.SIGN_IN, { replace: true })
     })
 
     return () => {
       setAuthFailureHandler(null)
     }
-  }, [clearSession, navigate])
+  }, [clearLocalSession, navigate])
 
   const value = useMemo<AuthContextValue>(
     () => ({
       state,
       login,
       logout,
+      clearLocalSession,
       refreshMe,
       establishSession,
     }),
-    [establishSession, login, logout, refreshMe, state],
+    [clearLocalSession, establishSession, login, logout, refreshMe, state],
   )
 
   if (state.status === 'loading') {

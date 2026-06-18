@@ -13,12 +13,14 @@ import { validateBody } from '../middleware/validate.js'
 import { loginSchema, registerSchema } from '../validators/auth.js'
 import { updateNotificationPreferencesSchema } from '../validators/notification-preferences.js'
 import { patchProfileSchema } from '../validators/profile.js'
+import { changePasswordSchema } from '../validators/password-change.js'
 import {
   passwordRequestCodeSchema,
   passwordVerifySchema,
 } from '../validators/password-reset.js'
 import { unauthorized } from '../utils/app-error.js'
 import { COOKIE_NAMES } from '../constants/auth.js'
+import * as passwordChangeController from '../controllers/password-change-controller.js'
 import * as passwordResetController from '../controllers/password-reset-controller.js'
 import * as profileController from '../controllers/profile-controller.js'
 
@@ -58,6 +60,15 @@ authRouter.post(
   csrfGuard,
   validateBody(passwordVerifySchema),
   passwordResetController.verify,
+)
+
+authRouter.post(
+  '/password/change',
+  strictRateLimiter,
+  csrfGuard,
+  requireAuth,
+  validateBody(changePasswordSchema),
+  passwordChangeController.changePassword,
 )
 
 authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next) => {

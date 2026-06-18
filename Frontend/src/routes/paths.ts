@@ -19,7 +19,7 @@ export const ROUTES = {
   POST_LISTING: '/donor/listings/new',
   DONOR_IMPACT: '/donor/impact',
   DONOR_PROFILE: '/donor/profile',
-  DONOR_CHANGE_PASSWORD: '/donor/change-password',
+  DONOR_CHANGE_PASSWORD: '/donor/profile/change-password',
   DONOR_SETTINGS: '/donor/settings',
   /** TEMPORARY — notifications until slice ships */
   DONOR_NOTIFICATIONS: '/donor/notifications',

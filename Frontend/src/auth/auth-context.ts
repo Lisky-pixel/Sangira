@@ -7,6 +7,7 @@ export type AuthContextValue = {
   state: AuthState
   login: (email: string, password: string) => Promise<AuthSession>
   logout: () => Promise<void>
+  clearLocalSession: () => void
   refreshMe: () => Promise<AuthSession | null>
   establishSession: (
     user: AuthUser,

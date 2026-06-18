@@ -1,0 +1,5 @@
+export const PASSWORD_CHANGE = {
+  ERROR_CODES: {
+    INVALID_CURRENT_PASSWORD: 'INVALID_CURRENT_PASSWORD',
+  },
+} as const

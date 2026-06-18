@@ -106,6 +106,18 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: ROUTES.DONOR_CHANGE_PASSWORD,
+        element: (
+          <RequireAuth>
+            <DonorChangePasswordPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/donor/change-password',
+        element: <Navigate replace to={ROUTES.DONOR_CHANGE_PASSWORD} />,
+      },
+      {
         path: ROUTES.DONOR_DASHBOARD_LEGACY,
         element: <Navigate replace to={ROUTES.DONOR_DASHBOARD} />,
       },
@@ -152,10 +164,6 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             element: <DonorProfilePage />,
-          },
-          {
-            path: 'change-password',
-            element: <DonorChangePasswordPage />,
           },
           {
             path: 'settings',

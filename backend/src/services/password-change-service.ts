@@ -1,7 +1,7 @@
 import { User } from '../models/user.js'
 import { PASSWORD_CHANGE } from '../constants/password-change.js'
 import { revokeAllUserRefreshTokens } from './session-revocation.js'
-import { unauthorized } from '../utils/app-error.js'
+import { badRequest, unauthorized } from '../utils/app-error.js'
 import type { ChangePasswordInput } from '../validators/password-change.js'
 
 export async function changePasswordForUser(
@@ -18,6 +18,14 @@ export async function changePasswordForUser(
     throw unauthorized(
       'Current password is incorrect',
       PASSWORD_CHANGE.ERROR_CODES.INVALID_CURRENT_PASSWORD,
+    )
+  }
+
+  const reusesCurrent = await user.comparePassword(input.newPassword)
+  if (reusesCurrent) {
+    throw badRequest(
+      'Your new password must be different from your current password.',
+      PASSWORD_CHANGE.ERROR_CODES.PASSWORD_REUSE,
     )
   }
 

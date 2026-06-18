@@ -35,7 +35,7 @@ export function DonorChangePasswordPage() {
   }, [methods.formState.isSubmitting, methods.formState.isValid])
 
   const onSubmit = methods.handleSubmit(async (values) => {
-    methods.clearErrors('currentPassword')
+    methods.clearErrors(['currentPassword', 'newPassword'])
 
     try {
       await passwordChangeService.changePassword({
@@ -43,14 +43,20 @@ export function DonorChangePasswordPage() {
         newPassword: values.newPassword,
       })
     } catch (error) {
-      if (
-        error instanceof ApiError &&
-        error.code === 'INVALID_CURRENT_PASSWORD'
-      ) {
-        methods.setError('currentPassword', {
-          message: donorChangePasswordContent.validation.wrongCurrent,
-        })
-        return
+      if (error instanceof ApiError) {
+        if (error.code === 'INVALID_CURRENT_PASSWORD') {
+          methods.setError('currentPassword', {
+            message: donorChangePasswordContent.validation.wrongCurrent,
+          })
+          return
+        }
+
+        if (error.code === 'PASSWORD_SAME_AS_CURRENT') {
+          methods.setError('newPassword', {
+            message: donorChangePasswordContent.validation.sameAsCurrent,
+          })
+          return
+        }
       }
 
       toast.error(
@@ -85,9 +91,12 @@ export function DonorChangePasswordPage() {
               >
                 <PasswordField
                   name="currentPassword"
-                  label={donorChangePasswordContent.fields.currentPassword.label}
+                  label={
+                    donorChangePasswordContent.fields.currentPassword.label
+                  }
                   placeholder={
-                    donorChangePasswordContent.fields.currentPassword.placeholder
+                    donorChangePasswordContent.fields.currentPassword
+                      .placeholder
                   }
                   autoComplete="current-password"
                   showStrength={false}

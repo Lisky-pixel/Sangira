@@ -21,12 +21,12 @@ export function ProfileTrackRecordCard({
 
   return (
     <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">
-      <h2 className="text-body text-xs font-medium tracking-wide uppercase">
+      <h2 className="text-body text-center text-xs font-medium tracking-wide uppercase">
         {donorProfileContent.trackRecord.sectionLabel}
       </h2>
 
       <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
-        <div className="sm:border-border sm:border-r sm:pr-4">
+        <div className="text-center sm:border-border sm:border-r sm:pr-4">
           <p className="text-charcoal font-display text-3xl font-bold">
             {stats.transfersCompleted}
           </p>
@@ -35,7 +35,7 @@ export function ProfileTrackRecordCard({
           </p>
         </div>
 
-        <div className="sm:border-border sm:border-r sm:pr-4">
+        <div className="text-center sm:border-border sm:border-r sm:pr-4">
           <p className="text-charcoal font-display text-3xl font-bold">
             {stats.mealsRedistributed.toLocaleString()}
           </p>
@@ -44,8 +44,8 @@ export function ProfileTrackRecordCard({
           </p>
         </div>
 
-        <div className="flex items-start gap-2">
-          <span className="bg-status-completed text-status-active mt-1 inline-flex size-6 items-center justify-center rounded-full">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span className="bg-status-completed text-status-active inline-flex size-6 items-center justify-center rounded-full">
             <Check aria-hidden="true" className="size-3.5" />
           </span>
           <div>

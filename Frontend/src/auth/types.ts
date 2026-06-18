@@ -14,7 +14,7 @@ export type AuthUser = {
   phone?: string
   avatarUrl?: string
   pickupAddress?: string
-  businessRegistrationNumber?: string
+  registrationNumber?: string
   passwordChangedAt?: string
   createdAt?: string
   verification?: {

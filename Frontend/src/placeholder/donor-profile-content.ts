@@ -34,15 +34,10 @@ export const donorProfileContent = {
         label: 'Email',
         readOnlyNote: 'Contact support to change your email',
       },
-      businessRegistration: {
-        label: 'Business registration',
-        readOnlyNote: 'Verified detail — contact support to update',
-        emptyValue: '—',
-      },
       [PROFILE_FIELD.ADDRESS]: {
         label: 'Address',
       },
-    } satisfies Record<string, { label: string; readOnlyNote?: string; emptyValue?: string }>,
+    } satisfies Record<string, { label: string; readOnlyNote?: string }>,
   },
   security: {
     title: 'Security',

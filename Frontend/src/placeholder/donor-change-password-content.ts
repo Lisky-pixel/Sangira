@@ -25,6 +25,8 @@ export const donorChangePasswordContent = {
     confirmRequired: 'Confirm your new password',
     confirmMismatch: 'Passwords do not match',
     wrongCurrent: 'Current password is incorrect',
+    sameAsCurrent:
+      'Your new password must be different from your current password.',
   },
   toast: {
     success: 'Password updated — please sign in with your new password.',

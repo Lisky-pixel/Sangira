@@ -2,6 +2,7 @@ import { useAuth } from '../../auth'
 import { ProfileAvatar } from '../../components/profile/profile-avatar'
 import { ProfileInlineFieldRow } from '../../components/profile/profile-inline-field-row'
 import { ProfileReadOnlyRow } from '../../components/profile/profile-readonly-row'
+import { ProfileRegistrationRow } from '../../components/profile/profile-registration-row'
 import { ProfileTrackRecordCard } from '../../components/profile/profile-track-record-card'
 import { ButtonLink } from '../../components/ui/button'
 import { StatusChip } from '../../components/ui/status-chip'
@@ -29,10 +30,6 @@ export function DonorProfilePage() {
   const email = user.email
   const phone = user.phone ?? ''
   const address = getDonorPickupAddress(user)
-  const registrationNumber =
-    typeof user.businessRegistrationNumber === 'string'
-      ? user.businessRegistrationNumber.trim()
-      : ''
   const locationLabel = formatProfileLocation(address)
   const memberSince = formatMemberMonthYear(user.createdAt)
   const passwordChangedLabel = formatPasswordLastChanged(user.passwordChangedAt)
@@ -139,21 +136,7 @@ export function DonorProfilePage() {
             note={donorProfileContent.organisationDetails.fields.email.readOnlyNote}
           />
 
-          <ProfileReadOnlyRow
-            label={
-              donorProfileContent.organisationDetails.fields.businessRegistration
-                .label
-            }
-            value={
-              registrationNumber ||
-              donorProfileContent.organisationDetails.fields.businessRegistration
-                .emptyValue!
-            }
-            note={
-              donorProfileContent.organisationDetails.fields.businessRegistration
-                .readOnlyNote
-            }
-          />
+          <ProfileRegistrationRow user={user} />
 
           <ProfileInlineFieldRow
             label={

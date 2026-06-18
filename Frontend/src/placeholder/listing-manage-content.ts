@@ -42,6 +42,18 @@ export const listingManageContent = {
     distanceAway: (km: number) => `${km} km away`,
     requestedAgo: (minutes: number) =>
       minutes === 1 ? 'Requested 1 min ago' : `Requested ${minutes} mins ago`,
+    acceptConfirmTitle: 'Accept this request?',
+    acceptConfirmDescription: (ngoName: string, listingTitle: string) =>
+      `Accept ${ngoName} for ${listingTitle}? This declines other requests.`,
+    acceptConfirm: 'Accept',
+    acceptDismiss: 'Cancel',
+    acceptToast: {
+      loading: 'Accepting request…',
+      success: 'Request accepted',
+      error: 'Could not accept request',
+    },
+    loadError: 'Could not load requests',
+    loading: 'Loading requests…',
   },
   routes: {
     myListings: ROUTES.DONOR_LISTINGS,

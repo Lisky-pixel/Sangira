@@ -45,6 +45,7 @@ export const ROUTES = {
 export const DONOR_ROUTE_PATTERNS = {
   LISTING_MANAGE: '/donor/listings/:id',
   LISTING_EDIT: '/donor/listings/:id/edit',
+  LISTING_HANDOVER: '/donor/listings/:id/handover',
   REQUEST_REVIEW: '/donor/requests/:id',
 } as const
 
@@ -62,6 +63,10 @@ export function donorListingManagePath(id: string) {
 
 export function donorListingEditPath(id: string) {
   return `/donor/listings/${id}/edit`
+}
+
+export function donorListingHandoverPath(id: string) {
+  return `/donor/listings/${id}/handover`
 }
 
 export function donorRequestReviewPath(id: string) {

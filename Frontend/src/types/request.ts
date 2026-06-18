@@ -1,4 +1,30 @@
 import type { RequestStatus } from '../constants/request-status'
+import type { Listing } from './listing'
+
+export type DonorListingRequestNgo = {
+  organisationName: string
+  verified: true
+  dailyCapacity: number
+  avatarUrl?: string
+}
+
+export type DonorListingRequest = {
+  _id: string
+  listingId: string
+  status: RequestStatus
+  createdAt: string
+  ngo: DonorListingRequestNgo
+}
+
+export type ListDonorListingRequestsResult = {
+  requestCount: number
+  requests: DonorListingRequest[]
+}
+
+export type AcceptRequestResult = {
+  request: FoodRequest & { pickupPin: string }
+  listing: Listing
+}
 
 export type RequestConfirmation = {
   donorConfirmed: boolean
@@ -8,7 +34,6 @@ export type RequestConfirmation = {
   completedAt?: string
 }
 
-/** Mirrors backend serialized Request document */
 export type FoodRequest = {
   _id: string
   listing: string

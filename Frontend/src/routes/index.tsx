@@ -153,6 +153,10 @@ export const router = createBrowserRouter([
             element: <EditListingPage />,
           },
           {
+            path: 'listings/:id/handover',
+            element: <DonorComingSoon />,
+          },
+          {
             path: 'listings/:id',
             element: <ManageListingPage />,
           },

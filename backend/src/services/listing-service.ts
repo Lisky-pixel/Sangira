@@ -30,10 +30,6 @@ import {
   serializeBrowseListing,
   type SerializedBrowseListing,
 } from '../utils/serialize-browse-listing.js'
-import {
-  serializeDonorListingRequest,
-  type SerializedDonorListingRequest,
-} from '../utils/serialize-request.js'
 import { ngoHasActiveRequestForListing } from './request-service.js'
 
 type CreateListingFile = {
@@ -488,35 +484,5 @@ export async function getBrowseListingForNgo(input: {
       donorCreatedAt: donor.createdAt,
     }),
     hasRequested,
-  }
-}
-
-/** Minimal donor read — donor accept slice will flesh out accept/decline actions */
-export async function listRequestsForDonorListing(input: {
-  donorId: string
-  listingId: string
-}): Promise<{
-  requestCount: number
-  requests: SerializedDonorListingRequest[]
-}> {
-  await getOwnedListingOrThrow(input.listingId, input.donorId)
-
-  const requests = await FoodRequest.find({
-    listing: input.listingId,
-    status: REQUEST_STATUS.REQUESTED,
-  })
-    .populate({ path: 'ngo', model: User, select: 'organisationName' })
-    .sort({ createdAt: -1 })
-    .lean()
-
-  const serialized = requests.map((request) =>
-    serializeDonorListingRequest(
-      request as Parameters<typeof serializeDonorListingRequest>[0],
-    ),
-  )
-
-  return {
-    requestCount: serialized.length,
-    requests: serialized,
   }
 }

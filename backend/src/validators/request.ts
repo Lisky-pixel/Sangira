@@ -5,3 +5,9 @@ export const createRequestSchema = z.object({
 })
 
 export type CreateRequestInput = z.infer<typeof createRequestSchema>
+
+export const requestIdParamSchema = z.object({
+  id: z.string().trim().min(1, 'Request id is required'),
+})
+
+export type RequestIdParam = z.infer<typeof requestIdParamSchema>

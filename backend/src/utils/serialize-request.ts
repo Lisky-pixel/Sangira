@@ -6,7 +6,6 @@ export type SerializedRequestConfirmation = {
   donorConfirmedAt?: string
   ngoConfirmedAt?: string
   completedAt?: string
-  // qrToken and pickupPin omitted — selected false in schema; pickup slice fills these
 }
 
 export type SerializedRequest = {
@@ -19,6 +18,11 @@ export type SerializedRequest = {
   updatedAt: string
 }
 
+/** Returned once on accept — donor handover page reads pickupPin via owner-only routes */
+export type SerializedAcceptedRequest = SerializedRequest & {
+  pickupPin: string
+}
+
 type RequestDocumentLike = {
   _id: { toString(): string }
   listing: { toString(): string }
@@ -27,10 +31,11 @@ type RequestDocumentLike = {
   confirmation?: {
     donorConfirmed?: boolean
     ngoConfirmed?: boolean
+    pickupPin?: string | null
     donorConfirmedAt?: Date
     ngoConfirmedAt?: Date
-    completedAt?: Date
-  }
+    completedAt?: Date | null
+  } | null
   createdAt: Date
   updatedAt: Date
 }
@@ -61,26 +66,66 @@ export function serializeRequest(request: RequestDocumentLike): SerializedReques
   }
 }
 
+export function serializeAcceptedRequest(
+  request: RequestDocumentLike & { confirmation?: { pickupPin?: string | null } | null },
+  pickupPin: string,
+): SerializedAcceptedRequest {
+  return {
+    ...serializeRequest(request),
+    pickupPin,
+  }
+}
+
+export type SerializedDonorListingRequestNgo = {
+  organisationName: string
+  verified: true
+  dailyCapacity: number
+  avatarUrl?: string
+}
+
 export type SerializedDonorListingRequest = {
   _id: string
-  ngoId: string
-  ngoName: string
+  listingId: string
   status: RequestStatus
   createdAt: string
+  ngo: SerializedDonorListingRequestNgo
+}
+
+type PopulatedNgoRow = {
+  _id: { toString(): string }
+  organisationName?: string | null
+  dailyCapacity?: number | null
+  avatarUrl?: string | null
+  role?: string
+  verification?: { status?: string } | null
 }
 
 type DonorListingRequestRow = RequestDocumentLike & {
-  ngo: { _id: { toString(): string }; organisationName?: string | null }
+  ngo: PopulatedNgoRow
 }
 
 export function serializeDonorListingRequest(
   request: DonorListingRequestRow,
 ): SerializedDonorListingRequest {
+  const avatarUrl =
+    typeof request.ngo.avatarUrl === 'string' && request.ngo.avatarUrl.trim()
+      ? request.ngo.avatarUrl.trim()
+      : undefined
+
   return {
     _id: request._id.toString(),
-    ngoId: request.ngo._id.toString(),
-    ngoName: request.ngo.organisationName?.trim() || 'Verified NGO',
+    listingId: request.listing.toString(),
     status: request.status,
     createdAt: request.createdAt.toISOString(),
+    ngo: {
+      organisationName:
+        request.ngo.organisationName?.trim() || 'Verified NGO',
+      verified: true,
+      dailyCapacity:
+        typeof request.ngo.dailyCapacity === 'number'
+          ? request.ngo.dailyCapacity
+          : 0,
+      ...(avatarUrl ? { avatarUrl } : {}),
+    },
   }
 }

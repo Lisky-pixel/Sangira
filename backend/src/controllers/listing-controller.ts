@@ -6,9 +6,9 @@ import {
   getBrowseListingForNgo,
   getListingForDonor,
   listDonorListings,
-  listRequestsForDonorListing,
   updateListingForDonor,
 } from '../services/listing-service.js'
+import { listRequestsForDonorListing } from '../services/request-service.js'
 import type {
   CreateListingInput,
   ListMineListingsQuery,

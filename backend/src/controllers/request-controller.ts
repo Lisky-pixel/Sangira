@@ -3,6 +3,7 @@ import { getListingForDonor } from '../services/listing-service.js'
 import {
   acceptRequestForDonor,
   createRequestForNgo,
+  listMyRequestsForNgo,
 } from '../services/request-service.js'
 import type { CreateRequestInput } from '../validators/request.js'
 import type { RequestIdParam } from '../validators/request.js'
@@ -44,6 +45,19 @@ export async function acceptRequest(
     })
 
     return sendSuccess(res, { request, listing })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function listMyRequests(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const result = await listMyRequestsForNgo(req.auth!.userId)
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

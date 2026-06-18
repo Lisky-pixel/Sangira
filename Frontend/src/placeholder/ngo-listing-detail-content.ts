@@ -1,4 +1,4 @@
-import { ROUTES } from '../routes/paths'
+import { ROUTES, ngoRequestsPath } from '../routes/paths'
 
 export const ngoListingDetailContent = {
   backLink: 'Back to browse',
@@ -20,6 +20,7 @@ export const ngoListingDetailContent = {
   request: {
     requestFood: 'Request this food',
     requested: 'Requested',
+    viewMyRequests: 'View my requests',
     notifyNote: (organisationName: string) =>
       `${organisationName} will be notified.`,
     alreadyRequestedAria: 'You have already requested this listing',
@@ -43,8 +44,8 @@ export const ngoListingDetailContent = {
       error: 'Could not send request',
       listingUnavailableAction: 'Back to browse',
     },
-    // TODO: route to NGO "My requests" when /ngo/requests ships
-    myRequestsRoute: ROUTES.NGO_REQUESTS,
+    // TODO: confirm-pickup flow — paste 2c
+    myRequestsRoute: ngoRequestsPath('pending'),
   },
   routes: {
     browse: ROUTES.NGO_BROWSE,

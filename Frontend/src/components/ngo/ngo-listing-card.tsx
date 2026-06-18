@@ -8,9 +8,10 @@ import { VerifiedBadge } from '../ui/verified-badge'
 
 type NgoListingCardProps = {
   listing: NgoBrowseListing
+  hasRequested?: boolean
 }
 
-export function NgoListingCard({ listing }: NgoListingCardProps) {
+export function NgoListingCard({ listing, hasRequested = false }: NgoListingCardProps) {
   const photo = listing.photos[0]
   const storageLabel =
     ngoBrowseContent.storageLabels[listing.storageCondition]
@@ -54,7 +55,9 @@ export function NgoListingCard({ listing }: NgoListingCardProps) {
             to={ngoListingDetailPath(listing._id)}
             className="w-full"
           >
-            {ngoBrowseContent.card.request}
+            {hasRequested
+              ? ngoBrowseContent.card.requested
+              : ngoBrowseContent.card.request}
           </ButtonLink>
         </div>
       </div>

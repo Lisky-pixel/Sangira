@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { NGO_REQUESTS_TAB } from '../../constants/ngo-requests'
 import { REQUEST_ERROR_CODES } from '../../constants/request'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
 import type { FoodLabel, StorageCondition } from '../../constants/listing-form'
@@ -20,11 +21,12 @@ import { openInMaps } from '../../lib/open-in-maps'
 import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-content'
 import { NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER } from '../../placeholder/ngo-listing-detail-donor-stats'
 import { postListingContent } from '../../placeholder/post-listing-content'
+import { ngoRequestsPath } from '../../routes/paths'
 import { requestService } from '../../services/request-service'
 import { ApiError } from '../../services/api-error'
 import { toast } from '../../lib/toast'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
-import { Button } from '../ui/button'
+import { Button, ButtonLink } from '../ui/button'
 import { CountdownChip } from '../ui/countdown-chip'
 import { StatusChip } from '../ui/status-chip'
 import { VerifiedBadge } from '../ui/verified-badge'
@@ -113,7 +115,6 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
       })
       setHasRequested(true)
       setConfirmOpen(false)
-      // TODO: route to ngoListingDetailContent.confirm.myRequestsRoute when My requests ships
     } catch (error) {
       if (!(error instanceof ApiError)) {
         return
@@ -279,11 +280,23 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
                 ? ngoListingDetailContent.request.requested
                 : ngoListingDetailContent.request.requestFood}
             </Button>
-            <p className="text-body mt-3 text-center text-xs sm:text-sm">
-              {ngoListingDetailContent.request.notifyNote(
-                listing.donor.organisationName,
-              )}
-            </p>
+            {hasRequested ? (
+              <div className="mt-3 text-center">
+                <ButtonLink
+                  to={ngoRequestsPath(NGO_REQUESTS_TAB.PENDING)}
+                  variant="ghost"
+                  className="text-sm"
+                >
+                  {ngoListingDetailContent.request.viewMyRequests}
+                </ButtonLink>
+              </div>
+            ) : (
+              <p className="text-body mt-3 text-center text-xs sm:text-sm">
+                {ngoListingDetailContent.request.notifyNote(
+                  listing.donor.organisationName,
+                )}
+              </p>
+            )}
           </section>
         </aside>
       </div>

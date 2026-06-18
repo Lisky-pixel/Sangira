@@ -17,3 +17,10 @@ export function generateHandoverQrToken(): string {
 export async function hashPickupPin(pin: string): Promise<string> {
   return bcrypt.hash(pin, config.BCRYPT_SALT_ROUNDS)
 }
+
+export async function verifyPickupPin(
+  pin: string,
+  hash: string,
+): Promise<boolean> {
+  return bcrypt.compare(pin, hash)
+}

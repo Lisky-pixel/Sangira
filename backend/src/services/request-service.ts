@@ -29,6 +29,11 @@ import {
   resolveEffectiveListingStatus,
 } from '../utils/resolve-effective-listing-status.js'
 import {
+  countNgoMyRequestsByTab,
+  serializeNgoMyRequest,
+  type SerializedNgoMyRequestsResult,
+} from '../utils/serialize-ngo-my-request.js'
+import {
   serializeAcceptedRequest,
   serializeDonorListingRequest,
   serializeRequest,
@@ -163,6 +168,38 @@ export async function ngoHasActiveRequestForListing(input: {
   })
 
   return count > 0
+}
+
+export async function listMyRequestsForNgo(
+  ngoId: string,
+): Promise<SerializedNgoMyRequestsResult> {
+  const requests = await FoodRequest.find({ ngo: ngoId })
+    .select('+confirmation.pickupPinHash +confirmation.qrToken')
+    .populate({
+      path: 'listing',
+      select:
+        'title quantity quantityUnit photos pickupAddress pickupLocation expiresAt donor',
+      populate: {
+        path: 'donor',
+        model: User,
+        select: 'organisationName verification.status role',
+      },
+    })
+    .sort({ updatedAt: -1, createdAt: -1 })
+    .lean()
+
+  const serialized = requests
+    .filter((request) => request.listing)
+    .map((request) =>
+      serializeNgoMyRequest(
+        request as unknown as Parameters<typeof serializeNgoMyRequest>[0],
+      ),
+    )
+
+  return {
+    requests: serialized,
+    counts: countNgoMyRequestsByTab(serialized),
+  }
 }
 
 async function assertDonorOwnsListing(listingId: string, donorId: string) {
@@ -336,6 +373,7 @@ export async function acceptRequestForDonor(input: {
               pickupPin,
               pickupPinHash,
               qrToken,
+              pinAttemptCount: 0,
             },
           },
         },

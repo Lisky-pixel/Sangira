@@ -7,6 +7,7 @@ import {
   VerificationStatusGate,
 } from '../auth'
 import { DonorComingSoon, DonorPortalLayout } from '../components/donor'
+import { DonorHandoverPage } from '../pages/donor/DonorHandoverPage'
 import { NgoComingSoon, NgoPortalLayout } from '../components/ngo'
 import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
@@ -20,7 +21,9 @@ import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
+import { NgoConfirmPickupPage } from '../pages/ngo/NgoConfirmPickupPage'
 import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
+import { NgoMyRequestsPage } from '../pages/ngo/NgoMyRequestsPage'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -154,7 +157,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'listings/:id/handover',
-            element: <DonorComingSoon />,
+            element: <DonorHandoverPage />,
           },
           {
             path: 'listings/:id',
@@ -212,7 +215,11 @@ export const router = createBrowserRouter([
           },
           {
             path: 'requests',
-            element: <NgoComingSoon />,
+            element: <NgoMyRequestsPage />,
+          },
+          {
+            path: 'requests/:id/confirm',
+            element: <NgoConfirmPickupPage />,
           },
           {
             path: 'capacity',

@@ -2,6 +2,7 @@ import { createApp } from './app/index.js'
 import { connectDatabase, disconnectDatabase } from './config/db.js'
 import { config } from './config/env.js'
 import { startListingExpiryJob } from './jobs/listing-expiry-job.js'
+import { closeSocketServer, initSocketServer } from './realtime/socket-server.js'
 import './models/index.js'
 
 async function bootstrap() {
@@ -15,9 +16,12 @@ async function bootstrap() {
     console.info(`Server listening on port ${config.PORT}`)
   })
 
+  const io = initSocketServer(server)
+
   const shutdown = async (signal: string) => {
     console.info(`Received ${signal}, shutting down`)
     stopListingExpiryJob()
+    await closeSocketServer(io)
     server.close(async () => {
       await disconnectDatabase()
       process.exit(0)

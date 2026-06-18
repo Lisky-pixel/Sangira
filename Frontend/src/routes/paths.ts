@@ -51,10 +51,19 @@ export const DONOR_ROUTE_PATTERNS = {
 
 export const NGO_ROUTE_PATTERNS = {
   LISTING_DETAIL: '/ngo/listings/:id',
+  REQUEST_CONFIRM: '/ngo/requests/:id/confirm',
 } as const
 
 export function ngoListingDetailPath(id: string) {
   return `/ngo/listings/${id}`
+}
+
+export function ngoRequestConfirmPath(id: string) {
+  return `/ngo/requests/${id}/confirm`
+}
+
+export function ngoRequestsPath(tab?: string) {
+  return tab ? `${ROUTES.NGO_REQUESTS}?tab=${tab}` : ROUTES.NGO_REQUESTS
 }
 
 export function donorListingManagePath(id: string) {
@@ -95,11 +104,11 @@ export const COMING_SOON_PATHS = [
 /** TEMPORARY — NGO portal routes not yet implemented */
 export const NGO_COMING_SOON_PATHS = [
   ROUTES.NGO_DASHBOARD,
-  ROUTES.NGO_REQUESTS,
   ROUTES.NGO_CAPACITY,
   ROUTES.NGO_PROFILE,
   ROUTES.NGO_SETTINGS,
   ROUTES.NGO_NOTIFICATIONS,
+  NGO_ROUTE_PATTERNS.REQUEST_CONFIRM,
 ] as const
 
 /** TEMPORARY — donor portal routes not yet implemented */

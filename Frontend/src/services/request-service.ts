@@ -3,6 +3,7 @@ import type {
   CreateRequestResult,
   ListDonorListingRequestsResult,
 } from '../types/request'
+import type { ListNgoMyRequestsResult } from '../types/ngo-my-request'
 import type { ApiEnvelope } from '../types/api'
 import { apiClient } from './api-client'
 import { unwrapApiResponse } from './api-response'
@@ -32,6 +33,13 @@ export const requestService = {
   async acceptRequest(requestId: string): Promise<AcceptRequestResult> {
     const response = await apiClient.post<ApiEnvelope<AcceptRequestResult>>(
       `/requests/${requestId}/accept`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async listMyRequests(): Promise<ListNgoMyRequestsResult> {
+    const response = await apiClient.get<ApiEnvelope<ListNgoMyRequestsResult>>(
+      '/requests/mine',
     )
     return unwrapApiResponse(response)
   },

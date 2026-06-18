@@ -37,21 +37,27 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
   const handleAccept = async () => {
     setIsAccepting(true)
     const acceptPromise = requestService.acceptRequest(request._id)
+    const loadingId = toast.loading(
+      listingManageContent.requests.acceptToast.loading,
+    )
 
     try {
-      await toast.promise(acceptPromise, {
-        loading: listingManageContent.requests.acceptToast.loading,
-        success: listingManageContent.requests.acceptToast.success,
-        error: (error) =>
-          error instanceof ApiError
-            ? error.message
-            : listingManageContent.requests.acceptToast.error,
+      const result = await acceptPromise
+      toast.success(listingManageContent.requests.acceptToast.success, {
+        id: loadingId,
       })
       setConfirmOpen(false)
       onAccepted()
-      navigate(donorListingHandoverPath(request.listingId))
-      // TODO: handover slice — replace ComingSoon with live QR + PIN display
-    } catch {
+      navigate(donorListingHandoverPath(request.listingId), {
+        state: { requestId: result.request._id },
+      })
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : listingManageContent.requests.acceptToast.error,
+        { id: loadingId },
+      )
       setIsAccepting(false)
     }
   }

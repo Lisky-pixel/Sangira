@@ -8,14 +8,19 @@ import {
   filterNgoBrowseListings,
   type NgoBrowseFilters,
 } from '../../lib/ngo-browse-filters'
+import { getActiveRequestedListingIds } from '../../lib/ngo-my-requests-filters'
 import { paginateItems } from '../../lib/paginate-items'
 import { toast } from '../../lib/toast'
 import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
 import { listingService } from '../../services/listing-service'
+import { requestService } from '../../services/request-service'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 
 export function NgoBrowseListingsPage() {
   const [listings, setListings] = useState<NgoBrowseListing[]>([])
+  const [requestedListingIds, setRequestedListingIds] = useState<Set<string>>(
+    new Set(),
+  )
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
@@ -28,9 +33,15 @@ export function NgoBrowseListingsPage() {
     async function loadListings() {
       setLoadState('loading')
       try {
-        const data = await listingService.browseListings()
+        const [browseData, mineData] = await Promise.all([
+          listingService.browseListings(),
+          requestService.listMyRequests(),
+        ])
         if (!cancelled) {
-          setListings(data)
+          setListings(browseData)
+          setRequestedListingIds(
+            getActiveRequestedListingIds(mineData.requests),
+          )
           setLoadState('ready')
         }
       } catch {
@@ -110,7 +121,11 @@ export function NgoBrowseListingsPage() {
             <>
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {pagination.items.map((listing) => (
-                  <NgoListingCard key={listing._id} listing={listing} />
+                  <NgoListingCard
+                    key={listing._id}
+                    listing={listing}
+                    hasRequested={requestedListingIds.has(listing._id)}
+                  />
                 ))}
               </div>
 

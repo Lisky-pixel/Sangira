@@ -26,10 +26,14 @@ const requestSchema = new Schema(
       pickupPin: { type: String, select: false },
       pickupPinHash: { type: String, select: false },
       qrToken: { type: String, select: false },
+      pinAttemptCount: { type: Number, default: 0 },
       donorConfirmedAt: { type: Date },
       ngoConfirmedAt: { type: Date },
       completedAt: { type: Date },
     },
+    /** Recorded at completion for impact dashboards — meals = servings only; kg separate */
+    mealsRedistributed: { type: Number },
+    wasteKgPrevented: { type: Number },
   },
   { timestamps: true },
 )

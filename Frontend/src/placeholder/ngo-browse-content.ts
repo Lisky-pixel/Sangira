@@ -63,6 +63,7 @@ export const ngoBrowseContent = {
   ] as const,
   card: {
     request: 'Request',
+    requested: 'Requested',
     verifiedDonor: 'Verified',
     // TODO: distance/map slice — prepend "{distance} · " before storage label
     storageOnly: (storageLabel: string) => storageLabel,

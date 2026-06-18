@@ -45,6 +45,7 @@ import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { donorListingManagePath, ROUTES } from '../../routes/paths'
+import { MY_LISTINGS_LOCATION_STATE } from '../../routes/my-listings-location-state'
 import { listingService } from '../../services/listing-service'
 import type { CreateListingPayload } from '../../types/create-listing'
 import type { UpdateListingPayload } from '../../types/update-listing'
@@ -330,17 +331,25 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
       pickupInstructions: values.pickupInstructions?.trim() || undefined,
     }
 
+    const createPromise = listingService.createListing(payload)
+
     try {
-      await toast.promise(listingService.createListing(payload), {
+      void toast.promise(createPromise, {
         loading: postListingContent.toast.publishing,
         success: postListingContent.toast.success,
         error: postListingContent.toast.error,
       })
 
+      const { listing: createdListing } = await createPromise
+
       setUnitOverridden(false)
       setSelectedPresetId(null)
       reset(buildDefaultValues(pickupAddressDefault))
-      navigate(postListingContent.successNavigateTo)
+      navigate(ROUTES.DONOR_LISTINGS, {
+        state: {
+          [MY_LISTINGS_LOCATION_STATE.CREATED_LISTING]: createdListing,
+        },
+      })
     } catch {
       // toast.promise surfaces the error
     }

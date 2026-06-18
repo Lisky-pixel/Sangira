@@ -1,5 +1,5 @@
 import { ArrowRight, Building2, CircleHelp, Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { DonorListingCard } from '../../components/donor'
 import { ButtonLink } from '../../components/ui/button'
@@ -7,8 +7,9 @@ import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
 import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT } from '../../constants/donor-dashboard'
+import { useMyListings } from '../../hooks/use-my-listings'
 import { getGreeting } from '../../lib/greeting'
-import { filterOngoingListings, filterVisibleListings } from '../../lib/my-listings-filters'
+import { filterOngoingListings } from '../../lib/my-listings-filters'
 import {
   formatActivityTimestamp,
   formatRelativeMinutes,
@@ -21,8 +22,6 @@ import {
   donorRecentActivity,
 } from '../../placeholder/donor-dashboard-data'
 import { donorRequestReviewPath, ROUTES } from '../../routes/paths'
-import { listingService } from '../../services/listing-service'
-import type { Listing } from '../../types/listing'
 
 function MonthlyImpactChart({ values }: { values: number[] }) {
   const max = Math.max(...values, 1)
@@ -56,43 +55,18 @@ function MonthlyImpactChart({ values }: { values: number[] }) {
 
 export function DonorDashboardPage() {
   const { state } = useAuth()
-  const [activeListings, setActiveListings] = useState<Listing[]>([])
-  const [listingsStatus, setListingsStatus] = useState<
-    'loading' | 'ready' | 'error'
-  >('loading')
+  const { listings, loadState: listingsStatus } = useMyListings()
 
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadActiveListings() {
-      setListingsStatus('loading')
-      try {
-        const listings = filterVisibleListings(await listingService.getMyListings())
-        const ongoing = filterOngoingListings(listings)
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-          )
-          .slice(0, DONOR_DASHBOARD_ONGOING_LISTING_LIMIT)
-        if (!cancelled) {
-          setActiveListings(ongoing)
-          setListingsStatus('ready')
-        }
-      } catch {
-        if (!cancelled) {
-          setListingsStatus('error')
-        }
-      }
-    }
-
-    if (state.status === 'authed') {
-      void loadActiveListings()
-    }
-
-    return () => {
-      cancelled = true
-    }
-  }, [state.status])
+  const activeListings = useMemo(
+    () =>
+      filterOngoingListings(listings)
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
+        .slice(0, DONOR_DASHBOARD_ONGOING_LISTING_LIMIT),
+    [listings],
+  )
 
   if (state.status !== 'authed') {
     return null

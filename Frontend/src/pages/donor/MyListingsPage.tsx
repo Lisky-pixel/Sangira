@@ -4,52 +4,21 @@ import { ListingStatusTabs } from '../../components/donor/listing-status-tabs'
 import { ListingsPager } from '../../components/donor/listings-pager'
 import { PostNewListingTile } from '../../components/donor/post-new-listing-tile'
 import { MY_LISTINGS_TAB, type MyListingsTab } from '../../constants/my-listings'
+import { useMyListings } from '../../hooks/use-my-listings'
 import {
   countAllTabs,
   filterListingsByTab,
-  filterVisibleListings,
 } from '../../lib/my-listings-filters'
 import { paginateTabItems } from '../../lib/my-listings-pagination'
 import { toast } from '../../lib/toast'
 import { myListingsContent } from '../../placeholder/my-listings-content'
-import { listingService } from '../../services/listing-service'
-import type { Listing } from '../../types/listing'
 
 export function MyListingsPage() {
-  const [listings, setListings] = useState<Listing[]>([])
-  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
-    'loading',
-  )
+  const { listings, loadState } = useMyListings()
   const [activeTab, setActiveTab] = useState<MyListingsTab>(
     MY_LISTINGS_TAB.ACTIVE,
   )
   const [page, setPage] = useState(1)
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadListings() {
-      setLoadState('loading')
-      try {
-        const data = await listingService.getMyListings()
-        if (!cancelled) {
-          setListings(filterVisibleListings(data))
-          setLoadState('ready')
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadState('error')
-          toast.error(myListingsContent.loadError)
-        }
-      }
-    }
-
-    void loadListings()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const tabCounts = useMemo(() => countAllTabs(listings), [listings])
 
@@ -79,6 +48,12 @@ export function MyListingsPage() {
     !(
       activeTab === MY_LISTINGS_TAB.ACTIVE && pagination.showPostNewListingTile
     )
+
+  useEffect(() => {
+    if (loadState === 'error') {
+      toast.error(myListingsContent.loadError)
+    }
+  }, [loadState])
 
   return (
     <div className="mx-auto w-full max-w-6xl">

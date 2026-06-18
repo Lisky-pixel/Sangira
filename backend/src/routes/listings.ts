@@ -34,6 +34,18 @@ listingsRouter.get(
   listingController.listMine,
 )
 
+const ngoBrowseGuards = [
+  requireAuth,
+  requireVerified,
+  requireRole(ROLES.NGO),
+] as const
+
+listingsRouter.get(
+  '/browse',
+  ...ngoBrowseGuards,
+  listingController.browse,
+)
+
 listingsRouter.post(
   '/',
   csrfGuard,

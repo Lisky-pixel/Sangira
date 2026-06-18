@@ -1,5 +1,8 @@
 import { Router } from 'express'
-import { strictRateLimiter } from '../app/middleware/rate-limit.js'
+import {
+  authReadRateLimiter,
+  authSensitiveRateLimiter,
+} from '../app/middleware/rate-limit.js'
 import * as authController from '../controllers/auth-controller.js'
 import { csrfGuard } from '../middleware/csrf.js'
 import { requireAuth } from '../middleware/require-auth.js'
@@ -27,11 +30,11 @@ import * as profileController from '../controllers/profile-controller.js'
 
 export const authRouter = Router()
 
-authRouter.get('/csrf', authController.csrf)
+authRouter.get('/csrf', authReadRateLimiter, authController.csrf)
 
 authRouter.post(
   '/register',
-  strictRateLimiter,
+  authSensitiveRateLimiter,
   csrfGuard,
   uploadCertificateMiddleware,
   requireCertificateFile,
@@ -41,7 +44,7 @@ authRouter.post(
 
 authRouter.post(
   '/login',
-  strictRateLimiter,
+  authSensitiveRateLimiter,
   csrfGuard,
   validateBody(loginSchema),
   authController.login,
@@ -49,7 +52,7 @@ authRouter.post(
 
 authRouter.post(
   '/password/request-code',
-  strictRateLimiter,
+  authSensitiveRateLimiter,
   csrfGuard,
   validateBody(passwordRequestCodeSchema),
   passwordResetController.requestCode,
@@ -57,7 +60,7 @@ authRouter.post(
 
 authRouter.post(
   '/password/verify',
-  strictRateLimiter,
+  authSensitiveRateLimiter,
   csrfGuard,
   validateBody(passwordVerifySchema),
   passwordResetController.verify,
@@ -65,14 +68,14 @@ authRouter.post(
 
 authRouter.post(
   '/password/change',
-  strictRateLimiter,
+  authSensitiveRateLimiter,
   csrfGuard,
   requireAuth,
   validateBody(changePasswordSchema),
   passwordChangeController.changePassword,
 )
 
-authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next) => {
+authRouter.post('/refresh', authReadRateLimiter, csrfGuard, async (req, res, next) => {
   const refreshToken = req.cookies?.[COOKIE_NAMES.REFRESH_TOKEN]
   if (!refreshToken) {
     return next(unauthorized('Invalid refresh token', 'INVALID_REFRESH_TOKEN'))
@@ -80,9 +83,9 @@ authRouter.post('/refresh', strictRateLimiter, csrfGuard, async (req, res, next)
   return authController.refresh(req, res, next)
 })
 
-authRouter.post('/logout', strictRateLimiter, csrfGuard, authController.logout)
+authRouter.post('/logout', authReadRateLimiter, csrfGuard, authController.logout)
 
-authRouter.get('/me', requireAuth, authController.me)
+authRouter.get('/me', authReadRateLimiter, requireAuth, authController.me)
 
 authRouter.patch(
   '/me/notification-preferences',

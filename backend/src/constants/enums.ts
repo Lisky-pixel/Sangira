@@ -84,13 +84,3 @@ export const NGO_SECTOR = {
 export type NgoSector = (typeof NGO_SECTOR)[keyof typeof NGO_SECTOR]
 
 export const NGO_SECTOR_VALUES = Object.values(NGO_SECTOR)
-
-/** Rate-limit ceilings — imported by middleware, not inlined */
-export const RATE_LIMIT = {
-  GLOBAL_WINDOW_MS: 15 * 60 * 1000,
-  GLOBAL_MAX: 200,
-  STRICT_WINDOW_MS: 15 * 60 * 1000,
-  STRICT_MAX: 20,
-  DEV_WINDOW_MS: 15 * 60 * 1000,
-  DEV_MAX: 5,
-} as const

@@ -2,6 +2,7 @@ import type { CreateListingPayload } from '../types/create-listing'
 import type { Listing } from '../types/listing'
 import type { ListingStatus } from '../constants/listing-status'
 import type { UpdateListingPayload } from '../types/update-listing'
+import type { NgoBrowseListing } from '../types/ngo-browse-listing'
 import type { ApiEnvelope } from '../types/api'
 import { apiClient } from './api-client'
 import { unwrapApiResponse } from './api-response'
@@ -16,6 +17,10 @@ export type GetListingResult = {
 
 type ListMineListingsResponse = {
   listings: Listing[]
+}
+
+type BrowseListingsResponse = {
+  listings: NgoBrowseListing[]
 }
 
 function appendListingFields(
@@ -101,6 +106,13 @@ export const listingService = {
       {
         params: options?.status ? { status: options.status } : undefined,
       },
+    )
+    return unwrapApiResponse(response).listings
+  },
+
+  async browseListings(): Promise<NgoBrowseListing[]> {
+    const response = await apiClient.get<ApiEnvelope<BrowseListingsResponse>>(
+      '/listings/browse',
     )
     return unwrapApiResponse(response).listings
   },

@@ -1,5 +1,6 @@
 import { config as loadEnv } from 'dotenv'
 import { z } from 'zod'
+import { RATE_LIMIT_DEFAULTS } from '../constants/rate-limit.js'
 
 loadEnv()
 
@@ -44,6 +45,46 @@ const envSchema = z
       .enum(['nominatim', 'google'])
       .default('nominatim'),
     GOOGLE_MAPS_API_KEY: z.string().optional(),
+    GLOBAL_RATE_LIMIT_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.WINDOW_MS),
+    GLOBAL_RATE_LIMIT_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.GLOBAL_MAX_PRODUCTION),
+    GLOBAL_RATE_LIMIT_MAX_DEVELOPMENT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.GLOBAL_MAX_DEVELOPMENT),
+    AUTH_RATE_LIMIT_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.WINDOW_MS),
+    AUTH_RATE_LIMIT_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.AUTH_SENSITIVE_MAX_PRODUCTION),
+    AUTH_RATE_LIMIT_MAX_DEVELOPMENT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.AUTH_SENSITIVE_MAX_DEVELOPMENT),
+    AUTH_READ_RATE_LIMIT_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.AUTH_READ_MAX_PRODUCTION),
+    AUTH_READ_RATE_LIMIT_MAX_DEVELOPMENT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RATE_LIMIT_DEFAULTS.AUTH_READ_MAX_DEVELOPMENT),
   })
   .transform((env) => {
     const isProduction = env.NODE_ENV === 'production'

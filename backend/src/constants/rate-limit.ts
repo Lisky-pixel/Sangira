@@ -1,0 +1,22 @@
+/** Default rate-limit tunables — overridden via env in config/env.ts */
+export const RATE_LIMIT_DEFAULTS = {
+  WINDOW_MS: 15 * 60 * 1000,
+  GLOBAL_MAX_PRODUCTION: 200,
+  GLOBAL_MAX_DEVELOPMENT: 5_000,
+  AUTH_SENSITIVE_MAX_PRODUCTION: 20,
+  AUTH_SENSITIVE_MAX_DEVELOPMENT: 1_000,
+  AUTH_READ_MAX_PRODUCTION: 300,
+  AUTH_READ_MAX_DEVELOPMENT: 5_000,
+  DEV_TEST_MAX: 5,
+} as const
+
+export const RATE_LIMIT_MESSAGES = {
+  TOO_MANY_REQUESTS: 'Too many requests, please try again later',
+  TOO_MANY_ATTEMPTS_WAIT: 'Too many attempts, please wait a moment',
+} as const
+
+export const RATE_LIMIT_CODES = {
+  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
+  AUTH_RATE_LIMIT_EXCEEDED: 'AUTH_RATE_LIMIT_EXCEEDED',
+  DEV_RATE_LIMIT_EXCEEDED: 'DEV_RATE_LIMIT_EXCEEDED',
+} as const

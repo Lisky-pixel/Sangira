@@ -6,6 +6,10 @@ type ListingsPagerProps = {
   totalPages: number
   onPageChange: (page: number) => void
   className?: string
+  navAriaLabel?: string
+  previousLabel?: string
+  nextLabel?: string
+  pageLabel?: (page: number) => string
 }
 
 function getPageNumbers(page: number, totalPages: number) {
@@ -25,6 +29,10 @@ export function ListingsPager({
   totalPages,
   onPageChange,
   className,
+  navAriaLabel = myListingsContent.pager.navAriaLabel,
+  previousLabel = myListingsContent.pager.previous,
+  nextLabel = myListingsContent.pager.next,
+  pageLabel = myListingsContent.pager.page,
 }: ListingsPagerProps) {
   if (totalPages <= 1) {
     return null
@@ -34,7 +42,7 @@ export function ListingsPager({
 
   return (
     <nav
-      aria-label={myListingsContent.pager.navAriaLabel}
+      aria-label={navAriaLabel}
       className={cn('flex flex-wrap items-center justify-center gap-2', className)}
     >
       <button
@@ -43,7 +51,7 @@ export function ListingsPager({
         disabled={page <= 1}
         className="border-border text-charcoal hover:text-primary rounded-lg border bg-white px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {myListingsContent.pager.previous}
+        {previousLabel}
       </button>
 
       {pageNumbers.map((pageNumber, index) => {
@@ -60,7 +68,7 @@ export function ListingsPager({
             <button
               type="button"
               aria-current={pageNumber === page ? 'page' : undefined}
-              aria-label={myListingsContent.pager.page(pageNumber)}
+              aria-label={pageLabel(pageNumber)}
               onClick={() => onPageChange(pageNumber)}
               className={cn(
                 'min-w-10 rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
@@ -81,7 +89,7 @@ export function ListingsPager({
         disabled={page >= totalPages}
         className="border-border text-charcoal hover:text-primary rounded-lg border bg-white px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {myListingsContent.pager.next}
+        {nextLabel}
       </button>
     </nav>
   )

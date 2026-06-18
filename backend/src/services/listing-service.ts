@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { uploadListingPhoto } from '../config/cloudinary.js'
-import { LISTING_STATUS, REQUEST_STATUS } from '../constants/enums.js'
+import { LISTING_STATUS, REQUEST_STATUS, ROLES, VERIFICATION_STATUS } from '../constants/enums.js'
 import {
   LISTING_CANCELLABLE_STATUSES,
   LISTING_CANCEL_REJECT_MESSAGE,
@@ -9,7 +9,7 @@ import {
 } from '../constants/listing-editing.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
-import { User } from '../models/user.js'
+import { Donor, User } from '../models/user.js'
 import { geocodeAddress } from './geocoding/geocode-address.js'
 import type {
   CreateListingInput,
@@ -26,6 +26,10 @@ import {
   serializeListing,
   type SerializedListing,
 } from '../utils/serialize-listing.js'
+import {
+  serializeBrowseListing,
+  type SerializedBrowseListing,
+} from '../utils/serialize-browse-listing.js'
 
 type CreateListingFile = {
   buffer: Buffer
@@ -382,4 +386,70 @@ export async function cancelListingForDonor(input: {
   await listing.save()
 
   return enrichListingWithRequestData(listing.toObject())
+}
+
+export async function browseActiveListingsForNgo(): Promise<
+  SerializedBrowseListing[]
+> {
+  const verifiedDonors = await Donor.find({
+    role: ROLES.DONOR,
+    'verification.status': VERIFICATION_STATUS.APPROVED,
+  })
+    .select('_id organisationName')
+    .lean()
+
+  if (verifiedDonors.length === 0) {
+    return []
+  }
+
+  const donorNameById = new Map(
+    verifiedDonors.map((donor) => [
+      donor._id.toString(),
+      donor.organisationName?.trim() || 'Verified donor',
+    ]),
+  )
+  const donorIds = verifiedDonors.map((donor) => donor._id)
+  const now = new Date()
+
+  const listings = await Listing.find({
+    donor: { $in: donorIds },
+    status: LISTING_STATUS.ACTIVE,
+    expiresAt: { $gt: now },
+  })
+    .sort({ createdAt: -1 })
+    .lean()
+
+  if (listings.length === 0) {
+    return []
+  }
+
+  const listingIds = listings.map((listing) => listing._id)
+
+  const pendingCounts = await FoodRequest.aggregate<{
+    _id: typeof listingIds[number]
+    count: number
+  }>([
+    {
+      $match: {
+        listing: { $in: listingIds },
+        status: REQUEST_STATUS.REQUESTED,
+      },
+    },
+    { $group: { _id: '$listing', count: { $sum: 1 } } },
+  ])
+
+  const pendingByListingId = new Map(
+    pendingCounts.map((entry) => [entry._id.toString(), entry.count]),
+  )
+
+  return listings
+    .filter((listing) => (pendingByListingId.get(listing._id.toString()) ?? 0) === 0)
+    .map((listing) =>
+      serializeBrowseListing({
+        ...listing,
+        donor: listing.donor,
+        donorOrganisationName:
+          donorNameById.get(listing.donor.toString()) ?? 'Verified donor',
+      }),
+    )
 }

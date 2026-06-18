@@ -25,8 +25,17 @@ export const ROUTES = {
   DONOR_NOTIFICATIONS: '/donor/notifications',
   /** TEMPORARY — legacy redirect target */
   DONOR_DASHBOARD_LEGACY: '/portal/donor',
-  /** TEMPORARY — NGO portal until dashboard slice ships */
-  NGO_DASHBOARD: '/portal/ngo',
+  NGO_DASHBOARD: '/ngo/dashboard',
+  NGO_BROWSE: '/ngo/browse',
+  /** TEMPORARY — NGO portal screens until slices ship */
+  NGO_REQUESTS: '/ngo/requests',
+  NGO_CAPACITY: '/ngo/capacity',
+  NGO_PROFILE: '/ngo/profile',
+  NGO_SETTINGS: '/ngo/settings',
+  /** TEMPORARY — notifications until slice ships */
+  NGO_NOTIFICATIONS: '/ngo/notifications',
+  /** TEMPORARY — legacy redirect target */
+  NGO_PORTAL_LEGACY: '/portal/ngo',
   PRIVACY: '/privacy',
   TERMS: '/terms',
   HELP: '/help',
@@ -38,6 +47,14 @@ export const DONOR_ROUTE_PATTERNS = {
   LISTING_EDIT: '/donor/listings/:id/edit',
   REQUEST_REVIEW: '/donor/requests/:id',
 } as const
+
+export const NGO_ROUTE_PATTERNS = {
+  LISTING_DETAIL: '/ngo/listings/:id',
+} as const
+
+export function ngoListingDetailPath(id: string) {
+  return `/ngo/listings/${id}`
+}
 
 export function donorListingManagePath(id: string) {
   return `/donor/listings/${id}`
@@ -68,6 +85,17 @@ export const COMING_SOON_PATHS = [
   ROUTES.TERMS,
   ROUTES.HELP,
   ROUTES.CONTACT,
+] as const
+
+/** TEMPORARY — NGO portal routes not yet implemented */
+export const NGO_COMING_SOON_PATHS = [
+  ROUTES.NGO_DASHBOARD,
+  ROUTES.NGO_REQUESTS,
+  ROUTES.NGO_CAPACITY,
+  ROUTES.NGO_PROFILE,
+  ROUTES.NGO_SETTINGS,
+  ROUTES.NGO_NOTIFICATIONS,
+  NGO_ROUTE_PATTERNS.LISTING_DETAIL,
 ] as const
 
 /** TEMPORARY — donor portal routes not yet implemented */

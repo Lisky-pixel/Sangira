@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import {
   cancelListingForDonor,
+  browseActiveListingsForNgo,
   createListingForDonor,
   getListingForDonor,
   listDonorListings,
@@ -49,6 +50,19 @@ export async function listMine(
       status: query.status,
     })
 
+    return sendSuccess(res, { listings })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function browse(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const listings = await browseActiveListingsForNgo()
     return sendSuccess(res, { listings })
   } catch (error) {
     return next(error)

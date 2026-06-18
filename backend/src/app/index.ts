@@ -32,9 +32,9 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true, limit: JSON_BODY_LIMIT }))
   app.use(mongoSanitizeMiddleware)
 
+  app.use(healthRouter)
   app.use(globalRateLimiter)
 
-  app.use(healthRouter)
   app.use('/auth', authRouter)
   app.use('/listings', listingsRouter)
   app.use('/verification', verificationRouter)

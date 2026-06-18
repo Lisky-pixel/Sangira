@@ -1,46 +1,75 @@
-import rateLimit from 'express-rate-limit'
-import { RATE_LIMIT } from '../../constants/enums.js'
+import rateLimit, {
+  type Options,
+  type RateLimitExceededEventHandler,
+} from 'express-rate-limit'
+import { rateLimitConfig } from '../../config/rate-limit.js'
+import {
+  RATE_LIMIT_CODES,
+  RATE_LIMIT_MESSAGES,
+} from '../../constants/rate-limit.js'
+import { sendError } from '../../utils/response.js'
 
-export const globalRateLimiter = rateLimit({
-  windowMs: RATE_LIMIT.GLOBAL_WINDOW_MS,
-  max: RATE_LIMIT.GLOBAL_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      message: 'Too many requests, please try again later',
-      code: 'RATE_LIMIT_EXCEEDED',
-    },
-  },
+function rateLimitExceededHandler(
+  code: string,
+  message: string,
+): RateLimitExceededEventHandler {
+  return (_req, res, _next, options) => {
+    if (!res.getHeader('Retry-After')) {
+      res.setHeader(
+        'Retry-After',
+        String(Math.max(1, Math.ceil(options.windowMs / 1000))),
+      )
+    }
+    return sendError(res, message, code, options.statusCode ?? 429)
+  }
+}
+
+function createLimiter(options: Partial<Options>): ReturnType<typeof rateLimit> {
+  return rateLimit({
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    ...options,
+  })
+}
+
+export const globalRateLimiter = createLimiter({
+  windowMs: rateLimitConfig.globalWindowMs,
+  max: rateLimitConfig.globalMax,
+  handler: rateLimitExceededHandler(
+    RATE_LIMIT_CODES.RATE_LIMIT_EXCEEDED,
+    RATE_LIMIT_MESSAGES.TOO_MANY_REQUESTS,
+  ),
 })
 
-/** Low ceiling for /auth routes — wired in B2 */
-export const strictRateLimiter = rateLimit({
-  windowMs: RATE_LIMIT.STRICT_WINDOW_MS,
-  max: RATE_LIMIT.STRICT_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      message: 'Too many authentication attempts, please try again later',
-      code: 'AUTH_RATE_LIMIT_EXCEEDED',
-    },
-  },
+/** Brute-force protection for sensitive auth POSTs (login, register, password reset/change). */
+export const authSensitiveRateLimiter = createLimiter({
+  windowMs: rateLimitConfig.authWindowMs,
+  max: rateLimitConfig.authSensitiveMax,
+  handler: rateLimitExceededHandler(
+    RATE_LIMIT_CODES.AUTH_RATE_LIMIT_EXCEEDED,
+    RATE_LIMIT_MESSAGES.TOO_MANY_ATTEMPTS_WAIT,
+  ),
 })
+
+/** High-frequency safe auth reads (GET /auth/csrf, GET /auth/me) and routine session POSTs. */
+export const authReadRateLimiter = createLimiter({
+  windowMs: rateLimitConfig.authWindowMs,
+  max: rateLimitConfig.authReadMax,
+  handler: rateLimitExceededHandler(
+    RATE_LIMIT_CODES.RATE_LIMIT_EXCEEDED,
+    RATE_LIMIT_MESSAGES.TOO_MANY_REQUESTS,
+  ),
+})
+
+/** @deprecated Use authSensitiveRateLimiter — kept for any lingering imports */
+export const strictRateLimiter = authSensitiveRateLimiter
 
 /** Very low ceiling for /dev test routes — never enabled in production */
-export const devTestRateLimiter = rateLimit({
-  windowMs: RATE_LIMIT.DEV_WINDOW_MS,
-  max: RATE_LIMIT.DEV_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      message: 'Too many requests, please try again later',
-      code: 'DEV_RATE_LIMIT_EXCEEDED',
-    },
-  },
+export const devTestRateLimiter = createLimiter({
+  windowMs: rateLimitConfig.devTestWindowMs,
+  max: rateLimitConfig.devTestMax,
+  handler: rateLimitExceededHandler(
+    RATE_LIMIT_CODES.DEV_RATE_LIMIT_EXCEEDED,
+    RATE_LIMIT_MESSAGES.TOO_MANY_REQUESTS,
+  ),
 })

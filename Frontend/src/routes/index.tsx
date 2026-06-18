@@ -7,6 +7,7 @@ import {
   VerificationStatusGate,
 } from '../auth'
 import { DonorComingSoon, DonorPortalLayout } from '../components/donor'
+import { NgoComingSoon, NgoPortalLayout } from '../components/ngo'
 import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
@@ -18,6 +19,7 @@ import { EditListingPage } from '../pages/donor/EditListingPage'
 import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
+import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -176,15 +178,58 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTES.NGO_DASHBOARD,
+        path: ROUTES.NGO_PORTAL_LEGACY,
+        element: <Navigate replace to={ROUTES.NGO_BROWSE} />,
+      },
+      {
+        path: '/ngo',
         element: (
           <RequireAuth>
-            <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
-              {/* TEMPORARY — replace with NGO portal dashboard */}
-              <ComingSoon />
-            </VerificationStatusGate>
+            <RequireVerification>
+              <RequireRole role="ngo">
+                <NgoPortalLayout />
+              </RequireRole>
+            </RequireVerification>
           </RequireAuth>
         ),
+        children: [
+          {
+            index: true,
+            element: <Navigate replace to={ROUTES.NGO_BROWSE} />,
+          },
+          {
+            path: 'dashboard',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'browse',
+            element: <NgoBrowseListingsPage />,
+          },
+          {
+            path: 'requests',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'capacity',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'profile',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'settings',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'notifications',
+            element: <NgoComingSoon />,
+          },
+          {
+            path: 'listings/:id',
+            element: <NgoComingSoon />,
+          },
+        ],
       },
       {
         path: ROUTES.GET_STARTED_LEGACY,

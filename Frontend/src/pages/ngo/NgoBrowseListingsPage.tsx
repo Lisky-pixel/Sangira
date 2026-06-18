@@ -1,0 +1,137 @@
+import { useEffect, useMemo, useState } from 'react'
+import { ListingsPager } from '../../components/donor/listings-pager'
+import { NgoBrowseFilterBar } from '../../components/ngo/ngo-browse-filter-bar'
+import { NgoListingCard } from '../../components/ngo/ngo-listing-card'
+import { MY_LISTINGS_PAGE_SIZE } from '../../constants/my-listings'
+import {
+  EMPTY_NGO_BROWSE_FILTERS,
+  filterNgoBrowseListings,
+  type NgoBrowseFilters,
+} from '../../lib/ngo-browse-filters'
+import { paginateItems } from '../../lib/paginate-items'
+import { toast } from '../../lib/toast'
+import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
+import { listingService } from '../../services/listing-service'
+import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
+
+export function NgoBrowseListingsPage() {
+  const [listings, setListings] = useState<NgoBrowseListing[]>([])
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
+    'loading',
+  )
+  const [filters, setFilters] = useState(EMPTY_NGO_BROWSE_FILTERS)
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadListings() {
+      setLoadState('loading')
+      try {
+        const data = await listingService.browseListings()
+        if (!cancelled) {
+          setListings(data)
+          setLoadState('ready')
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadState('error')
+          toast.error(ngoBrowseContent.loadError)
+        }
+      }
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void loadListings()
+    }, 0)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timeoutId)
+    }
+  }, [])
+
+  const filteredListings = useMemo(
+    () => filterNgoBrowseListings(listings, filters),
+    [filters, listings],
+  )
+
+  const pagination = useMemo(
+    () =>
+      paginateItems(
+        filteredListings,
+        page,
+        MY_LISTINGS_PAGE_SIZE,
+      ),
+    [filteredListings, page],
+  )
+
+  const handleFiltersChange = (next: NgoBrowseFilters) => {
+    setFilters(next)
+    setPage(1)
+  }
+
+  const hasActiveFilters =
+    filters.search.trim().length > 0 ||
+    filters.foodTypes.length > 0 ||
+    filters.storageConditions.length > 0 ||
+    filters.expiresToday
+
+  const emptyMessage = hasActiveFilters
+    ? ngoBrowseContent.empty
+    : ngoBrowseContent.emptyAvailable
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <header>
+        <h1 className="text-charcoal font-display text-2xl font-bold sm:text-3xl">
+          {ngoBrowseContent.pageTitle}
+        </h1>
+        <p className="text-body mt-2 text-sm sm:text-base">
+          {ngoBrowseContent.pageSubtitle}
+        </p>
+      </header>
+
+      <NgoBrowseFilterBar filters={filters} onChange={handleFiltersChange} />
+
+      {loadState === 'loading' ? (
+        <p className="text-body text-sm">{ngoBrowseContent.loading}</p>
+      ) : null}
+
+      {loadState === 'error' ? (
+        <p className="text-clay-red text-sm">{ngoBrowseContent.loadError}</p>
+      ) : null}
+
+      {loadState === 'ready' ? (
+        <>
+          {filteredListings.length === 0 ? (
+            <p className="text-body text-sm">{emptyMessage}</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {pagination.items.map((listing) => (
+                  <NgoListingCard key={listing._id} listing={listing} />
+                ))}
+              </div>
+
+              <ListingsPager
+                page={page}
+                totalPages={pagination.totalPages}
+                onPageChange={setPage}
+                className="mt-2"
+                navAriaLabel={ngoBrowseContent.pager.navAriaLabel}
+                previousLabel={ngoBrowseContent.pager.previous}
+                nextLabel={ngoBrowseContent.pager.next}
+                pageLabel={ngoBrowseContent.pager.page}
+              />
+            </>
+          )}
+
+          <p className="text-body text-center text-xs sm:text-sm">
+            {ngoBrowseContent.footnote}
+          </p>
+        </>
+      ) : null}
+    </div>
+  )
+}

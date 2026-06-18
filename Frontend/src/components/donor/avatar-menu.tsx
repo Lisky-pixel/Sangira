@@ -5,6 +5,7 @@ import type { UserRole } from '../../constants/registration-roles'
 import { getOrgInitials } from '../../lib/org-initials'
 import { cn } from '../../lib/utils'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
+import { ngoPortalContent } from '../../placeholder/ngo-browse-content'
 import { ROUTES } from '../../routes/paths'
 import { useAuth } from '../../auth'
 
@@ -18,7 +19,19 @@ type AvatarMenuProps = {
 function roleLabel(role: UserRole) {
   return role === 'donor'
     ? donorDashboardContent.avatarMenu.roleDonor
-    : donorDashboardContent.avatarMenu.roleNgo
+    : ngoPortalContent.avatarMenu.roleNgo
+}
+
+function profileRoute(role: UserRole) {
+  return role === 'ngo' ? ROUTES.NGO_PROFILE : ROUTES.DONOR_PROFILE
+}
+
+function settingsRoute(role: UserRole) {
+  return role === 'ngo' ? ROUTES.NGO_SETTINGS : ROUTES.DONOR_SETTINGS
+}
+
+function menuCopy(role: UserRole) {
+  return role === 'ngo' ? ngoPortalContent.avatarMenu : donorDashboardContent.avatarMenu
 }
 
 export function AvatarMenu({
@@ -29,6 +42,7 @@ export function AvatarMenu({
 }: AvatarMenuProps) {
   const { logout } = useAuth()
   const initials = getOrgInitials(organisationName)
+  const copy = menuCopy(role)
 
   return (
     <DropdownMenu.Root>
@@ -78,21 +92,21 @@ export function AvatarMenu({
 
           <DropdownMenu.Item asChild>
             <Link
-              to={ROUTES.DONOR_PROFILE}
+              to={profileRoute(role)}
               className="text-charcoal hover:bg-sand flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm outline-none"
             >
               <User aria-hidden="true" className="size-4" />
-              {donorDashboardContent.avatarMenu.profile}
+              {copy.profile}
             </Link>
           </DropdownMenu.Item>
 
           <DropdownMenu.Item asChild>
             <Link
-              to={ROUTES.DONOR_SETTINGS}
+              to={settingsRoute(role)}
               className="text-charcoal hover:bg-sand flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm outline-none"
             >
               <Settings aria-hidden="true" className="size-4" />
-              {donorDashboardContent.avatarMenu.settings}
+              {copy.settings}
             </Link>
           </DropdownMenu.Item>
 
@@ -105,7 +119,7 @@ export function AvatarMenu({
             }}
           >
             <LogOut aria-hidden="true" className="size-4" />
-            {donorDashboardContent.avatarMenu.logout}
+            {copy.logout}
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

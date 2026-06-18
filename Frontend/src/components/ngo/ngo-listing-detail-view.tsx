@@ -1,0 +1,271 @@
+import {
+  AlertTriangle,
+  Flame,
+  Leaf,
+  MapPin,
+  Shield,
+  Snowflake,
+  Thermometer,
+  Utensils,
+  type LucideIcon,
+} from 'lucide-react'
+import { useState, type ReactNode } from 'react'
+import { Link } from 'react-router'
+import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
+import type { FoodLabel, StorageCondition } from '../../constants/listing-form'
+import { formatMemberSince } from '../../lib/format-listing-time'
+import { getOrgInitials } from '../../lib/org-initials'
+import { openInMaps } from '../../lib/open-in-maps'
+import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-content'
+import { NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER } from '../../placeholder/ngo-listing-detail-donor-stats'
+import { postListingContent } from '../../placeholder/post-listing-content'
+import { requestService } from '../../services/request-service'
+import { toast } from '../../lib/toast'
+import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
+import { Button } from '../ui/button'
+import { CountdownChip } from '../ui/countdown-chip'
+import { StatusChip } from '../ui/status-chip'
+import { VerifiedBadge } from '../ui/verified-badge'
+import { NgoConfirmRequestDialog } from './ngo-confirm-request-dialog'
+
+type NgoListingDetailViewProps = {
+  listing: NgoBrowseListing
+}
+
+function storageIcon(condition: StorageCondition): LucideIcon {
+  switch (condition) {
+    case STORAGE_CONDITION.REFRIGERATED:
+      return Snowflake
+    case STORAGE_CONDITION.HOT_HELD:
+      return Flame
+    default:
+      return Thermometer
+  }
+}
+
+function foodLabelIcon(label: FoodLabel): LucideIcon {
+  switch (label) {
+    case FOOD_LABEL.VEGETARIAN:
+      return Leaf
+    case FOOD_LABEL.HALAL:
+      return Shield
+    case FOOD_LABEL.CONTAINS_ALLERGENS:
+      return AlertTriangle
+    case FOOD_LABEL.REQUIRES_REHEATING:
+      return Flame
+    default:
+      return Leaf
+  }
+}
+
+function DetailRow({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon
+  children: ReactNode
+}) {
+  return (
+    <div className="text-body flex items-center gap-2 text-sm">
+      <Icon aria-hidden="true" className="text-primary size-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  )
+}
+
+function resolvePickupAddress(listing: NgoBrowseListing) {
+  return listing.pickupAddress ?? listing.pickupLocation?.address ?? ''
+}
+
+export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [hasRequested, setHasRequested] = useState(
+    listing.hasRequested ?? false,
+  )
+
+  const photo = listing.photos[0]
+  const unitLabel = postListingContent.quantityUnitLabels[listing.quantityUnit]
+  const storageLabel =
+    postListingContent.storageLabels[listing.storageCondition]
+  const StorageIcon = storageIcon(listing.storageCondition)
+  const pickupAddress = resolvePickupAddress(listing)
+  const donorInitials = getOrgInitials(listing.donor.organisationName)
+  const memberSince = formatMemberSince(listing.donor.createdAt)
+  const completedTransfers =
+    NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER.completedTransfers
+
+  const handleConfirmRequest = async () => {
+    const createPromise = requestService.createRequest({
+      listingId: listing._id,
+    })
+
+    try {
+      await toast.promise(createPromise, {
+        loading: ngoListingDetailContent.confirm.toast.loading,
+        success: ngoListingDetailContent.confirm.toast.success,
+        error: ngoListingDetailContent.confirm.toast.error,
+      })
+      setHasRequested(true)
+      setConfirmOpen(false)
+      // TODO: route to ngoListingDetailContent.confirm.myRequestsRoute when My requests ships
+    } catch {
+      // toast.promise surfaces the error
+    }
+  }
+
+  return (
+    <>
+      <Link
+        to={ngoListingDetailContent.routes.browse}
+        className="text-body hover:text-primary mb-2 inline-flex items-center gap-1 text-sm font-medium transition-colors"
+      >
+        <span aria-hidden="true">←</span>
+        {ngoListingDetailContent.backLink}
+      </Link>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+        <div className="flex min-w-0 flex-col gap-5">
+          <div className="bg-sand aspect-[4/3] w-full overflow-hidden rounded-2xl">
+            {photo ? (
+              <img
+                src={photo}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : null}
+          </div>
+
+          <section className="border-border rounded-2xl border bg-white p-5 shadow-sm sm:p-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusChip status="active" />
+              <CountdownChip expiresAt={listing.expiresAt} />
+            </div>
+
+            <h1 className="text-charcoal font-display mt-4 text-2xl font-bold sm:text-3xl">
+              {listing.title}
+            </h1>
+
+            <div className="mt-5 flex flex-col gap-2">
+              <DetailRow icon={Utensils}>
+                {listing.quantity} {unitLabel}
+              </DetailRow>
+              <DetailRow icon={StorageIcon}>{storageLabel}</DetailRow>
+              {listing.foodLabels.map((label) => {
+                const LabelIcon = foodLabelIcon(label)
+                return (
+                  <DetailRow key={label} icon={LabelIcon}>
+                    {postListingContent.foodLabelLabels[label]}
+                  </DetailRow>
+                )
+              })}
+            </div>
+
+            {listing.pickupInstructions ? (
+              <div className="bg-sand mt-5 rounded-xl px-4 py-3">
+                <p className="text-charcoal text-sm font-semibold">
+                  {ngoListingDetailContent.pickup.instructionsTitle}
+                </p>
+                <p className="text-body mt-1 text-sm">
+                  {listing.pickupInstructions}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-5">
+              <h2 className="text-charcoal text-sm font-semibold">
+                {ngoListingDetailContent.pickup.locationHeading}
+              </h2>
+
+              {/* TODO: distance/map slice — distance label + embedded map preview */}
+              {ngoListingDetailContent.pickup.distanceMapSlot}
+
+              {pickupAddress ? (
+                <button
+                  type="button"
+                  onClick={() => openInMaps(listing)}
+                  className="text-charcoal focus-visible:outline-primary mt-2 inline-flex items-start gap-2 text-left text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                  aria-label={ngoListingDetailContent.pickup.openInMapsAria}
+                >
+                  <MapPin
+                    aria-hidden="true"
+                    className="text-primary mt-0.5 size-4 shrink-0"
+                  />
+                  <span>{pickupAddress}</span>
+                </button>
+              ) : null}
+            </div>
+          </section>
+        </div>
+
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+          <section className="border-border rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-charcoal font-display text-lg font-bold">
+                  {listing.donor.organisationName}
+                </h2>
+                <VerifiedBadge
+                  label={ngoListingDetailContent.donorCard.verified}
+                  className="mt-1"
+                />
+              </div>
+
+              <div
+                aria-hidden="true"
+                className="bg-mint-card text-primary flex size-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
+              >
+                {donorInitials}
+              </div>
+            </div>
+
+            <div
+              aria-hidden="true"
+              className="border-border my-4 border-t"
+            />
+
+            <p className="text-body text-sm">
+              {ngoListingDetailContent.donorCard.completedTransfers(
+                completedTransfers,
+              )}
+            </p>
+            {memberSince ? (
+              <p className="text-body mt-1 text-sm">
+                {ngoListingDetailContent.donorCard.memberSince(memberSince)}
+              </p>
+            ) : null}
+          </section>
+
+          <section className="border-border rounded-2xl border bg-white p-5 shadow-sm">
+            <Button
+              type="button"
+              className="w-full"
+              disabled={hasRequested}
+              aria-label={
+                hasRequested
+                  ? ngoListingDetailContent.request.alreadyRequestedAria
+                  : undefined
+              }
+              onClick={() => setConfirmOpen(true)}
+            >
+              {hasRequested
+                ? ngoListingDetailContent.request.requested
+                : ngoListingDetailContent.request.requestFood}
+            </Button>
+            <p className="text-body mt-3 text-center text-xs sm:text-sm">
+              {ngoListingDetailContent.request.notifyNote(
+                listing.donor.organisationName,
+              )}
+            </p>
+          </section>
+        </aside>
+      </div>
+
+      <NgoConfirmRequestDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        listing={listing}
+        onConfirm={handleConfirmRequest}
+      />
+    </>
+  )
+}

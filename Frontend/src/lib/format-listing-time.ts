@@ -43,3 +43,34 @@ export function formatCompletedLabel(iso: string, now = Date.now()) {
     day: 'numeric',
   })
 }
+
+export function formatPickupDeadline(expiresAt: string, now = Date.now()) {
+  const time = formatPickupByTime(expiresAt)
+  if (!time) {
+    return 'Pickup deadline unavailable.'
+  }
+
+  const dayLabel = formatCompletedLabel(expiresAt, now)
+
+  if (dayLabel === 'today') {
+    return `Pickup by ${time} today.`
+  }
+
+  if (dayLabel === 'yesterday') {
+    return `Pickup by ${time} yesterday.`
+  }
+
+  return `Pickup by ${time} ${dayLabel}.`
+}
+
+export function formatMemberSince(iso: string) {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  return date.toLocaleDateString(undefined, {
+    month: 'long',
+    year: 'numeric',
+  })
+}

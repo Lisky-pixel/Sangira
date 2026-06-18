@@ -4,6 +4,7 @@ import { serializeListing } from './serialize-listing.js'
 export type SerializedBrowseDonor = {
   organisationName: string
   verified: true
+  createdAt: string
 }
 
 export type SerializedBrowseListing = Omit<SerializedListing, 'donor'> & {
@@ -12,6 +13,7 @@ export type SerializedBrowseListing = Omit<SerializedListing, 'donor'> & {
 
 type BrowseListingDocumentLike = Parameters<typeof serializeListing>[0] & {
   donorOrganisationName: string
+  donorCreatedAt: Date
 }
 
 export function serializeBrowseListing(
@@ -24,6 +26,7 @@ export function serializeBrowseListing(
     donor: {
       organisationName: listing.donorOrganisationName,
       verified: true,
+      createdAt: listing.donorCreatedAt.toISOString(),
     },
   }
 }

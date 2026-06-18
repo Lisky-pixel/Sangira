@@ -46,6 +46,13 @@ listingsRouter.get(
   listingController.browse,
 )
 
+listingsRouter.get(
+  '/browse/:id',
+  ...ngoBrowseGuards,
+  validateParams(listingIdParamSchema),
+  listingController.browseById,
+)
+
 listingsRouter.post(
   '/',
   csrfGuard,

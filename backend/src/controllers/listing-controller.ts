@@ -3,6 +3,7 @@ import {
   cancelListingForDonor,
   browseActiveListingsForNgo,
   createListingForDonor,
+  getBrowseListingForNgo,
   getListingForDonor,
   listDonorListings,
   updateListingForDonor,
@@ -64,6 +65,20 @@ export async function browse(
   try {
     const listings = await browseActiveListingsForNgo()
     return sendSuccess(res, { listings })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export async function browseById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const params = req.validatedParams as ListingIdParam
+    const listing = await getBrowseListingForNgo(params.id)
+    return sendSuccess(res, { listing })
   } catch (error) {
     return next(error)
   }

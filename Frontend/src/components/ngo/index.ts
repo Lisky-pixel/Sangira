@@ -1,4 +1,5 @@
 export { NgoComingSoon } from './ngo-coming-soon'
 export { NgoListingCard } from './ngo-listing-card'
+export { NgoListingDetailView } from './ngo-listing-detail-view'
 export { NgoPortalLayout } from './ngo-portal-layout'
 export { NgoTopNav } from './ngo-top-nav'

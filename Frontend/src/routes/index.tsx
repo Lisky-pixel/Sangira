@@ -20,6 +20,7 @@ import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
+import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -227,7 +228,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'listings/:id',
-            element: <NgoComingSoon />,
+            element: <NgoListingDetailPage />,
           },
         ],
       },

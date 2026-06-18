@@ -23,6 +23,10 @@ type BrowseListingsResponse = {
   listings: NgoBrowseListing[]
 }
 
+type GetBrowseListingResponse = {
+  listing: NgoBrowseListing
+}
+
 function appendListingFields(
   formData: FormData,
   payload: Omit<CreateListingPayload, 'photos'> & { photo?: File },
@@ -115,5 +119,12 @@ export const listingService = {
       '/listings/browse',
     )
     return unwrapApiResponse(response).listings
+  },
+
+  async getBrowseListing(id: string): Promise<NgoBrowseListing> {
+    const response = await apiClient.get<ApiEnvelope<GetBrowseListingResponse>>(
+      `/listings/browse/${id}`,
+    )
+    return unwrapApiResponse(response).listing
   },
 }

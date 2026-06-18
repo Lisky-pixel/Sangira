@@ -95,7 +95,6 @@ export const NGO_COMING_SOON_PATHS = [
   ROUTES.NGO_PROFILE,
   ROUTES.NGO_SETTINGS,
   ROUTES.NGO_NOTIFICATIONS,
-  NGO_ROUTE_PATTERNS.LISTING_DETAIL,
 ] as const
 
 /** TEMPORARY — donor portal routes not yet implemented */

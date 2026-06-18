@@ -395,17 +395,20 @@ export async function browseActiveListingsForNgo(): Promise<
     role: ROLES.DONOR,
     'verification.status': VERIFICATION_STATUS.APPROVED,
   })
-    .select('_id organisationName')
+    .select('_id organisationName createdAt')
     .lean()
 
   if (verifiedDonors.length === 0) {
     return []
   }
 
-  const donorNameById = new Map(
+  const donorMetaById = new Map(
     verifiedDonors.map((donor) => [
       donor._id.toString(),
-      donor.organisationName?.trim() || 'Verified donor',
+      {
+        organisationName: donor.organisationName?.trim() || 'Verified donor',
+        createdAt: donor.createdAt,
+      },
     ]),
   )
   const donorIds = verifiedDonors.map((donor) => donor._id)
@@ -444,12 +447,60 @@ export async function browseActiveListingsForNgo(): Promise<
 
   return listings
     .filter((listing) => (pendingByListingId.get(listing._id.toString()) ?? 0) === 0)
-    .map((listing) =>
-      serializeBrowseListing({
+    .map((listing) => {
+      const donorMeta = donorMetaById.get(listing.donor.toString())
+      return serializeBrowseListing({
         ...listing,
         donor: listing.donor,
-        donorOrganisationName:
-          donorNameById.get(listing.donor.toString()) ?? 'Verified donor',
-      }),
-    )
+        donorOrganisationName: donorMeta?.organisationName ?? 'Verified donor',
+        donorCreatedAt: donorMeta?.createdAt ?? listing.createdAt,
+      })
+    })
+}
+
+export async function getBrowseListingForNgo(
+  listingId: string,
+): Promise<SerializedBrowseListing> {
+  if (!mongoose.isValidObjectId(listingId)) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  const listing = await Listing.findById(listingId).lean()
+  const now = new Date()
+
+  if (
+    !listing ||
+    listing.status !== LISTING_STATUS.ACTIVE ||
+    listing.expiresAt <= now
+  ) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  const donor = await Donor.findOne({
+    _id: listing.donor,
+    role: ROLES.DONOR,
+    'verification.status': VERIFICATION_STATUS.APPROVED,
+  })
+    .select('organisationName createdAt')
+    .lean()
+
+  if (!donor) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  const pendingRequestCount = await FoodRequest.countDocuments({
+    listing: listing._id,
+    status: REQUEST_STATUS.REQUESTED,
+  })
+
+  if (pendingRequestCount > 0) {
+    throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  return serializeBrowseListing({
+    ...listing,
+    donor: listing.donor,
+    donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
+    donorCreatedAt: donor.createdAt,
+  })
 }

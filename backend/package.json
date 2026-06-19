@@ -9,7 +9,8 @@
     "start": "tsx src/server.ts",
     "build": "tsc",
     "lint": "eslint .",
-    "migrate:avatar-url": "tsx scripts/migrate-avatar-url.ts"
+    "migrate:avatar-url": "tsx scripts/migrate-avatar-url.ts",
+    "seed:admin": "tsx scripts/seed-admin.ts"
   },
   "engines": {
     "node": ">=18"

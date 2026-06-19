@@ -18,6 +18,7 @@ import {
   ValidationAppError,
 } from '../utils/app-error.js'
 import { resolveStoredDocumentFilename } from '../constants/verification-documents.js'
+import { resolveVerificationStatusForUser } from '../utils/resolve-verification-status.js'
 import { refreshTokenMaxAgeMs } from '../utils/duration.js'
 import {
   generateFamilyId,
@@ -209,9 +210,7 @@ export async function loginUser(input: LoginInput, req: Request) {
     req,
   )
 
-  const verificationStatus =
-    (user as { verification?: { status?: string } }).verification?.status ??
-    VERIFICATION_STATUS.PENDING
+  const verificationStatus = resolveVerificationStatusForUser(user)
 
   return { user, tokens, verificationStatus }
 }
@@ -300,9 +299,7 @@ export async function getCurrentUser(userId: string) {
     throw unauthorized('Authentication required', 'UNAUTHORIZED')
   }
 
-  const verificationStatus =
-    (user as { verification?: { status?: string } }).verification?.status ??
-    VERIFICATION_STATUS.PENDING
+  const verificationStatus = resolveVerificationStatusForUser(user)
 
   return {
     user,

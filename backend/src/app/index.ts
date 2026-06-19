@@ -16,6 +16,7 @@ import { devNotificationsRouter } from '../routes/dev-notifications.js'
 import { dashboardRouter, impactRouter } from '../routes/donor-portal.js'
 import { ngoCapacityRouter } from '../routes/ngo-capacity.js'
 import { ngoDashboardRouter } from '../routes/ngo-portal.js'
+import { adminPortalRouter } from '../routes/admin-portal.js'
 import { notificationsRouter } from '../routes/notifications.js'
 
 const JSON_BODY_LIMIT = '1mb'
@@ -48,6 +49,7 @@ export function createApp() {
   app.use('/dashboard', dashboardRouter)
   app.use('/dashboard', ngoDashboardRouter)
   app.use('/ngo', ngoCapacityRouter)
+  app.use('/admin', adminPortalRouter)
   app.use('/notifications', notificationsRouter)
   if (config.NODE_ENV !== 'production') {
     app.use('/dev/notifications', devNotificationsRouter)

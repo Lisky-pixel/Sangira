@@ -38,6 +38,9 @@ import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
 import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
+import { AdminComingSoon } from '../components/admin'
+import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
+import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
 import { COMING_SOON_PATHS, ROUTES } from './paths'
 
 export const router = createBrowserRouter([
@@ -245,6 +248,44 @@ export const router = createBrowserRouter([
           {
             path: 'listings/:id',
             element: <NgoListingDetailPage />,
+          },
+        ],
+      },
+      {
+        path: ROUTES.ADMIN_LOGIN,
+        element: <AdminSignInPage />,
+      },
+      {
+        path: '/admin',
+        element: <AdminProtectedLayout />,
+        children: [
+          {
+            index: true,
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'verifications',
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'users',
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'listings',
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'reports',
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'profile',
+            element: <AdminComingSoon />,
+          },
+          {
+            path: 'settings',
+            element: <AdminComingSoon />,
           },
         ],
       },

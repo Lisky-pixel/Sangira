@@ -149,7 +149,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     setAuthFailureHandler(() => {
       clearLocalSession()
-      navigate(ROUTES.SIGN_IN, { replace: true })
+      const isAdminArea =
+        window.location.pathname.startsWith('/admin') &&
+        window.location.pathname !== ROUTES.ADMIN_LOGIN
+      navigate(isAdminArea ? ROUTES.ADMIN_LOGIN : ROUTES.SIGN_IN, {
+        replace: true,
+      })
     })
 
     return () => {

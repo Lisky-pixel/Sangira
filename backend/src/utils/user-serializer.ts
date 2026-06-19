@@ -1,9 +1,10 @@
-import { VERIFICATION_STATUS } from '../constants/enums.js'
 import type { NotificationPreferences } from '../constants/notification-preferences.js'
+import { resolveVerificationStatusForUser } from './resolve-verification-status.js'
 import { normalizeNotificationPrefs } from './normalize-notification-prefs.js'
 import { resolveAvatarUrl } from './resolve-avatar-url.js'
 
 type SerializableUser = {
+  role?: string
   notificationPrefs?: NotificationPreferences | Record<string, unknown>
   verification?: {
     status?: string
@@ -46,5 +47,5 @@ export function serializeUser(user: SerializableUser) {
 }
 
 export function getVerificationStatus(user: SerializableUser): string {
-  return user.verification?.status ?? VERIFICATION_STATUS.PENDING
+  return resolveVerificationStatusForUser(user)
 }

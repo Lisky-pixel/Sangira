@@ -1,9 +1,9 @@
+import { ADMIN_ROLE, isPortalRole } from '../constants/portal-roles'
 import {
   VERIFICATION_STATUS,
   type VerificationStatus,
 } from '../constants/verification-status'
 import { resolvePortalRoute } from '../constants/portal-routes'
-import { isUserRole } from '../constants/registration-roles'
 import { hasSeenVerificationCelebration } from '../lib/verification-celebration'
 import { ROUTES } from '../routes/paths'
 
@@ -16,6 +16,10 @@ export function resolveVerificationRoute(
   status: VerificationStatus,
   options: ResolveVerificationRouteOptions = {},
 ): string {
+  if (options.role === ADMIN_ROLE) {
+    return ROUTES.ADMIN_OVERVIEW
+  }
+
   switch (status) {
     case VERIFICATION_STATUS.PENDING:
       return ROUTES.REGISTER_PENDING
@@ -25,7 +29,9 @@ export function resolveVerificationRoute(
       const celebrationSeen =
         options.celebrationSeen ?? hasSeenVerificationCelebration()
       const roleValue = options.role ?? null
-      const role = isUserRole(roleValue) ? roleValue : undefined
+      const role = isPortalRole(roleValue) && roleValue !== ADMIN_ROLE
+        ? roleValue
+        : undefined
 
       if (celebrationSeen && role) {
         return resolvePortalRoute(role)

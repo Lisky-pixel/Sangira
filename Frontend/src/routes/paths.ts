@@ -41,6 +41,15 @@ export const ROUTES = {
   TERMS: '/terms',
   HELP: '/help',
   CONTACT: '/contact',
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN_OVERVIEW: '/admin',
+  /** TEMPORARY — admin feature pages until slices ship */
+  ADMIN_VERIFICATIONS: '/admin/verifications',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_LISTINGS: '/admin/listings',
+  ADMIN_REPORTS: '/admin/reports',
+  ADMIN_PROFILE: '/admin/profile',
+  ADMIN_SETTINGS: '/admin/settings',
 } as const
 
 export const DONOR_ROUTE_PATTERNS = {
@@ -113,4 +122,15 @@ export const NGO_COMING_SOON_PATHS = [
 export const DONOR_COMING_SOON_PATHS = [
   ROUTES.DONOR_NOTIFICATIONS,
   DONOR_ROUTE_PATTERNS.REQUEST_REVIEW,
+] as const
+
+/** TEMPORARY — admin portal feature routes not yet implemented */
+export const ADMIN_COMING_SOON_PATHS = [
+  ROUTES.ADMIN_OVERVIEW,
+  ROUTES.ADMIN_VERIFICATIONS,
+  ROUTES.ADMIN_USERS,
+  ROUTES.ADMIN_LISTINGS,
+  ROUTES.ADMIN_REPORTS,
+  ROUTES.ADMIN_PROFILE,
+  ROUTES.ADMIN_SETTINGS,
 ] as const

@@ -19,6 +19,7 @@ export type HandoverListing = {
 export type HandoverCompletionImpact = {
   mealsRedistributed: number
   wasteKgPrevented: number
+  itemsRedistributed: number
 }
 
 export type HandoverView = {

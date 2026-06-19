@@ -4,13 +4,14 @@ import { QUANTITY_UNIT, type QuantityUnit } from '../constants/listing-form.js'
 export type HandoverImpact = {
   mealsRedistributed: number
   wasteKgPrevented: number
+  itemsRedistributed: number
 }
 
 /**
- * Impact rule: meals = servings only; kg shown separately.
+ * Impact rule: meals = servings only; kg = kg unit; items = items unit — nothing estimated.
  * - servings → meals = quantity; wasteKg = quantity × SERVINGS_TO_KG_ESTIMATE
  * - kg → meals = 0; wasteKg = quantity
- * - items → meals = 0; wasteKg = 0
+ * - items → meals = 0; wasteKg = 0; items = quantity
  */
 export function computeHandoverImpact(
   quantity: number,
@@ -20,6 +21,7 @@ export function computeHandoverImpact(
     return {
       mealsRedistributed: quantity,
       wasteKgPrevented: quantity * HANDOVER_IMPACT.SERVINGS_TO_KG_ESTIMATE,
+      itemsRedistributed: 0,
     }
   }
 
@@ -27,11 +29,13 @@ export function computeHandoverImpact(
     return {
       mealsRedistributed: 0,
       wasteKgPrevented: quantity,
+      itemsRedistributed: 0,
     }
   }
 
   return {
     mealsRedistributed: 0,
     wasteKgPrevented: 0,
+    itemsRedistributed: quantity,
   }
 }

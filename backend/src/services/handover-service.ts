@@ -17,6 +17,7 @@ import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
 import { User } from '../models/user.js'
 import { emitHandoverUpdated } from '../realtime/handover-events.js'
+import { notifyDonorTransferComplete } from './notification-service.js'
 import {
   AppError,
   badRequest,
@@ -237,6 +238,7 @@ async function tryCompleteHandover(input: {
             'confirmation.completedAt': now,
             mealsRedistributed: impact.mealsRedistributed,
             wasteKgPrevented: impact.wasteKgPrevented,
+            itemsRedistributed: impact.itemsRedistributed,
           },
         },
         { session, new: true },
@@ -266,6 +268,13 @@ async function tryCompleteHandover(input: {
         updatedRequest.toObject() as Parameters<typeof buildHandoverUpdatedPayload>[0],
       )
     })
+
+    if (payload) {
+      await notifyDonorTransferComplete({
+        requestId: input.requestId,
+        listingId: input.listingId,
+      })
+    }
 
     return payload
   } catch (error) {
@@ -308,6 +317,7 @@ async function finalizeHandoverStep(input: {
         impact: {
           mealsRedistributed: impact.mealsRedistributed,
           wasteKgPrevented: impact.wasteKgPrevented,
+          itemsRedistributed: impact.itemsRedistributed,
         },
       }
     }
@@ -327,6 +337,7 @@ async function finalizeHandoverStep(input: {
         impact: {
           mealsRedistributed: impact.mealsRedistributed,
           wasteKgPrevented: impact.wasteKgPrevented,
+          itemsRedistributed: impact.itemsRedistributed,
         },
       }
     }

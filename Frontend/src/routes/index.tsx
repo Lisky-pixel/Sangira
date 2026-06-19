@@ -13,6 +13,8 @@ import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
 import { ComingSoon } from '../pages/ComingSoon'
 import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
+import { DonorImpactPage } from '../pages/donor/DonorImpactPage'
+import { DonorActivityPage } from '../pages/donor/DonorActivityPage'
 import { DonorChangePasswordPage } from '../pages/donor/DonorChangePasswordPage'
 import { DonorProfilePage } from '../pages/donor/DonorProfilePage'
 import { DonorSettingsPage } from '../pages/donor/DonorSettingsPage'
@@ -168,8 +170,12 @@ export const router = createBrowserRouter([
             element: <DonorComingSoon />,
           },
           {
+            path: 'activity',
+            element: <DonorActivityPage />,
+          },
+          {
             path: 'impact',
-            element: <DonorComingSoon />,
+            element: <DonorImpactPage />,
           },
           {
             path: 'profile',

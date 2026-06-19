@@ -45,14 +45,67 @@ export const donorDashboardContent = {
     requestedListing: (ngoName: string) => `${ngoName} requested your listing`,
     reviewRequest: 'Review request',
     empty: 'No pending requests right now.',
+    loading: 'Loading pending requests…',
+    loadError: 'Could not load pending requests.',
   },
   monthlyImpact: {
     heading: 'Monthly impact',
-    meals: (count: number) => `${count} meals`,
-    wastePrevented: (kg: number) => `${kg} kg waste prevented`,
+    meals: (count: number) => `${count.toLocaleString()} meals`,
+    wastePrevented: (kg: number) => `${kg.toLocaleString()} kg waste prevented`,
+    items: (count: number) => `${count.toLocaleString()} items`,
+    loading: 'Loading impact…',
+    loadError: 'Could not load impact data.',
   },
   recentActivity: {
     heading: 'Recent activity',
+    empty: 'No recent activity yet.',
+    viewAll: 'View all',
+  },
+  activity: {
+    listingPosted: {
+      title: 'Listing posted',
+      description: (listingTitle: string) =>
+        `${listingTitle} is now visible to NGOs.`,
+    },
+    requestReceived: {
+      title: (ngoName: string) => `${ngoName} requested your listing`,
+      description: (listingTitle: string) =>
+        `Review the request for ${listingTitle}.`,
+    },
+    requestAccepted: {
+      title: (ngoName: string) => `${ngoName} accepted for pickup`,
+      description: (listingTitle: string) =>
+        `${listingTitle} is awaiting pickup.`,
+    },
+    transferCompleted: {
+      title: (ngoName: string) => `${ngoName} pickup`,
+      description: (input: {
+        listingTitle: string
+        meals: number
+        wasteKg: number
+        items: number
+      }) => {
+        if (input.meals > 0) {
+          return `${input.meals.toLocaleString()} meals collected from ${input.listingTitle}.`
+        }
+        if (input.items > 0) {
+          return `${input.items.toLocaleString()} items collected from ${input.listingTitle}.`
+        }
+        if (input.wasteKg > 0) {
+          return `${input.wasteKg.toLocaleString()} kg collected from ${input.listingTitle}.`
+        }
+        return `Transfer completed for ${input.listingTitle}.`
+      },
+    },
+    listingExpired: {
+      title: 'Listing expired',
+      description: (listingTitle: string) =>
+        `${listingTitle} was not collected in time.`,
+    },
+    fallback: {
+      title: 'Activity update',
+      description: 'Your redistribution activity was updated.',
+    },
   },
   needHelp: {
     heading: 'Need help?',

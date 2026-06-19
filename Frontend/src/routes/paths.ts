@@ -18,6 +18,7 @@ export const ROUTES = {
   DONOR_LISTINGS: '/donor/listings',
   POST_LISTING: '/donor/listings/new',
   DONOR_IMPACT: '/donor/impact',
+  DONOR_ACTIVITY: '/donor/activity',
   DONOR_PROFILE: '/donor/profile',
   DONOR_CHANGE_PASSWORD: '/donor/profile/change-password',
   DONOR_SETTINGS: '/donor/settings',
@@ -112,7 +113,6 @@ export const NGO_COMING_SOON_PATHS = [
 
 /** TEMPORARY — donor portal routes not yet implemented */
 export const DONOR_COMING_SOON_PATHS = [
-  ROUTES.DONOR_IMPACT,
   ROUTES.DONOR_NOTIFICATIONS,
   DONOR_ROUTE_PATTERNS.REQUEST_REVIEW,
 ] as const

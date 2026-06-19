@@ -13,6 +13,8 @@ import { listingsRouter } from '../routes/listings.js'
 import { requestsRouter } from '../routes/requests.js'
 import { verificationRouter } from '../routes/verification.js'
 import { devNotificationsRouter } from '../routes/dev-notifications.js'
+import { dashboardRouter, impactRouter } from '../routes/donor-portal.js'
+import { notificationsRouter } from '../routes/notifications.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
@@ -40,6 +42,9 @@ export function createApp() {
   app.use('/listings', listingsRouter)
   app.use('/requests', requestsRouter)
   app.use('/verification', verificationRouter)
+  app.use('/impact', impactRouter)
+  app.use('/dashboard', dashboardRouter)
+  app.use('/notifications', notificationsRouter)
   if (config.NODE_ENV !== 'production') {
     app.use('/dev/notifications', devNotificationsRouter)
   }

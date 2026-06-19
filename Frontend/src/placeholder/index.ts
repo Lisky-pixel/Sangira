@@ -1,10 +1,3 @@
-export {
-  donorMonthlyImpact,
-  donorPendingRequests,
-  donorRecentActivity,
-  type DonorActivityEvent,
-  type DonorMonthlyImpact,
-} from './donor-dashboard-data'
 export { donorDashboardContent } from './donor-dashboard-content'
 export { placeholderListings, type Listing } from './listings'
 export {

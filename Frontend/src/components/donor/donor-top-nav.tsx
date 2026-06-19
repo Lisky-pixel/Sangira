@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import { Bell, Menu, Plus, X } from 'lucide-react'
+import { Menu, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { isUserRole } from '../../constants/registration-roles'
@@ -10,6 +10,7 @@ import { useAuth } from '../../auth'
 import { ButtonLink } from '../ui/button'
 import { VerifiedBadge } from '../ui/verified-badge'
 import { AvatarMenu } from './avatar-menu'
+import { DonorNotificationsBell } from './donor-notifications-bell'
 
 type DonorNavItem = {
   label: string
@@ -160,13 +161,7 @@ export function DonorTopNav({ className }: DonorTopNavProps) {
             <Plus aria-hidden="true" className="size-4" />
           </ButtonLink>
 
-          <Link
-            to={ROUTES.DONOR_NOTIFICATIONS}
-            className="text-body hover:text-primary rounded-md p-2 transition-colors"
-            aria-label={donorDashboardContent.topNav.notificationsAria}
-          >
-            <Bell aria-hidden="true" className="size-5" />
-          </Link>
+          <DonorNotificationsBell />
 
           <span aria-hidden="true" className="bg-border hidden h-6 w-px sm:block" />
 

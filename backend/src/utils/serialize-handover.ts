@@ -36,6 +36,7 @@ export type HandoverUpdatedPayload = {
 export type HandoverCompletionImpact = {
   mealsRedistributed: number
   wasteKgPrevented: number
+  itemsRedistributed: number
 }
 
 export type ConfirmReceiptResult = {

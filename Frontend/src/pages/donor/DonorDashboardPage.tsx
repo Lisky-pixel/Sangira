@@ -1,27 +1,23 @@
 import { ArrowRight, Building2, CircleHelp, Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
-import { DonorListingCard } from '../../components/donor'
+import { DonorActivityFeed, DonorListingCard } from '../../components/donor'
 import { ButtonLink } from '../../components/ui/button'
 import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
+import { DONOR_RECENT_ACTIVITY_LIMIT } from '../../constants/donor-activity'
 import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT } from '../../constants/donor-dashboard'
+import { useDonorDashboard } from '../../hooks/use-donor-dashboard'
 import { useMyListings } from '../../hooks/use-my-listings'
 import { getGreeting } from '../../lib/greeting'
 import { filterOngoingListings } from '../../lib/my-listings-filters'
 import {
-  formatActivityTimestamp,
   formatRelativeMinutes,
   minutesAgoFromIso,
 } from '../../lib/relative-time'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
-import {
-  donorMonthlyImpact,
-  donorPendingRequests,
-  donorRecentActivity,
-} from '../../placeholder/donor-dashboard-data'
-import { donorRequestReviewPath, ROUTES } from '../../routes/paths'
+import { donorListingManagePath, ROUTES } from '../../routes/paths'
 
 function MonthlyImpactChart({ values }: { values: number[] }) {
   const max = Math.max(...values, 1)
@@ -34,14 +30,14 @@ function MonthlyImpactChart({ values }: { values: number[] }) {
     >
       {values.map((value, index) => {
         const barHeight = (value / max) * 40
-        const x = index * 6 + 2
+        const x = index * 12 + 2
         const y = 44 - barHeight
         return (
           <rect
             key={index}
             x={x}
             y={y}
-            width={4}
+            width={8}
             height={barHeight}
             rx={1}
             fill="currentColor"
@@ -56,6 +52,7 @@ function MonthlyImpactChart({ values }: { values: number[] }) {
 export function DonorDashboardPage() {
   const { state } = useAuth()
   const { listings, loadState: listingsStatus } = useMyListings()
+  const { dashboard, loadState: dashboardStatus } = useDonorDashboard()
 
   const activeListings = useMemo(
     () =>
@@ -74,6 +71,15 @@ export function DonorDashboardPage() {
 
   const organisationName =
     state.user.organisationName?.trim() || donorDashboardContent.topNav.brand
+
+  const monthlyImpact = dashboard?.monthlyImpact
+  const chartValues =
+    monthlyImpact?.monthlySeries.map((point) => point.meals) ?? []
+  const needsAction = dashboard?.needsAction ?? []
+  const recentActivity = (dashboard?.recentActivity ?? []).slice(
+    0,
+    DONOR_RECENT_ACTIVITY_LIMIT,
+  )
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
@@ -154,13 +160,21 @@ export function DonorDashboardPage() {
             {donorDashboardContent.needsAction.heading}
           </h2>
 
-          {donorPendingRequests.length === 0 ? (
+          {dashboardStatus === 'loading' ? (
+            <p className="text-body text-sm">
+              {donorDashboardContent.needsAction.loading}
+            </p>
+          ) : dashboardStatus === 'error' ? (
+            <p className="text-clay-red text-sm">
+              {donorDashboardContent.needsAction.loadError}
+            </p>
+          ) : needsAction.length === 0 ? (
             <p className="text-body text-sm">{donorDashboardContent.needsAction.empty}</p>
           ) : (
             <div className="flex flex-col gap-4">
-              {donorPendingRequests.map((request) => (
+              {needsAction.map((request) => (
                 <article
-                  key={request._id}
+                  key={request.requestId}
                   className="border-border flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-start gap-3">
@@ -170,8 +184,11 @@ export function DonorDashboardPage() {
                     <div>
                       <p className="text-charcoal text-sm font-medium sm:text-base">
                         {donorDashboardContent.needsAction.requestedListing(
-                          request.ngoName,
+                          request.ngo.organisationName,
                         )}
+                      </p>
+                      <p className="text-body mt-1 text-sm">
+                        {request.listingTitle}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <StatusChip status="requested" />
@@ -185,7 +202,7 @@ export function DonorDashboardPage() {
                   </div>
 
                   <ButtonLink
-                    to={donorRequestReviewPath(request._id)}
+                    to={donorListingManagePath(request.listingId)}
                     className="w-full sm:w-auto"
                   >
                     {donorDashboardContent.needsAction.reviewRequest}
@@ -202,41 +219,69 @@ export function DonorDashboardPage() {
           <p className="text-stat text-xs font-semibold tracking-wide uppercase">
             {donorDashboardContent.monthlyImpact.heading}
           </p>
-          <div className="mt-4 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-charcoal font-display text-3xl font-bold">
-                {donorDashboardContent.monthlyImpact.meals(donorMonthlyImpact.meals)}
-              </p>
-              <p className="text-body mt-1 text-sm">
-                {donorDashboardContent.monthlyImpact.wastePrevented(
-                  donorMonthlyImpact.wasteKgPrevented,
-                )}
-              </p>
+          {dashboardStatus === 'loading' ? (
+            <p className="text-body mt-4 text-sm">
+              {donorDashboardContent.monthlyImpact.loading}
+            </p>
+          ) : dashboardStatus === 'error' || !monthlyImpact ? (
+            <p className="text-clay-red mt-4 text-sm">
+              {donorDashboardContent.monthlyImpact.loadError}
+            </p>
+          ) : (
+            <div className="mt-4 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-charcoal font-display text-3xl font-bold">
+                  {donorDashboardContent.monthlyImpact.meals(
+                    monthlyImpact.thisMonth.meals,
+                  )}
+                </p>
+                <p className="text-body mt-1 text-sm">
+                  {donorDashboardContent.monthlyImpact.wastePrevented(
+                    monthlyImpact.thisMonth.wasteKg,
+                  )}
+                </p>
+                {monthlyImpact.thisMonth.items > 0 ? (
+                  <p className="text-body mt-1 text-sm">
+                    {donorDashboardContent.monthlyImpact.items(
+                      monthlyImpact.thisMonth.items,
+                    )}
+                  </p>
+                ) : null}
+              </div>
+              <MonthlyImpactChart values={chartValues} />
             </div>
-            <MonthlyImpactChart values={donorMonthlyImpact.trend} />
-          </div>
+          )}
         </section>
 
         <section className="border-border rounded-2xl border bg-white p-5 shadow-sm">
-          <h2 className="text-charcoal font-display mb-4 text-lg font-bold">
-            {donorDashboardContent.recentActivity.heading}
-          </h2>
-          <ul className="divide-border divide-y">
-            {donorRecentActivity.map((event) => (
-              <li key={event.id} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
-                <div className="min-w-0">
-                  <p className="text-charcoal text-sm font-medium">{event.title}</p>
-                  <p className="text-body mt-1 text-sm">{event.description}</p>
-                </div>
-                <time
-                  dateTime={event.timestamp}
-                  className="text-body shrink-0 text-xs whitespace-nowrap"
-                >
-                  {formatActivityTimestamp(event.timestamp)}
-                </time>
-              </li>
-            ))}
-          </ul>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-charcoal font-display text-lg font-bold">
+              {donorDashboardContent.recentActivity.heading}
+            </h2>
+            {recentActivity.length > 0 ? (
+              <Link
+                to={ROUTES.DONOR_ACTIVITY}
+                className="text-primary text-sm font-medium hover:underline"
+              >
+                {donorDashboardContent.recentActivity.viewAll}
+              </Link>
+            ) : null}
+          </div>
+          {dashboardStatus === 'loading' ? (
+            <p className="text-body text-sm">
+              {donorDashboardContent.monthlyImpact.loading}
+            </p>
+          ) : dashboardStatus === 'error' ? (
+            <p className="text-clay-red text-sm">
+              {donorDashboardContent.monthlyImpact.loadError}
+            </p>
+          ) : recentActivity.length === 0 ? (
+            <p className="text-body text-sm">
+              {donorDashboardContent.recentActivity.empty}
+            </p>
+          ) : (
+            <DonorActivityFeed events={recentActivity} />
+          )}
         </section>
 
         <section className="bg-mint-card border-border rounded-2xl border p-5 shadow-sm">

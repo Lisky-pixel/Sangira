@@ -48,9 +48,10 @@ const requestSchema = new Schema(
       completedAt: { type: Date },
       conditionReport: { type: conditionReportSchema },
     },
-    /** Recorded at completion for impact dashboards — meals = servings only; kg separate */
+    /** Recorded at completion for impact dashboards — meals/kg/items per unit rule */
     mealsRedistributed: { type: Number },
     wasteKgPrevented: { type: Number },
+    itemsRedistributed: { type: Number },
   },
   { timestamps: true },
 )

@@ -14,6 +14,10 @@ import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
 import { Donor, User } from '../models/user.js'
 import {
+  maybeNotifyDonorRequestReceived,
+  notifyDonorRequestAccepted,
+} from './notification-service.js'
+import {
   AppError,
   conflict,
   forbidden,
@@ -140,7 +144,22 @@ export async function createRequestForNgo(input: {
       status: REQUEST_STATUS.REQUESTED,
     })
 
-    // TODO: notification slice — notify donor that an NGO requested their listing
+    const [listing, ngo] = await Promise.all([
+      Listing.findById(input.listingId).select('donor title').lean(),
+      User.findById(input.ngoId).select('organisationName').lean() as Promise<{
+        organisationName?: string | null
+      } | null>,
+    ])
+
+    if (listing) {
+      await maybeNotifyDonorRequestReceived({
+        donorId: listing.donor.toString(),
+        requestId: request._id.toString(),
+        listingId: input.listingId,
+        ngoName: ngo?.organisationName?.trim() || 'An NGO',
+        listingTitle: listing.title,
+      })
+    }
 
     return serializeRequest(
       request.toObject() as Parameters<typeof serializeRequest>[0],
@@ -426,7 +445,17 @@ export async function acceptRequestForDonor(input: {
       )
     }
 
-    // TODO: notification slice — notify accepted NGO; declined NGOs notified separately
+    const ngo = (await User.findById(request.ngo)
+      .select('organisationName')
+      .lean()) as { organisationName?: string | null } | null
+
+    await notifyDonorRequestAccepted({
+      donorId: input.donorId,
+      requestId: input.requestId,
+      listingId: listing._id.toString(),
+      ngoName: ngo?.organisationName?.trim() || 'An NGO',
+      listingTitle: listing.title,
+    })
 
     return acceptedRequest
   } catch (error) {

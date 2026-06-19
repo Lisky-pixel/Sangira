@@ -17,6 +17,8 @@ export const donorProfileContent = {
     transfersCompletedLabel: 'transfers completed',
     mealsRedistributedLabel: 'meals redistributed',
     verifiedSince: (monthYear: string) => `since ${monthYear}`,
+    loading: 'Loading track record…',
+    loadError: 'Could not load track record.',
   },
   organisationDetails: {
     sectionLabel: 'Organisation details',

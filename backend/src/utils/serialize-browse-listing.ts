@@ -5,6 +5,8 @@ export type SerializedBrowseDonor = {
   organisationName: string
   verified: true
   createdAt: string
+  completedTransfers: number
+  avatarUrl?: string
 }
 
 export type SerializedBrowseListing = Omit<SerializedListing, 'donor'> & {
@@ -16,12 +18,19 @@ export type SerializedBrowseListing = Omit<SerializedListing, 'donor'> & {
 type BrowseListingDocumentLike = Parameters<typeof serializeListing>[0] & {
   donorOrganisationName: string
   donorCreatedAt: Date
+  donorCompletedTransfers: number
+  donorAvatarUrl?: string | null
 }
 
 export function serializeBrowseListing(
   listing: BrowseListingDocumentLike,
 ): SerializedBrowseListing {
   const base = serializeListing(listing)
+  const avatarUrl =
+    typeof listing.donorAvatarUrl === 'string' &&
+    listing.donorAvatarUrl.trim()
+      ? listing.donorAvatarUrl.trim()
+      : undefined
 
   return {
     ...base,
@@ -29,6 +38,8 @@ export function serializeBrowseListing(
       organisationName: listing.donorOrganisationName,
       verified: true,
       createdAt: listing.donorCreatedAt.toISOString(),
+      completedTransfers: listing.donorCompletedTransfers,
+      ...(avatarUrl ? { avatarUrl } : {}),
     },
   }
 }

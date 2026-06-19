@@ -1,23 +1,41 @@
 import { Check } from 'lucide-react'
-import { getPlaceholderDonorTrackRecord } from '../../placeholder/donor-profile-stats-data'
 import { donorProfileContent } from '../../placeholder/donor-profile-content'
 import { formatShortMonthYear } from '../../lib/profile-format'
 
 type ProfileTrackRecordCardProps = {
-  donorId: string
+  transfersCompleted: number
+  mealsRedistributed: number
   verifiedAt?: string | Date
+  loadState: 'loading' | 'ready' | 'error'
 }
 
-/**
- * PLACEHOLDER boundary — transfers/meals counts swap when live stats ship.
- * Verified-since date is real from verification.reviewedAt.
- */
 export function ProfileTrackRecordCard({
-  donorId,
+  transfersCompleted,
+  mealsRedistributed,
   verifiedAt,
+  loadState,
 }: ProfileTrackRecordCardProps) {
-  const stats = getPlaceholderDonorTrackRecord(donorId)
   const verifiedSince = formatShortMonthYear(verifiedAt)
+
+  if (loadState === 'loading') {
+    return (
+      <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">
+        <p className="text-body text-center text-sm">
+          {donorProfileContent.trackRecord.loading}
+        </p>
+      </section>
+    )
+  }
+
+  if (loadState === 'error') {
+    return (
+      <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">
+        <p className="text-clay-red text-center text-sm">
+          {donorProfileContent.trackRecord.loadError}
+        </p>
+      </section>
+    )
+  }
 
   return (
     <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">
@@ -28,7 +46,7 @@ export function ProfileTrackRecordCard({
       <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4">
         <div className="text-center sm:border-border sm:border-r sm:pr-4">
           <p className="text-charcoal font-display text-3xl font-bold">
-            {stats.transfersCompleted}
+            {transfersCompleted}
           </p>
           <p className="text-body mt-1 text-sm">
             {donorProfileContent.trackRecord.transfersCompletedLabel}
@@ -37,7 +55,7 @@ export function ProfileTrackRecordCard({
 
         <div className="text-center sm:border-border sm:border-r sm:pr-4">
           <p className="text-charcoal font-display text-3xl font-bold">
-            {stats.mealsRedistributed.toLocaleString()}
+            {mealsRedistributed.toLocaleString()}
           </p>
           <p className="text-body mt-1 text-sm">
             {donorProfileContent.trackRecord.mealsRedistributedLabel}

@@ -19,7 +19,6 @@ import { formatMemberSince } from '../../lib/format-listing-time'
 import { getOrgInitials } from '../../lib/org-initials'
 import { openInMaps } from '../../lib/open-in-maps'
 import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-content'
-import { NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER } from '../../placeholder/ngo-listing-detail-donor-stats'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { ngoRequestsPath } from '../../routes/paths'
 import { requestService } from '../../services/request-service'
@@ -96,8 +95,8 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
   const pickupAddress = resolvePickupAddress(listing)
   const donorInitials = getOrgInitials(listing.donor.organisationName)
   const memberSince = formatMemberSince(listing.donor.createdAt)
-  const completedTransfers =
-    NGO_LISTING_DETAIL_DONOR_STATS_PLACEHOLDER.completedTransfers
+  const completedTransfers = listing.donor.completedTransfers
+  const donorAvatarUrl = listing.donor.avatarUrl
 
   const handleConfirmRequest = async () => {
     const createPromise = requestService.createRequest({
@@ -239,12 +238,20 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
                 />
               </div>
 
-              <div
-                aria-hidden="true"
-                className="bg-mint-card text-primary flex size-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
-              >
-                {donorInitials}
-              </div>
+              {donorAvatarUrl ? (
+                <img
+                  src={donorAvatarUrl}
+                  alt=""
+                  className="size-14 shrink-0 rounded-xl object-cover"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="bg-mint-card text-primary flex size-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
+                >
+                  {donorInitials}
+                </div>
+              )}
             </div>
 
             <div

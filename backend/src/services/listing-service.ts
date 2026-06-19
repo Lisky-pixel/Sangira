@@ -31,6 +31,7 @@ import {
   type SerializedBrowseListing,
 } from '../utils/serialize-browse-listing.js'
 import { ngoHasActiveRequestForListing } from './request-service.js'
+import { aggregateDonorImpact } from './donor-impact-service.js'
 
 type CreateListingFile = {
   buffer: Buffer
@@ -434,6 +435,7 @@ export async function browseActiveListingsForNgo(): Promise<
       donor: listing.donor,
       donorOrganisationName: donorMeta?.organisationName ?? 'Verified donor',
       donorCreatedAt: donorMeta?.createdAt ?? listing.createdAt,
+      donorCompletedTransfers: 0,
     })
   })
 }
@@ -464,17 +466,22 @@ export async function getBrowseListingForNgo(input: {
     role: ROLES.DONOR,
     'verification.status': VERIFICATION_STATUS.APPROVED,
   })
-    .select('organisationName createdAt')
+    .select('organisationName createdAt avatarUrl')
     .lean()
 
   if (!donor) {
     throw notFound('Listing not found', 'LISTING_NOT_FOUND')
   }
 
-  const hasRequested = await ngoHasActiveRequestForListing({
-    listingId,
-    ngoId,
-  })
+  const donorId = donor._id.toString()
+
+  const [hasRequested, impact] = await Promise.all([
+    ngoHasActiveRequestForListing({
+      listingId,
+      ngoId,
+    }),
+    aggregateDonorImpact(donorId),
+  ])
 
   return {
     ...serializeBrowseListing({
@@ -482,6 +489,8 @@ export async function getBrowseListingForNgo(input: {
       donor: listing.donor,
       donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
       donorCreatedAt: donor.createdAt,
+      donorCompletedTransfers: impact.totals.completedTransfers,
+      donorAvatarUrl: donor.avatarUrl,
     }),
     hasRequested,
   }

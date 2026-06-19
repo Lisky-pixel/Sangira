@@ -8,6 +8,7 @@ import { ButtonLink } from '../../components/ui/button'
 import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { PROFILE_FIELD } from '../../constants/profile'
+import { useDonorImpact } from '../../hooks/use-donor-impact'
 import { getDonorPickupAddress } from '../../lib/donor-pickup-address'
 import {
   formatMemberMonthYear,
@@ -19,6 +20,7 @@ import { donorProfileContent } from '../../placeholder/donor-profile-content'
 
 export function DonorProfilePage() {
   const { state, refreshMe } = useAuth()
+  const { impact, loadState: impactLoadState } = useDonorImpact()
 
   if (state.status !== 'authed') {
     return null
@@ -85,8 +87,10 @@ export function DonorProfilePage() {
       </section>
 
       <ProfileTrackRecordCard
-        donorId={user._id}
+        transfersCompleted={impact?.totals.completedTransfers ?? 0}
+        mealsRedistributed={impact?.totals.mealsRedistributed ?? 0}
         verifiedAt={user.verification?.reviewedAt}
+        loadState={impactLoadState}
       />
 
       <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">

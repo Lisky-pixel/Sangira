@@ -4,6 +4,8 @@ export type NgoBrowseDonor = {
   organisationName: string
   verified: true
   createdAt: string
+  completedTransfers: number
+  avatarUrl?: string
 }
 
 /** NGO-facing listing shape from GET /listings/browse and GET /listings/browse/:id */

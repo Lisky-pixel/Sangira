@@ -104,7 +104,6 @@ export const COMING_SOON_PATHS = [
 
 /** TEMPORARY — NGO portal routes not yet implemented */
 export const NGO_COMING_SOON_PATHS = [
-  ROUTES.NGO_CAPACITY,
   ROUTES.NGO_PROFILE,
   ROUTES.NGO_SETTINGS,
   ROUTES.NGO_NOTIFICATIONS,

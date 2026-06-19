@@ -13,6 +13,19 @@ import { useNgoDashboard } from '../../hooks/use-ngo-dashboard'
 import { getGreeting } from '../../lib/greeting'
 import { ngoDashboardContent } from '../../placeholder/ngo-dashboard-content'
 import { ngoPortalContent } from '../../placeholder/ngo-browse-content'
+import type { NgoTransportSettings } from '../../types/ngo-capacity'
+
+function formatTransportLabel(transport: NgoTransportSettings): string {
+  if (!transport.hasOwnTransport) {
+    return ngoDashboardContent.capacity.transportNotSet
+  }
+
+  if (transport.mode) {
+    return ngoDashboardContent.capacity.transportMode(transport.mode)
+  }
+
+  return ngoDashboardContent.capacity.transportAvailable
+}
 
 export function NgoDashboardPage() {
   const { state } = useAuth()
@@ -47,24 +60,10 @@ export function NgoDashboardPage() {
     0,
     NGO_ACTIVE_REQUESTS_LIMIT,
   )
-  const dailyCapacity = capacity?.dailyCapacity
-  const hasDailyCapacity = typeof dailyCapacity === 'number'
 
-  const capacityHeadline = (() => {
-    if (!capacity) {
-      return null
-    }
-
-    const transportLabel = capacity.transportAvailable
-      ? ngoDashboardContent.capacity.transportAvailable
-      : ngoDashboardContent.capacity.transportNotAvailable
-
-    if (hasDailyCapacity) {
-      return `${ngoDashboardContent.capacity.capacityToday(dailyCapacity)} · ${transportLabel}`
-    }
-
-    return `${ngoDashboardContent.capacity.setCapacityPrompt} — ${transportLabel}`
-  })()
+  const capacityHeadline = capacity
+    ? `${ngoDashboardContent.capacity.capacityToday(capacity.dailyCapacity)} · ${formatTransportLabel(capacity.transport)}`
+    : null
 
   return (
     <div className="flex flex-col gap-8">
@@ -86,9 +85,17 @@ export function NgoDashboardPage() {
               <UtensilsCrossed aria-hidden="true" className="size-6" />
             </span>
             <div className="min-w-0">
-              <p className="text-charcoal font-display text-lg font-bold">
-                {capacityHeadline ?? ngoDashboardContent.capacity.setCapacityPrompt}
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-charcoal font-display text-lg font-bold">
+                  {capacityHeadline ??
+                    ngoDashboardContent.capacity.capacityToday(0)}
+                </p>
+                {capacity?.paused ? (
+                  <span className="bg-sand text-body rounded-full px-2.5 py-1 text-xs font-medium">
+                    {ngoDashboardContent.capacity.pausedChip}
+                  </span>
+                ) : null}
+              </div>
               <p className="text-body mt-2 text-sm">
                 {ngoDashboardContent.capacity.subcopy}
               </p>

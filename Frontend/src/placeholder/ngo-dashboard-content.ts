@@ -1,19 +1,29 @@
 import { ROUTES } from '../routes/paths'
+import { TRANSPORT_MODE } from '../constants/transport-mode'
+import type { TransportMode } from '../constants/transport-mode'
+
+const transportModeLabels = {
+  [TRANSPORT_MODE.VAN]: 'Van',
+  [TRANSPORT_MODE.MOTORBIKE]: 'Motorbike',
+  [TRANSPORT_MODE.ON_FOOT]: 'On foot',
+} as const
 
 export const ngoDashboardContent = {
   greeting: {
     verifiedOrganisation: 'Verified organisation',
   },
   capacity: {
-    setCapacityPrompt: 'Set your capacity',
     capacityToday: (meals: number) => `Capacity today: ${meals} meals`,
+    transportNotSet: 'Transport: not set',
     transportAvailable: 'Transport: available',
-    transportNotAvailable: 'Transport: not available',
+    transportMode: (mode: TransportMode) =>
+      `Transport: ${transportModeLabels[mode]}`,
     subcopy:
-      'Update your needs daily to help donors match with you faster.',
+      'Keep your capacity and transport details current so donors can coordinate with you.',
     edit: 'Edit',
     editAria: 'Edit daily capacity and transport',
-    // TODO: Capacity page next slice — full edit flow on NGO_CAPACITY
+    pausedChip: 'Paused',
+    // TODO: matching engine consumes capacity settings when matching ships
   },
   availableNow: {
     heading: 'Available now',

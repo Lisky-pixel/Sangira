@@ -14,6 +14,7 @@ import { requestsRouter } from '../routes/requests.js'
 import { verificationRouter } from '../routes/verification.js'
 import { devNotificationsRouter } from '../routes/dev-notifications.js'
 import { dashboardRouter, impactRouter } from '../routes/donor-portal.js'
+import { ngoCapacityRouter } from '../routes/ngo-capacity.js'
 import { ngoDashboardRouter } from '../routes/ngo-portal.js'
 import { notificationsRouter } from '../routes/notifications.js'
 
@@ -46,6 +47,7 @@ export function createApp() {
   app.use('/impact', impactRouter)
   app.use('/dashboard', dashboardRouter)
   app.use('/dashboard', ngoDashboardRouter)
+  app.use('/ngo', ngoCapacityRouter)
   app.use('/notifications', notificationsRouter)
   if (config.NODE_ENV !== 'production') {
     app.use('/dev/notifications', devNotificationsRouter)

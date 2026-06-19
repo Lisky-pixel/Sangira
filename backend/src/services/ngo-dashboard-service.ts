@@ -10,10 +10,10 @@ import type { SerializedNgoMyRequest } from '../utils/serialize-ngo-my-request.j
 import { browseActiveListingsForNgo } from './listing-service.js'
 import { listMyRequestsForNgo } from './request-service.js'
 
-export type NgoDashboardCapacity = {
-  dailyCapacity: number | null
-  transportAvailable: boolean
-}
+import { resolveNgoCapacityFromSource } from '../utils/resolve-ngo-capacity.js'
+import type { ResolvedNgoCapacity } from '../utils/resolve-ngo-capacity.js'
+
+export type NgoDashboardCapacity = ResolvedNgoCapacity
 
 export type NgoDashboardActiveRequests = {
   requests: SerializedNgoMyRequest[]
@@ -27,12 +27,6 @@ export type NgoDashboardData = {
   activeRequests: NgoDashboardActiveRequests
 }
 
-function resolveDailyCapacity(
-  value: number | null | undefined,
-): number | null {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null
-}
-
 function filterActiveRequests(
   requests: SerializedNgoMyRequest[],
 ): SerializedNgoMyRequest[] {
@@ -43,9 +37,13 @@ function filterActiveRequests(
   )
 }
 
-export async function getNgoDashboard(ngoId: string): Promise<NgoDashboardData> {
+export async function getNgoDashboard(
+  ngoId: string,
+): Promise<NgoDashboardData> {
   const ngo = await Ngo.findById(ngoId)
-    .select('dailyCapacity transportAvailable')
+    .select(
+      'dailyCapacity transportAvailable transport pickupHours paused',
+    )
     .lean()
 
   if (!ngo) {
@@ -62,10 +60,7 @@ export async function getNgoDashboard(ngoId: string): Promise<NgoDashboardData> 
   const active = filterActiveRequests(requestsResult.requests)
 
   return {
-    capacity: {
-      dailyCapacity: resolveDailyCapacity(ngo.dailyCapacity),
-      transportAvailable: Boolean(ngo.transportAvailable),
-    },
+    capacity: resolveNgoCapacityFromSource(ngo),
     availableNow,
     activeRequests: {
       requests: active.slice(0, NGO_ACTIVE_REQUESTS_LIMIT),

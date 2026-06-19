@@ -24,6 +24,7 @@ import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
 import { NgoConfirmPickupPage } from '../pages/ngo/NgoConfirmPickupPage'
+import { NgoCapacityPage } from '../pages/ngo/NgoCapacityPage'
 import { NgoDashboardPage } from '../pages/ngo/NgoDashboardPage'
 import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
 import { NgoMyRequestsPage } from '../pages/ngo/NgoMyRequestsPage'
@@ -37,10 +38,7 @@ import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
 import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
-import {
-  COMING_SOON_PATHS,
-  ROUTES,
-} from './paths'
+import { COMING_SOON_PATHS, ROUTES } from './paths'
 
 export const router = createBrowserRouter([
   {
@@ -230,7 +228,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'capacity',
-            element: <NgoComingSoon />,
+            element: <NgoCapacityPage />,
           },
           {
             path: 'profile',

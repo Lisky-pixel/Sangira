@@ -10,6 +10,7 @@ import {
 } from '../constants/enums.js'
 import { listingPickupLocationSchema } from './schemas/listing-pickup-location.js'
 import { geoPointSchema, verificationSchema } from './schemas/geo-point.js'
+import { TRANSPORT_MODE_VALUES } from '../constants/transport-mode.js'
 import { normalizePhone } from '../utils/phone.js'
 
 import {
@@ -177,12 +178,34 @@ const donorSchema = new Schema({
   },
 })
 
+const ngoTransportSchema = new Schema(
+  {
+    hasOwnTransport: { type: Boolean, default: false },
+    mode: { type: String, enum: TRANSPORT_MODE_VALUES },
+  },
+  { _id: false },
+)
+
+const ngoPickupHoursSchema = new Schema(
+  {
+    from: { type: String, trim: true },
+    to: { type: String, trim: true },
+  },
+  { _id: false },
+)
+
 const ngoSchema = new Schema({
   organisationName: { type: String, required: true, trim: true },
   contactName: { type: String, required: true, trim: true },
   registrationNumber: { type: String, trim: true },
   dailyCapacity: { type: Number, min: 0 },
   transportAvailable: { type: Boolean, default: false },
+  transport: {
+    type: ngoTransportSchema,
+    default: () => ({ hasOwnTransport: false }),
+  },
+  pickupHours: { type: ngoPickupHoursSchema },
+  paused: { type: Boolean, default: false },
   sector: {
     type: String,
     enum: Object.values(NGO_SECTOR),

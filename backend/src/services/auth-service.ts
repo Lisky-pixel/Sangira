@@ -7,6 +7,7 @@ import {
   VERIFICATION_STATUS,
   type Role,
 } from '../constants/enums.js'
+import { TRANSPORT_MODE } from '../constants/transport-mode.js'
 import { Donor, Ngo, User } from '../models/user.js'
 import { RefreshToken } from '../models/refresh-token.js'
 import {
@@ -157,6 +158,12 @@ export async function registerUser(
       registrationNumber: input.registrationNumber.trim(),
       dailyCapacity: input.dailyCapacity,
       transportAvailable: input.transportAvailable,
+      transport: {
+        hasOwnTransport: input.transportAvailable,
+        ...(input.transportAvailable
+          ? { mode: TRANSPORT_MODE.VAN }
+          : {}),
+      },
       verification,
     })
 

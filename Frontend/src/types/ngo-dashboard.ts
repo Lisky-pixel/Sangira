@@ -1,10 +1,8 @@
 import type { NgoBrowseListing } from './ngo-browse-listing'
 import type { NgoMyRequest } from './ngo-my-request'
+import type { NgoCapacitySettings } from './ngo-capacity'
 
-export type NgoDashboardCapacity = {
-  dailyCapacity: number | null
-  transportAvailable: boolean
-}
+export type NgoDashboardCapacity = NgoCapacitySettings
 
 export type NgoDashboardActiveRequests = {
   requests: NgoMyRequest[]

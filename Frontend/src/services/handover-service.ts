@@ -1,5 +1,7 @@
 import type {
   ConfirmHandoverResult,
+  ConfirmReceiptInput,
+  ConfirmReceiptResult,
   GetHandoverResult,
 } from '../types/handover'
 import type { ApiEnvelope } from '../types/api'
@@ -17,6 +19,17 @@ export const handoverService = {
   async confirmHandover(requestId: string): Promise<ConfirmHandoverResult> {
     const response = await apiClient.post<ApiEnvelope<ConfirmHandoverResult>>(
       `/requests/${requestId}/confirm-handover`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async confirmReceipt(
+    requestId: string,
+    input: ConfirmReceiptInput,
+  ): Promise<ConfirmReceiptResult> {
+    const response = await apiClient.post<ApiEnvelope<ConfirmReceiptResult>>(
+      `/requests/${requestId}/confirm-receipt`,
+      input,
     )
     return unwrapApiResponse(response)
   },

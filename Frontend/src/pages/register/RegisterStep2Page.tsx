@@ -85,7 +85,6 @@ export function RegisterStep2Page() {
             name="phone"
             label={fields.phone.label}
             placeholder={fields.phone.placeholder}
-            helperText={fields.phone.helper}
           />
           <TextField
             name="email"

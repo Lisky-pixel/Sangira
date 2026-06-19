@@ -24,11 +24,13 @@ import {
   forbidden,
   notFound,
 } from '../utils/app-error.js'
+import type { HandoverCondition } from '../constants/handover-condition.js'
 import { verifyPickupPin } from '../utils/handover-credentials.js'
 import { computeHandoverImpact } from '../utils/handover-impact.js'
 import {
   buildHandoverUpdatedPayload,
   serializeHandoverView,
+  type ConfirmReceiptResult,
   type HandoverUpdatedPayload,
   type SerializedHandoverView,
 } from '../utils/serialize-handover.js'
@@ -62,6 +64,7 @@ type HandoverContext = {
     quantity: number
     quantityUnit: import('../constants/listing-form.js').QuantityUnit
     expiresAt: Date
+    photos?: string[] | null
     status: ListingStatus
   }
   role: HandoverParticipantRole
@@ -285,7 +288,7 @@ async function finalizeHandoverStep(input: {
   quantity: number
   quantityUnit: HandoverContext['listing']['quantityUnit']
   updatedRequest: HandoverContext['request']
-}): Promise<HandoverUpdatedPayload> {
+}): Promise<ConfirmReceiptResult> {
   const donorConfirmed = input.updatedRequest.confirmation?.donorConfirmed ?? false
   const ngoConfirmed = input.updatedRequest.confirmation?.ngoConfirmed ?? false
 
@@ -299,7 +302,14 @@ async function finalizeHandoverStep(input: {
 
     if (completed) {
       emitHandoverUpdated(input.requestId, completed)
-      return completed
+      const impact = computeHandoverImpact(input.quantity, input.quantityUnit)
+      return {
+        handover: completed,
+        impact: {
+          mealsRedistributed: impact.mealsRedistributed,
+          wasteKgPrevented: impact.wasteKgPrevented,
+        },
+      }
     }
 
     const completedRequest = await FoodRequest.findById(input.requestId).lean()
@@ -311,7 +321,14 @@ async function finalizeHandoverStep(input: {
         completedRequest as Parameters<typeof buildHandoverUpdatedPayload>[0],
       )
       emitHandoverUpdated(input.requestId, payload)
-      return payload
+      const impact = computeHandoverImpact(input.quantity, input.quantityUnit)
+      return {
+        handover: payload,
+        impact: {
+          mealsRedistributed: impact.mealsRedistributed,
+          wasteKgPrevented: impact.wasteKgPrevented,
+        },
+      }
     }
   }
 
@@ -319,7 +336,7 @@ async function finalizeHandoverStep(input: {
     input.updatedRequest as Parameters<typeof buildHandoverUpdatedPayload>[0],
   )
   emitHandoverUpdated(input.requestId, payload)
-  return payload
+  return { handover: payload }
 }
 
 export async function confirmHandoverForDonor(input: {
@@ -368,20 +385,24 @@ export async function confirmHandoverForDonor(input: {
     )
   }
 
-  return finalizeHandoverStep({
+  const result = await finalizeHandoverStep({
     requestId: input.requestId,
     listingId: context.listing._id.toString(),
     quantity: context.listing.quantity,
     quantityUnit: context.listing.quantityUnit,
     updatedRequest: updatedRequest as HandoverContext['request'],
   })
+
+  return result.handover
 }
 
 export async function confirmReceiptForNgo(input: {
   ngoId: string
   requestId: string
   pin: string
-}): Promise<HandoverUpdatedPayload> {
+  condition: HandoverCondition
+  note?: string
+}): Promise<ConfirmReceiptResult> {
   const context = await loadHandoverContext(input.requestId, input.ngoId, {
     includeCredentials: true,
   })
@@ -435,6 +456,12 @@ export async function confirmReceiptForNgo(input: {
   // TODO: pickup slice — QR-scan confirm path would set ngoConfirmed here (deferred; no camera lib)
 
   const now = new Date()
+  const conditionReport = {
+    condition: input.condition,
+    reportedAt: now,
+    ...(input.note ? { note: input.note } : {}),
+  }
+
   const updatedRequest = await FoodRequest.findOneAndUpdate(
     {
       _id: input.requestId,
@@ -446,6 +473,7 @@ export async function confirmReceiptForNgo(input: {
       $set: {
         'confirmation.ngoConfirmed': true,
         'confirmation.ngoConfirmedAt': now,
+        'confirmation.conditionReport': conditionReport,
       },
     },
     { new: true },

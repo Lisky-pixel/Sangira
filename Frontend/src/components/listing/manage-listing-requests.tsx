@@ -14,7 +14,7 @@ import { LISTING_STATUS } from '../../constants/listing-status'
 import type { DonorListingRequest } from '../../types/request'
 import type { Listing } from '../../types/listing'
 import { VerifiedBadge } from '../ui/verified-badge'
-import { Button } from '../ui/button'
+import { Button, ButtonLink } from '../ui/button'
 
 type ManageListingRequestsProps = {
   listing: Listing
@@ -102,9 +102,14 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
         </div>
 
         {isAccepted ? (
-          <p className="text-primary mt-4 text-center text-sm font-medium">
-            {listingManageContent.requests.acceptToast.success}
-          </p>
+          <ButtonLink
+            to={donorListingHandoverPath(request.listingId)}
+            state={{ requestId: request._id }}
+            variant="primary"
+            className="mt-4 w-full"
+          >
+            {listingManageContent.requests.continueHandover}
+          </ButtonLink>
         ) : (
           <Button
             type="button"

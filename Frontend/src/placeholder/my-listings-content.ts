@@ -1,4 +1,4 @@
-import { ROUTES } from '../routes/paths'
+import { ROUTES, donorListingHandoverPath } from '../routes/paths'
 import { MY_LISTINGS_TAB } from '../constants/my-listings'
 
 export const myListingsContent = {
@@ -44,6 +44,7 @@ export const myListingsContent = {
     // TODO: wire completed timestamp from listing when backend ships
     completedYesterday: 'yesterday',
     expiredAt: (label: string) => `Expired ${label}`,
+    continueHandover: 'Continue handover',
   },
   statusChip: {
     active: 'Active',
@@ -59,5 +60,6 @@ export const myListingsContent = {
   },
   routes: {
     postListing: ROUTES.POST_LISTING,
+    handover: donorListingHandoverPath,
   },
 } as const

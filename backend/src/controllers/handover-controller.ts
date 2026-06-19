@@ -52,13 +52,15 @@ export async function confirmReceipt(
   try {
     const params = req.validatedParams as RequestIdParam
     const body = req.body as ConfirmReceiptInput
-    const handover = await confirmReceiptForNgo({
+    const result = await confirmReceiptForNgo({
       ngoId: req.auth!.userId,
       requestId: params.id,
       pin: body.pin,
+      condition: body.condition,
+      note: body.note,
     })
 
-    return sendSuccess(res, { handover })
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

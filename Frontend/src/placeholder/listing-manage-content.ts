@@ -1,4 +1,4 @@
-import { ROUTES } from '../routes/paths'
+import { ROUTES, donorListingHandoverPath } from '../routes/paths'
 
 export const listingManageContent = {
   backLink: 'Back to my listings',
@@ -52,10 +52,12 @@ export const listingManageContent = {
       success: 'Request accepted',
       error: 'Could not accept request',
     },
+    continueHandover: 'Continue handover',
     loadError: 'Could not load requests',
     loading: 'Loading requests…',
   },
   routes: {
     myListings: ROUTES.DONOR_LISTINGS,
+    handover: donorListingHandoverPath,
   },
 } as const

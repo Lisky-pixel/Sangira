@@ -12,6 +12,7 @@ export type SerializedHandoverListing = {
   quantity: number
   quantityUnit: QuantityUnit
   expiresAt: string
+  photos: string[]
 }
 
 export type SerializedHandoverView = {
@@ -32,11 +33,22 @@ export type HandoverUpdatedPayload = {
   completedAt?: string
 }
 
+export type HandoverCompletionImpact = {
+  mealsRedistributed: number
+  wasteKgPrevented: number
+}
+
+export type ConfirmReceiptResult = {
+  handover: HandoverUpdatedPayload
+  impact?: HandoverCompletionImpact
+}
+
 type HandoverListingLike = {
   title: string
   quantity: number
   quantityUnit: QuantityUnit
   expiresAt: Date
+  photos?: string[] | null
 }
 
 type HandoverPartyLike = {
@@ -98,6 +110,7 @@ export function serializeHandoverView(input: {
       quantity: input.listing.quantity,
       quantityUnit: input.listing.quantityUnit,
       expiresAt: input.listing.expiresAt.toISOString(),
+      photos: input.listing.photos ?? [],
     },
     otherParty: serializeParty(input.otherParty),
     confirmation: serializeConfirmation(confirmation),

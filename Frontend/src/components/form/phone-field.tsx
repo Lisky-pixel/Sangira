@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils'
 type PhoneFieldProps = {
   name: string
   label: string
-  helperText: string
+  helperText?: string
   placeholder?: string
 }
 
@@ -45,7 +45,13 @@ export function PhoneField({
               autoComplete="tel-national"
               aria-invalid={Boolean(error)}
               aria-describedby={
-                error ? `${name}-error ${name}-helper` : `${name}-helper`
+                error
+                  ? helperText
+                    ? `${name}-error ${name}-helper`
+                    : `${name}-error`
+                  : helperText
+                    ? `${name}-helper`
+                    : undefined
               }
               className={cn(
                 'text-charcoal placeholder:text-status-neutral min-w-0 flex-1 bg-white px-3 py-2.5 text-sm',
@@ -62,9 +68,11 @@ export function PhoneField({
           )}
         />
       </div>
-      <p id={`${name}-helper`} className="text-body text-sm italic">
-        {helperText}
-      </p>
+      {helperText ? (
+        <p id={`${name}-helper`} className="text-body text-sm italic">
+          {helperText}
+        </p>
+      ) : null}
       {error ? (
         <p id={`${name}-error`} className="text-clay-red text-sm">
           {error}

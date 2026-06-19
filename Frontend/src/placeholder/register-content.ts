@@ -41,7 +41,6 @@ export const registerStep2Content = {
     phone: {
       label: 'Phone number',
       placeholder: '788 000 000',
-      helper: "We'll send SMS updates to this number",
     },
     email: {
       label: 'Email',

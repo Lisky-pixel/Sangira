@@ -12,6 +12,7 @@ import { donorListingManagePath } from '../../routes/paths'
 import type { Listing } from '../../types/listing'
 import { CountdownChip } from '../ui/countdown-chip'
 import { StatusChip, type StatusChipVariant } from '../ui/status-chip'
+import { ButtonLink } from '../ui/button'
 
 type DonorListingCardProps = {
   listing: Listing
@@ -122,6 +123,16 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
             {myListingsContent.card.manage}
           </Link>
         </div>
+
+        {displayStatus === LISTING_STATUS.AWAITING_PICKUP ? (
+          <ButtonLink
+            to={myListingsContent.routes.handover(listing._id)}
+            variant="primary"
+            className="mt-3 w-full"
+          >
+            {myListingsContent.card.continueHandover}
+          </ButtonLink>
+        ) : null}
       </div>
     </article>
   )

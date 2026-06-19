@@ -1,5 +1,21 @@
 import mongoose, { Schema } from 'mongoose'
 import { REQUEST_STATUS } from '../constants/enums.js'
+import {
+  HANDOVER_CONDITION_VALUES,
+} from '../constants/handover-condition.js'
+
+const conditionReportSchema = new Schema(
+  {
+    condition: {
+      type: String,
+      enum: HANDOVER_CONDITION_VALUES,
+      required: true,
+    },
+    note: { type: String, trim: true },
+    reportedAt: { type: Date, required: true },
+  },
+  { _id: false },
+)
 
 const requestSchema = new Schema(
   {
@@ -30,6 +46,7 @@ const requestSchema = new Schema(
       donorConfirmedAt: { type: Date },
       ngoConfirmedAt: { type: Date },
       completedAt: { type: Date },
+      conditionReport: { type: conditionReportSchema },
     },
     /** Recorded at completion for impact dashboards — meals = servings only; kg separate */
     mealsRedistributed: { type: Number },

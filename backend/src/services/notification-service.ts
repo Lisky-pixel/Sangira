@@ -11,6 +11,7 @@ import {
 } from '../constants/notifications.js'
 import { normalizeNotificationPrefs } from '../utils/normalize-notification-prefs.js'
 import { notFound } from '../utils/app-error.js'
+import { emitNotificationNew } from '../realtime/notification-events.js'
 import type { NotificationType } from '../constants/enums.js'
 
 // TODO: scheduled-notifications slice — pickup reminders, listing expiring soon, impact summary
@@ -63,8 +64,8 @@ function serializeNotification(doc: {
 
 async function createInAppNotification(
   input: CreateInAppNotificationInput,
-): Promise<void> {
-  await Notification.create({
+): Promise<SerializedNotification> {
+  const doc = await Notification.create({
     user: input.userId,
     type: input.type,
     title: input.title,
@@ -74,6 +75,29 @@ async function createInAppNotification(
     ...(input.relatedRequest ? { relatedRequest: input.relatedRequest } : {}),
     sentVia: { inApp: true, sms: false },
   })
+
+  const serialized = serializeNotification({
+    _id: doc._id,
+    type: doc.type,
+    title: doc.title,
+    body: doc.body,
+    read: doc.read,
+    createdAt: doc.createdAt,
+    relatedListing: doc.relatedListing ?? null,
+    relatedRequest: doc.relatedRequest ?? null,
+  })
+
+  const unreadCount = await Notification.countDocuments({
+    user: input.userId,
+    read: false,
+  })
+
+  emitNotificationNew(input.userId, {
+    notification: serialized,
+    unreadCount,
+  })
+
+  return serialized
 }
 
 async function donorWantsNewRequestNotifications(

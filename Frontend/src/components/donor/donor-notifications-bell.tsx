@@ -8,7 +8,7 @@ import { DonorNotificationsPanel } from './donor-notifications-panel'
 export function DonorNotificationsBell() {
   const [open, setOpen] = useState(false)
   const { notifications, unreadCount, loadState, fetchNotifications, markAllRead } =
-    useDonorNotifications(true)
+    useDonorNotifications()
 
   const handleToggle = () => {
     const nextOpen = !open

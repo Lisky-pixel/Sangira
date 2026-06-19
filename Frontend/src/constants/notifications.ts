@@ -9,3 +9,7 @@ export type DonorNotificationType =
   (typeof DONOR_NOTIFICATION_TYPE)[keyof typeof DONOR_NOTIFICATION_TYPE]
 
 export const NOTIFICATION_DROPDOWN_LIMIT = 10
+
+export const NOTIFICATION_SOCKET = {
+  EVENT_NEW: 'notification:new',
+} as const

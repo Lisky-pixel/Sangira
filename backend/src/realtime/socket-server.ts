@@ -6,6 +6,7 @@ import type { Role } from '../constants/enums.js'
 import { authorizeHandoverRoomJoin } from '../services/handover-service.js'
 import { AppError } from '../utils/app-error.js'
 import { handoverRoomName, setSocketServer } from './handover-events.js'
+import { userRoomName } from './notification-events.js'
 import { authenticateSocketCookieHeader } from './socket-auth.js'
 
 export function initSocketServer(httpServer: HttpServer): Server {
@@ -29,6 +30,9 @@ export function initSocketServer(httpServer: HttpServer): Server {
   })
 
   io.on('connection', (socket) => {
+    const auth = socket.data.auth as { userId: string; role: Role }
+    void socket.join(userRoomName(auth.userId))
+
     socket.on(HANDOVER_SOCKET.EVENT_JOIN, async (payload, ack) => {
       const requestId =
         typeof payload === 'object' &&

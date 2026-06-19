@@ -7,6 +7,7 @@ if (!socketUrl) {
 }
 
 let socket: Socket | null = null
+let connectionRefCount = 0
 
 export function getSocketClient(): Socket {
   if (!socket) {
@@ -19,7 +20,9 @@ export function getSocketClient(): Socket {
   return socket
 }
 
-export function connectSocketClient(): Socket {
+/** Retain a shared socket connection; disconnects only when all consumers release. */
+export function retainSocketClient(): Socket {
+  connectionRefCount += 1
   const client = getSocketClient()
   if (!client.connected) {
     client.connect()
@@ -27,8 +30,17 @@ export function connectSocketClient(): Socket {
   return client
 }
 
-export function disconnectSocketClient(): void {
-  if (socket?.connected) {
+export function releaseSocketClient(): void {
+  connectionRefCount = Math.max(0, connectionRefCount - 1)
+  if (connectionRefCount === 0 && socket?.connected) {
     socket.disconnect()
   }
+}
+
+export function connectSocketClient(): Socket {
+  return retainSocketClient()
+}
+
+export function disconnectSocketClient(): void {
+  releaseSocketClient()
 }

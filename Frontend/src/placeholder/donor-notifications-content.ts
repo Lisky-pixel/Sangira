@@ -12,6 +12,7 @@ export const donorNotificationsContent = {
       : 'Notifications',
   openPanelAria: 'Open notifications panel',
   closePanelAria: 'Close notifications panel',
+  toastNew: (title: string) => title,
   routes: {
     dashboard: ROUTES.DONOR_DASHBOARD,
   },

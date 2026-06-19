@@ -7,6 +7,12 @@ export const NOTIFICATION_LIST = {
   MAX_LIMIT: 50,
 } as const
 
+export const NOTIFICATION_SOCKET = {
+  EVENT_NEW: 'notification:new',
+} as const
+
+export const USER_ROOM_PREFIX = 'user:' as const
+
 /** In-app donor notification titles — bodies built at create time */
 export const DONOR_NOTIFICATION_TITLE = {
   [NOTIFICATION_TYPE.REQUEST_RECEIVED]: 'New request received',

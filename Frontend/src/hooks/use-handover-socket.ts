@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { HANDOVER_SOCKET } from '../constants/handover'
 import {
   connectSocketClient,
-  disconnectSocketClient,
+  releaseSocketClient,
 } from '../realtime/socket-client'
 import type { HandoverUpdatedPayload } from '../types/handover'
 
@@ -43,7 +43,7 @@ export function useHandoverSocket(
 
     return () => {
       socket.off(HANDOVER_SOCKET.EVENT_UPDATED, handleUpdated)
-      disconnectSocketClient()
+      releaseSocketClient()
     }
   }, [requestId, enabled, onUpdated])
 }

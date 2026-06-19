@@ -7,6 +7,7 @@ export type DonorNotificationsContextValue = {
   loadState: 'idle' | 'loading' | 'ready' | 'error'
   fetchNotifications: () => Promise<void>
   markAllRead: () => Promise<void>
+  markNotificationRead: (notificationId: string) => Promise<void>
 }
 
 export const DonorNotificationsContext =

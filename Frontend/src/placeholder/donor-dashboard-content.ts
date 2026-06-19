@@ -42,9 +42,9 @@ export const donorDashboardContent = {
   },
   needsAction: {
     heading: 'Needs your action',
-    requestedListing: (ngoName: string) => `${ngoName} requested your listing`,
     reviewRequest: 'Review request',
-    empty: 'No pending requests right now.',
+    empty: "You're all caught up.",
+    viewAll: (shown: number, total: number) => `${shown} of ${total} · View all`,
     loading: 'Loading pending requests…',
     loadError: 'Could not load pending requests.',
   },

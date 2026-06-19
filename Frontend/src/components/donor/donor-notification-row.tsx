@@ -6,6 +6,8 @@ import type { AppNotification } from '../../types/notification'
 
 type DonorNotificationRowProps = {
   notification: AppNotification
+  href?: string | null
+  onActivate?: () => void
 }
 
 const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
@@ -16,17 +18,15 @@ const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
 
 export function DonorNotificationRow({
   notification,
+  href,
+  onActivate,
 }: DonorNotificationRowProps) {
   const Icon = NOTIFICATION_ICONS[notification.type] ?? Check
   const relativeTime = formatNotificationRelativeTime(notification.createdAt)
+  const isInteractive = Boolean(href && onActivate)
 
-  return (
-    <li
-      className={cn(
-        'flex items-start gap-3 px-4 py-3 sm:gap-4 sm:px-5',
-        !notification.read && 'bg-mint-card/60',
-      )}
-    >
+  const content = (
+    <>
       <span
         aria-hidden="true"
         className={cn(
@@ -64,6 +64,34 @@ export function DonorNotificationRow({
       ) : (
         <span aria-hidden="true" className="mt-2 size-2 shrink-0" />
       )}
+    </>
+  )
+
+  if (isInteractive) {
+    return (
+      <li>
+        <button
+          type="button"
+          onClick={onActivate}
+          className={cn(
+            'hover:bg-mint-card/40 flex w-full items-start gap-3 px-4 py-3 text-left transition-colors sm:gap-4 sm:px-5',
+            !notification.read && 'bg-mint-card/60',
+          )}
+        >
+          {content}
+        </button>
+      </li>
+    )
+  }
+
+  return (
+    <li
+      className={cn(
+        'flex items-start gap-3 px-4 py-3 sm:gap-4 sm:px-5',
+        !notification.read && 'bg-mint-card/60',
+      )}
+    >
+      {content}
     </li>
   )
 }

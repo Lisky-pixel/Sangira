@@ -20,6 +20,11 @@ export type MarkAllNotificationsReadResult = {
   unreadCount: number
 }
 
+export type MarkNotificationReadResult = {
+  notification: AppNotification
+  unreadCount: number
+}
+
 export type NotificationNewPayload = {
   notification: AppNotification
   unreadCount: number

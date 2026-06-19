@@ -1,6 +1,7 @@
 import type {
   ListNotificationsResult,
   MarkAllNotificationsReadResult,
+  MarkNotificationReadResult,
 } from '../types/notification'
 import type { ApiEnvelope } from '../types/api'
 import { apiClient } from './api-client'
@@ -19,6 +20,13 @@ export const notificationService = {
     const response = await apiClient.post<
       ApiEnvelope<MarkAllNotificationsReadResult>
     >('/notifications/read-all')
+    return unwrapApiResponse(response)
+  },
+
+  async markRead(notificationId: string): Promise<MarkNotificationReadResult> {
+    const response = await apiClient.post<
+      ApiEnvelope<MarkNotificationReadResult>
+    >(`/notifications/${notificationId}/read`)
     return unwrapApiResponse(response)
   },
 }

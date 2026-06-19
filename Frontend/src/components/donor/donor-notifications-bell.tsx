@@ -7,7 +7,7 @@ import { DonorNotificationsPanel } from './donor-notifications-panel'
 
 export function DonorNotificationsBell() {
   const [open, setOpen] = useState(false)
-  const { notifications, unreadCount, loadState, fetchNotifications, markAllRead } =
+  const { notifications, unreadCount, loadState, fetchNotifications, markAllRead, markNotificationRead } =
     useDonorNotifications()
 
   const handleToggle = () => {
@@ -54,6 +54,7 @@ export function DonorNotificationsBell() {
         notifications={notifications}
         loadState={loadState}
         onMarkAllRead={handleMarkAllRead}
+        onMarkNotificationRead={markNotificationRead}
       />
     </div>
   )

@@ -2,6 +2,7 @@ import {
   DONOR_ACTIVITY_TYPE,
   DONOR_DASHBOARD_ACTIVITY,
   DONOR_IMPACT,
+  NEEDS_ACTION_LIMIT,
   type DonorActivityType,
 } from '../constants/impact.js'
 import {
@@ -68,13 +69,18 @@ export type DonorActivityEvent = {
   payload: DonorActivityEventPayload
 }
 
+export type DonorNeedsActionSection = {
+  items: DonorNeedsActionItem[]
+  total: number
+}
+
 export type DonorDashboardData = {
   monthlyImpact: {
     thisMonth: DonorImpactThisMonth
     totals: DonorImpactTotals
     monthlySeries: DonorImpactMonthlyPoint[]
   }
-  needsAction: DonorNeedsActionItem[]
+  needsAction: DonorNeedsActionSection
   recentActivity: DonorActivityEvent[]
 }
 
@@ -235,7 +241,7 @@ export async function aggregateDonorImpact(
 
 export async function listDonorNeedsAction(
   donorId: string,
-): Promise<DonorNeedsActionItem[]> {
+): Promise<DonorNeedsActionSection> {
   const activeListings = await Listing.find({
     donor: donorId,
     status: LISTING_STATUS.ACTIVE,
@@ -244,7 +250,7 @@ export async function listDonorNeedsAction(
     .lean()
 
   if (activeListings.length === 0) {
-    return []
+    return { items: [], total: 0 }
   }
 
   const listingTitleById = new Map(
@@ -263,7 +269,7 @@ export async function listDonorNeedsAction(
     .sort({ createdAt: -1 })
     .lean()
 
-  return requests
+  const items = requests
     .map((request) => {
       const listingId = request.listing.toString()
       const listingTitle = listingTitleById.get(listingId)
@@ -296,6 +302,11 @@ export async function listDonorNeedsAction(
       }
     })
     .filter((item): item is DonorNeedsActionItem => item !== null)
+
+  return {
+    items: items.slice(0, NEEDS_ACTION_LIMIT),
+    total: items.length,
+  }
 }
 
 type ListingActivityRow = {

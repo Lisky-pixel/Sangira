@@ -240,7 +240,10 @@ export async function markAllNotificationsReadForDonor(
 export async function markNotificationReadForDonor(input: {
   donorId: string
   notificationId: string
-}): Promise<SerializedNotification> {
+}): Promise<{
+  notification: SerializedNotification
+  unreadCount: number
+}> {
   const updated = await Notification.findOneAndUpdate(
     { _id: input.notificationId, user: input.donorId },
     { $set: { read: true } },
@@ -251,7 +254,15 @@ export async function markNotificationReadForDonor(input: {
     throw notFound('Notification not found', 'NOTIFICATION_NOT_FOUND')
   }
 
-  return serializeNotification(
-    updated as Parameters<typeof serializeNotification>[0],
-  )
+  const unreadCount = await Notification.countDocuments({
+    user: input.donorId,
+    read: false,
+  })
+
+  return {
+    notification: serializeNotification(
+      updated as Parameters<typeof serializeNotification>[0],
+    ),
+    unreadCount,
+  }
 }

@@ -7,7 +7,7 @@ import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
 import { DONOR_RECENT_ACTIVITY_LIMIT } from '../../constants/donor-activity'
-import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT } from '../../constants/donor-dashboard'
+import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT, NEEDS_ACTION_LIMIT } from '../../constants/donor-dashboard'
 import { useDonorDashboard } from '../../hooks/use-donor-dashboard'
 import { useMyListings } from '../../hooks/use-my-listings'
 import { getGreeting } from '../../lib/greeting'
@@ -75,7 +75,8 @@ export function DonorDashboardPage() {
   const monthlyImpact = dashboard?.monthlyImpact
   const chartValues =
     monthlyImpact?.monthlySeries.map((point) => point.meals) ?? []
-  const needsAction = dashboard?.needsAction ?? []
+  const needsAction = dashboard?.needsAction ?? { items: [], total: 0 }
+  const pendingRequests = needsAction.items
   const recentActivity = (dashboard?.recentActivity ?? []).slice(
     0,
     DONOR_RECENT_ACTIVITY_LIMIT,
@@ -156,9 +157,22 @@ export function DonorDashboardPage() {
         </section>
 
         <section>
-          <h2 className="text-charcoal font-display mb-4 text-xl font-bold">
-            {donorDashboardContent.needsAction.heading}
-          </h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-charcoal font-display text-xl font-bold">
+              {donorDashboardContent.needsAction.heading}
+            </h2>
+            {needsAction.total > NEEDS_ACTION_LIMIT ? (
+              <Link
+                to={ROUTES.DONOR_LISTINGS}
+                className="text-primary text-sm font-medium hover:underline"
+              >
+                {donorDashboardContent.needsAction.viewAll(
+                  pendingRequests.length,
+                  needsAction.total,
+                )}
+              </Link>
+            ) : null}
+          </div>
 
           {dashboardStatus === 'loading' ? (
             <p className="text-body text-sm">
@@ -168,11 +182,11 @@ export function DonorDashboardPage() {
             <p className="text-clay-red text-sm">
               {donorDashboardContent.needsAction.loadError}
             </p>
-          ) : needsAction.length === 0 ? (
+          ) : pendingRequests.length === 0 ? (
             <p className="text-body text-sm">{donorDashboardContent.needsAction.empty}</p>
           ) : (
             <div className="flex flex-col gap-4">
-              {needsAction.map((request) => (
+              {pendingRequests.map((request) => (
                 <article
                   key={request.requestId}
                   className="border-border flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
@@ -182,11 +196,12 @@ export function DonorDashboardPage() {
                       <Building2 aria-hidden="true" className="size-5" />
                     </span>
                     <div>
-                      <p className="text-charcoal text-sm font-medium sm:text-base">
-                        {donorDashboardContent.needsAction.requestedListing(
-                          request.ngo.organisationName,
-                        )}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-charcoal text-sm font-medium sm:text-base">
+                          {request.ngo.organisationName}
+                        </p>
+                        {request.ngo.verified ? <VerifiedBadge /> : null}
+                      </div>
                       <p className="text-body mt-1 text-sm">
                         {request.listingTitle}
                       </p>

@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router'
+import { resolveDonorNotificationHref } from '../../lib/donor-notification-navigation'
 import { donorNotificationsContent } from '../../placeholder/donor-notifications-content'
 import type { AppNotification } from '../../types/notification'
 import { DonorNotificationRow } from './donor-notification-row'
@@ -9,6 +11,7 @@ type DonorNotificationsPanelProps = {
   notifications: AppNotification[]
   loadState: 'idle' | 'loading' | 'ready' | 'error'
   onMarkAllRead: () => Promise<void>
+  onMarkNotificationRead: (notificationId: string) => Promise<void>
 }
 
 export function DonorNotificationsPanel({
@@ -17,8 +20,10 @@ export function DonorNotificationsPanel({
   notifications,
   loadState,
   onMarkAllRead,
+  onMarkNotificationRead,
 }: DonorNotificationsPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!open) {
@@ -59,6 +64,21 @@ export function DonorNotificationsPanel({
     void onMarkAllRead()
   }
 
+  const handleNotificationActivate = (notification: AppNotification) => {
+    const href = resolveDonorNotificationHref(notification)
+    if (!href) {
+      return
+    }
+
+    void (async () => {
+      if (!notification.read) {
+        await onMarkNotificationRead(notification.id)
+      }
+      onClose()
+      navigate(href)
+    })()
+  }
+
   return (
     <div
       ref={panelRef}
@@ -93,12 +113,24 @@ export function DonorNotificationsPanel({
         </p>
       ) : (
         <ul className="divide-border max-h-[min(24rem,70vh)] divide-y overflow-y-auto">
-          {notifications.map((notification) => (
-            <DonorNotificationRow
-              key={notification.id}
-              notification={notification}
-            />
-          ))}
+          {notifications.map((notification) => {
+            const href = resolveDonorNotificationHref(notification)
+
+            return (
+              <DonorNotificationRow
+                key={notification.id}
+                notification={notification}
+                href={href}
+                onActivate={
+                  href
+                    ? () => {
+                        handleNotificationActivate(notification)
+                      }
+                    : undefined
+                }
+              />
+            )
+          })}
         </ul>
       )}
     </div>

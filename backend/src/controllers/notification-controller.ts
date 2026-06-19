@@ -48,12 +48,15 @@ export async function markNotificationRead(
 ) {
   try {
     const params = req.validatedParams as NotificationIdParam
-    const notification = await markNotificationReadForDonor({
+    const result = await markNotificationReadForDonor({
       donorId: req.auth!.userId,
       notificationId: params.id,
     })
 
-    return sendSuccess(res, { notification })
+    return sendSuccess(res, {
+      notification: result.notification,
+      unreadCount: result.unreadCount,
+    })
   } catch (error) {
     return next(error)
   }

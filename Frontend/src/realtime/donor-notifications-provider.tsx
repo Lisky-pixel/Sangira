@@ -77,6 +77,18 @@ export function DonorNotificationsProvider({
     )
   }, [])
 
+  const markNotificationRead = useCallback(async (notificationId: string) => {
+    const result = await notificationService.markRead(notificationId)
+    setUnreadCount(result.unreadCount)
+    setNotifications((current) =>
+      current.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, read: true }
+          : notification,
+      ),
+    )
+  }, [])
+
   useEffect(() => {
     if (!enabled) {
       return
@@ -129,8 +141,16 @@ export function DonorNotificationsProvider({
       loadState,
       fetchNotifications,
       markAllRead,
+      markNotificationRead,
     }),
-    [fetchNotifications, loadState, markAllRead, notifications, unreadCount],
+    [
+      fetchNotifications,
+      loadState,
+      markAllRead,
+      markNotificationRead,
+      notifications,
+      unreadCount,
+    ],
   )
 
   return (

@@ -56,13 +56,18 @@ export type DonorActivityEvent = {
   payload: DonorActivityEventPayload
 }
 
+export type DonorNeedsActionSection = {
+  items: DonorNeedsActionItem[]
+  total: number
+}
+
 export type DonorDashboardData = {
   monthlyImpact: {
     thisMonth: DonorImpactThisMonth
     totals: DonorImpactTotals
     monthlySeries: DonorImpactMonthlyPoint[]
   }
-  needsAction: DonorNeedsActionItem[]
+  needsAction: DonorNeedsActionSection
   recentActivity: DonorActivityEvent[]
 }
 

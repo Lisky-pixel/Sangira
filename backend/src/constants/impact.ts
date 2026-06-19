@@ -8,6 +8,8 @@ export const DONOR_DASHBOARD_ACTIVITY = {
   REQUEST_LOOKBACK: 50,
 } as const
 
+export const NEEDS_ACTION_LIMIT = 2
+
 export const DONOR_ACTIVITY_PAGE = {
   DEFAULT_PAGE_SIZE: 20,
   MAX_PAGE_SIZE: 50,

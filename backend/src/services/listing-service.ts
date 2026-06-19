@@ -390,9 +390,9 @@ export async function cancelListingForDonor(input: {
   return enrichListingWithRequestData(listing.toObject())
 }
 
-export async function browseActiveListingsForNgo(): Promise<
-  SerializedBrowseListing[]
-> {
+export async function browseActiveListingsForNgo(input?: {
+  limit?: number
+}): Promise<SerializedBrowseListing[]> {
   const verifiedDonors = await Donor.find({
     role: ROLES.DONOR,
     'verification.status': VERIFICATION_STATUS.APPROVED,
@@ -417,13 +417,17 @@ export async function browseActiveListingsForNgo(): Promise<
   const donorIds = verifiedDonors.map((donor) => donor._id)
   const now = new Date()
 
-  const listings = await Listing.find({
+  let query = Listing.find({
     donor: { $in: donorIds },
     status: LISTING_STATUS.ACTIVE,
     expiresAt: { $gt: now },
-  })
-    .sort({ createdAt: -1 })
-    .lean()
+  }).sort({ createdAt: -1 })
+
+  if (typeof input?.limit === 'number' && input.limit > 0) {
+    query = query.limit(input.limit)
+  }
+
+  const listings = await query.lean()
 
   if (listings.length === 0) {
     return []

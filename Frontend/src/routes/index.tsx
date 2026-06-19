@@ -24,6 +24,7 @@ import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
 import { NgoConfirmPickupPage } from '../pages/ngo/NgoConfirmPickupPage'
+import { NgoDashboardPage } from '../pages/ngo/NgoDashboardPage'
 import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
 import { NgoMyRequestsPage } from '../pages/ngo/NgoMyRequestsPage'
 import { LandingPage } from '../pages/LandingPage'
@@ -193,7 +194,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.NGO_PORTAL_LEGACY,
-        element: <Navigate replace to={ROUTES.NGO_BROWSE} />,
+        element: <Navigate replace to={ROUTES.NGO_DASHBOARD} />,
       },
       {
         path: '/ngo',
@@ -209,11 +210,11 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate replace to={ROUTES.NGO_BROWSE} />,
+            element: <Navigate replace to={ROUTES.NGO_DASHBOARD} />,
           },
           {
             path: 'dashboard',
-            element: <NgoComingSoon />,
+            element: <NgoDashboardPage />,
           },
           {
             path: 'browse',

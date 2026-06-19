@@ -94,7 +94,7 @@ export const postListingContent = {
     expiresRequired: 'Choose when the listing expires',
     expiresFuture: 'Expiry must be in the future',
     storageRequired: 'Select a storage condition',
-    pickupRequired: 'Enter a pickup address',
+    pickupRequired: 'Add a pickup location',
     photoInvalidType: (label: string) => `File must be ${label}`,
     photoTooLarge: (maxMb: number) => `File must be under ${maxMb} MB`,
   },

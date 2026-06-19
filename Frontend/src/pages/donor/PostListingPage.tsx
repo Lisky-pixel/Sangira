@@ -119,6 +119,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
   const methods = useForm<PostListingFormValues | EditListingFormValues>({
     resolver: zodResolver(isEditMode ? editListingSchema : postListingSchema),
     mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: buildDefaultValues(pickupAddressDefault),
   })
 
@@ -128,7 +129,8 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
     register,
     setValue,
     reset,
-    formState: { errors, isSubmitting },
+    trigger,
+    formState: { errors, isSubmitting, isValid },
   } = methods
 
   const watched = useWatch({ control })
@@ -249,7 +251,11 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
   }, [])
 
   const handleFoodTypeChange = (foodType: FoodType) => {
-    setValue('foodType', foodType, { shouldValidate: true, shouldDirty: true })
+    setValue('foodType', foodType, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    })
     if (!unitOverridden) {
       setValue('quantityUnit', UNIT_BY_FOOD_TYPE[foodType], {
         shouldDirty: true,
@@ -259,7 +265,11 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
 
   const handleQuantityUnitChange = (unit: QuantityUnit) => {
     setUnitOverridden(true)
-    setValue('quantityUnit', unit, { shouldValidate: true, shouldDirty: true })
+    setValue('quantityUnit', unit, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    })
   }
 
   const handlePresetSelect = (presetId: DatetimePresetId, at: Date) => {
@@ -267,12 +277,17 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
     setValue('expiresAt', toDatetimeLocalValue(at), {
       shouldValidate: true,
       shouldDirty: true,
+      shouldTouch: true,
     })
   }
 
   const handleExpiresAtManualChange = (value: string) => {
     setSelectedPresetId(null)
-    setValue('expiresAt', value, { shouldValidate: true, shouldDirty: true })
+    setValue('expiresAt', value, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    })
   }
 
   const toggleFoodLabel = (label: FoodLabel, checked: boolean) => {
@@ -283,12 +298,48 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
     setValue('foodLabels', next, { shouldDirty: true })
   }
 
-  const onSubmit = handleSubmit(async (values) => {
-    if (isEditMode && editListingId) {
-      const payload: UpdateListingPayload = {
+  const onSubmit = handleSubmit(
+    async (values) => {
+      if (isEditMode && editListingId) {
+        const payload: UpdateListingPayload = {
+          foodType: values.foodType,
+          quantity: values.quantity,
+          quantityUnit: values.quantityUnit,
+          expiresAt: new Date(values.expiresAt).toISOString(),
+          storageCondition: values.storageCondition,
+          foodLabels: values.foodLabels,
+          pickupAddress: values.pickupAddress.trim(),
+          pickupInstructions: values.pickupInstructions?.trim() || undefined,
+        }
+
+        if (values.photo) {
+          payload.photo = values.photo
+        }
+
+        try {
+          await toast.promise(
+            listingService.updateListing(editListingId, payload),
+            {
+              loading: postListingContent.edit.toast.saving,
+              success: postListingContent.edit.toast.success,
+              error: postListingContent.edit.toast.error,
+            },
+          )
+
+          navigate(donorListingManagePath(editListingId))
+        } catch {
+          // toast.promise surfaces the error
+        }
+
+        return
+      }
+
+      const payload: CreateListingPayload = {
         foodType: values.foodType,
         quantity: values.quantity,
         quantityUnit: values.quantityUnit,
+        // TODO: multi-photo later — schema supports an array; v1 allows one photo
+        photos: [values.photo as File],
         expiresAt: new Date(values.expiresAt).toISOString(),
         storageCondition: values.storageCondition,
         foodLabels: values.foodLabels,
@@ -296,64 +347,35 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
         pickupInstructions: values.pickupInstructions?.trim() || undefined,
       }
 
-      if (values.photo) {
-        payload.photo = values.photo
-      }
+      const createPromise = listingService.createListing(payload)
 
       try {
-        await toast.promise(
-          listingService.updateListing(editListingId, payload),
-          {
-            loading: postListingContent.edit.toast.saving,
-            success: postListingContent.edit.toast.success,
-            error: postListingContent.edit.toast.error,
-          },
-        )
+        void toast.promise(createPromise, {
+          loading: postListingContent.toast.publishing,
+          success: postListingContent.toast.success,
+          error: postListingContent.toast.error,
+        })
 
-        navigate(donorListingManagePath(editListingId))
+        const { listing: createdListing } = await createPromise
+
+        setUnitOverridden(false)
+        setSelectedPresetId(null)
+        reset(buildDefaultValues(pickupAddressDefault))
+        navigate(ROUTES.DONOR_LISTINGS, {
+          state: {
+            [MY_LISTINGS_LOCATION_STATE.CREATED_LISTING]: createdListing,
+          },
+        })
       } catch {
         // toast.promise surfaces the error
       }
+    },
+    async () => {
+      await trigger()
+    },
+  )
 
-      return
-    }
-
-    const payload: CreateListingPayload = {
-      foodType: values.foodType,
-      quantity: values.quantity,
-      quantityUnit: values.quantityUnit,
-      // TODO: multi-photo later — schema supports an array; v1 allows one photo
-      photos: [values.photo as File],
-      expiresAt: new Date(values.expiresAt).toISOString(),
-      storageCondition: values.storageCondition,
-      foodLabels: values.foodLabels,
-      pickupAddress: values.pickupAddress.trim(),
-      pickupInstructions: values.pickupInstructions?.trim() || undefined,
-    }
-
-    const createPromise = listingService.createListing(payload)
-
-    try {
-      void toast.promise(createPromise, {
-        loading: postListingContent.toast.publishing,
-        success: postListingContent.toast.success,
-        error: postListingContent.toast.error,
-      })
-
-      const { listing: createdListing } = await createPromise
-
-      setUnitOverridden(false)
-      setSelectedPresetId(null)
-      reset(buildDefaultValues(pickupAddressDefault))
-      navigate(ROUTES.DONOR_LISTINGS, {
-        state: {
-          [MY_LISTINGS_LOCATION_STATE.CREATED_LISTING]: createdListing,
-        },
-      })
-    } catch {
-      // toast.promise surfaces the error
-    }
-  })
+  const canSubmit = isValid && !isSubmitting
 
   if (state.status !== 'authed') {
     return null
@@ -391,7 +413,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
       </header>
 
       <FormProvider {...methods}>
-        <form onSubmit={onSubmit} className="flex flex-col gap-10">
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-10">
           <section
             id={POST_LISTING_SECTION_ID.WHAT}
             className="scroll-mt-24 border-border rounded-2xl border bg-white p-5 sm:p-6"
@@ -407,17 +429,19 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
                   name="foodType"
                   control={control}
                   render={({ field }) => (
-                    <SingleSelectPills
-                      name="foodType"
-                      label={postListingContent.sections.what.foodType}
-                      options={FOOD_TYPE_VALUES}
-                      value={field.value}
-                      onChange={handleFoodTypeChange}
-                      getLabel={(value) =>
-                        postListingContent.foodTypeLabels[value]
-                      }
-                      error={errors.foodType?.message}
-                    />
+                    <div onBlur={field.onBlur}>
+                      <SingleSelectPills
+                        name="foodType"
+                        label={postListingContent.sections.what.foodType}
+                        options={FOOD_TYPE_VALUES}
+                        value={field.value}
+                        onChange={handleFoodTypeChange}
+                        getLabel={(value) =>
+                          postListingContent.foodTypeLabels[value]
+                        }
+                        error={errors.foodType?.message}
+                      />
+                    </div>
                   )}
                 />
 
@@ -487,12 +511,17 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
                 name="photo"
                 control={control}
                 render={({ field }) => (
-                  <ListingPhotoUpload
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors.photo?.message}
-                    existingPhotoUrl={isEditMode ? existingPhotoUrl : undefined}
-                  />
+                  <div onBlur={field.onBlur}>
+                    <ListingPhotoUpload
+                      value={field.value}
+                      onChange={(file) => {
+                        field.onChange(file)
+                        field.onBlur()
+                      }}
+                      error={errors.photo?.message}
+                      existingPhotoUrl={isEditMode ? existingPhotoUrl : undefined}
+                    />
+                  </div>
                 )}
               />
             </div>
@@ -540,6 +569,9 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
                   onChange={(event) =>
                     handleExpiresAtManualChange(event.target.value)
                   }
+                  onBlur={() => {
+                    void trigger('expiresAt')
+                  }}
                   aria-invalid={Boolean(errors.expiresAt)}
                   className={cn(
                     'border-border text-charcoal mt-2 w-full rounded-lg border bg-white px-3 py-2.5 text-sm',
@@ -558,19 +590,22 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
                 name="storageCondition"
                 control={control}
                 render={({ field }) => (
-                  <SingleSelectPills
-                    name="storageCondition"
-                    label={postListingContent.sections.safety.storage}
-                    options={STORAGE_CONDITION_VALUES}
-                    value={field.value}
-                    onChange={(value) =>
-                      field.onChange(value as StorageCondition)
-                    }
-                    getLabel={(value) =>
-                      postListingContent.storageLabels[value]
-                    }
-                    error={errors.storageCondition?.message}
-                  />
+                  <div onBlur={field.onBlur}>
+                    <SingleSelectPills
+                      name="storageCondition"
+                      label={postListingContent.sections.safety.storage}
+                      options={STORAGE_CONDITION_VALUES}
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value as StorageCondition)
+                        field.onBlur()
+                      }}
+                      getLabel={(value) =>
+                        postListingContent.storageLabels[value]
+                      }
+                      error={errors.storageCondition?.message}
+                    />
+                  </div>
                 )}
               />
 
@@ -630,7 +665,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
             <Button
               type="submit"
               size="lg"
-              disabled={isSubmitting}
+              disabled={!canSubmit}
               className="w-full"
             >
               {isEditMode

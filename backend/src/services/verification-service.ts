@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { getSignedCertificateView, uploadCertificate } from '../config/cloudinary.js'
 import { ROLES, VERIFICATION_STATUS } from '../constants/enums.js'
 import {
@@ -16,11 +17,16 @@ import {
   resolveDocumentSigningMetadata,
   type StoredVerificationDocumentLike,
 } from '../utils/verification-document.js'
+import { broadcastVerificationNew } from './admin-verification-service.js'
 
 type VerificationSubdoc = {
   status: string
   submittedAt?: Date
+  reviewedAt?: Date
+  reviewedBy?: mongoose.Types.ObjectId
   reason?: string
+  reasonCode?: string
+  reasonDetails?: string
   documents: Array<{
     url: string
     publicId?: string
@@ -82,6 +88,10 @@ export async function resubmitVerificationDocument(
   verification.status = VERIFICATION_STATUS.PENDING
   verification.submittedAt = now
   verification.reason = undefined
+  verification.reasonCode = undefined
+  verification.reasonDetails = undefined
+  verification.reviewedAt = undefined
+  verification.reviewedBy = undefined
 
   if ('businessCertificateUrl' in user) {
     ;(user as { businessCertificateUrl?: string }).businessCertificateUrl =
@@ -90,6 +100,8 @@ export async function resubmitVerificationDocument(
 
   user.markModified('verification')
   await user.save()
+
+  void broadcastVerificationNew(user._id.toString())
 
   return { verificationStatus: VERIFICATION_STATUS.PENDING }
 }

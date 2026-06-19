@@ -49,3 +49,43 @@ export function formatRelativeTime(iso: string, now = Date.now()): string {
     day: 'numeric',
   })
 }
+
+/** Compact relative label for tables (e.g. "52 h", "3 min") */
+export function formatRelativeTimeCompact(iso: string, now = Date.now()): string {
+  const thenMs = new Date(iso).getTime()
+  if (Number.isNaN(thenMs)) return ''
+
+  const diffMs = Math.max(0, now - thenMs)
+  const minutes = Math.floor(diffMs / (60 * 1000))
+
+  if (minutes < 1) return 'Just now'
+  if (minutes < 60) {
+    return minutes === 1 ? '1 min' : `${minutes} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) {
+    return hours === 1 ? '1 h' : `${hours} h`
+  }
+
+  const thenDate = new Date(thenMs)
+  const nowDate = new Date(now)
+
+  if (isYesterday(thenDate, nowDate)) return 'Yesterday'
+
+  const days = Math.floor(hours / 24)
+  if (days < 7) {
+    return days === 1 ? '1 day' : `${days} days`
+  }
+
+  return thenDate.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+export function getWaitingHours(iso: string, now = Date.now()): number {
+  const thenMs = new Date(iso).getTime()
+  if (Number.isNaN(thenMs)) return 0
+  return Math.max(0, Math.floor((now - thenMs) / (60 * 60 * 1000)))
+}

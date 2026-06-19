@@ -63,6 +63,8 @@ export const verificationSchema = new Schema(
     reviewedAt: { type: Date },
     reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     reason: { type: String, trim: true },
+    reasonCode: { type: String, trim: true },
+    reasonDetails: { type: String, trim: true },
     documents: {
       type: [verificationDocumentSchema],
       default: [],

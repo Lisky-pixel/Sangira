@@ -28,6 +28,7 @@ import {
 } from '../utils/tokens.js'
 import { buildVerificationDocumentEntry } from '../utils/verification-document.js'
 import { normalizePhone } from '../utils/phone.js'
+import { broadcastVerificationNew } from './admin-verification-service.js'
 import { findUserByIdentifier } from '../utils/auth-identifier.js'
 import type { LoginInput, RegisterInput } from '../validators/auth.js'
 
@@ -146,6 +147,7 @@ export async function registerUser(
       })
 
       const tokens = await issueAuthTokens(user._id.toString(), ROLES.DONOR, req)
+      void broadcastVerificationNew(user._id.toString())
       return { user, tokens, verificationStatus: VERIFICATION_STATUS.PENDING }
     }
 
@@ -169,6 +171,7 @@ export async function registerUser(
     })
 
     const tokens = await issueAuthTokens(user._id.toString(), ROLES.NGO, req)
+    void broadcastVerificationNew(user._id.toString())
     return { user, tokens, verificationStatus: VERIFICATION_STATUS.PENDING }
   } catch (error) {
     if (isDuplicateKeyError(error)) {

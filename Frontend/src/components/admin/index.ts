@@ -1,3 +1,5 @@
 export { AdminComingSoon } from './admin-coming-soon'
+export { VerificationQueueTable } from './verification-queue-table'
+export { VerificationReviewPanel } from './verification-review-panel'
 export { AdminPortalLayout } from './admin-portal-layout'
 export { AdminSidebar } from './admin-sidebar'

@@ -3,13 +3,15 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Outlet } from 'react-router'
 import { adminPortalContent } from '../../placeholder/admin-portal-content'
+import { AdminVerificationProvider } from '../../realtime/admin-verification-provider'
 import { AdminSidebar } from './admin-sidebar'
 
 export function AdminPortalLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="bg-cream min-h-screen font-sans lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+    <AdminVerificationProvider>
+      <div className="bg-cream min-h-screen font-sans lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <aside className="border-border hidden bg-white lg:block lg:border-r">
         <div className="sticky top-0 h-screen">
           <AdminSidebar />
@@ -61,6 +63,7 @@ export function AdminPortalLayout() {
           <Outlet />
         </main>
       </div>
-    </div>
+      </div>
+    </AdminVerificationProvider>
   )
 }

@@ -86,21 +86,65 @@ If you didn't request it, you can ignore this email.
   }
 }
 
-// TODO: admin slice — verificationApproved template
-export function verificationApproved(): EmailTemplate {
+// Admin verification decision emails (Brevo)
+export function verificationApproved(input: {
+  organisationName: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+
   return {
-    subject: 'Sangira verification approved (TODO)',
-    html: '<p>TODO</p>',
-    text: 'TODO',
+    subject: 'Your Sangira application has been approved',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Application approved</h1>
+      <p style="margin:0 0 16px;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>${org}</strong> has been verified on Sangira. You can sign in and start using the platform.
+      </p>
+      <p style="margin:0;font-size:12px;color:#6b6b6b;">Verified food redistribution for Kigali.</p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Application approved
+
+${input.organisationName} has been verified. You can sign in and start using the platform.`,
   }
 }
 
-// TODO: admin slice — verificationRejected template
-export function verificationRejected(): EmailTemplate {
+export function verificationRejected(input: {
+  organisationName: string
+  reasonLabel: string
+  details?: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+  const reason = escapeHtml(input.reasonLabel)
+  const details = input.details?.trim()
+    ? `<p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;">${escapeHtml(input.details.trim())}</p>`
+    : ''
+
   return {
-    subject: 'Sangira verification rejected (TODO)',
-    html: '<p>TODO</p>',
-    text: 'TODO',
+    subject: 'Your Sangira application needs attention',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Application not approved</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>${org}</strong> could not be verified at this time.
+      </p>
+      <p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>Reason:</strong> ${reason}
+      </p>
+      ${details}
+      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">Sign in to resubmit your documents if applicable.</p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Application not approved
+
+Organisation: ${input.organisationName}
+Reason: ${input.reasonLabel}${input.details?.trim() ? `\nDetails: ${input.details.trim()}` : ''}`,
   }
 }
 

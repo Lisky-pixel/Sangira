@@ -39,6 +39,7 @@ import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
 import { AdminComingSoon } from '../components/admin'
+import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
 import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
 import { COMING_SOON_PATHS, ROUTES } from './paths'
@@ -265,7 +266,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'verifications',
-            element: <AdminComingSoon />,
+            element: <AdminVerificationsPage />,
           },
           {
             path: 'users',

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { adminPortalService } from '../services/admin-portal-service'
+import { useAdminVerification } from '../realtime/admin-verification-context'
 
 type UseAdminPendingCountState = {
   count: number | null
@@ -7,36 +6,6 @@ type UseAdminPendingCountState = {
 }
 
 export function useAdminPendingCount(): UseAdminPendingCountState {
-  const [count, setCount] = useState<number | null>(null)
-  const [loadState, setLoadState] =
-    useState<UseAdminPendingCountState['loadState']>('loading')
-
-  useEffect(() => {
-    let cancelled = false
-
-    const load = async () => {
-      setLoadState('loading')
-      try {
-        const pendingCount =
-          await adminPortalService.getPendingVerificationCount()
-        if (!cancelled) {
-          setCount(pendingCount)
-          setLoadState('ready')
-        }
-      } catch {
-        if (!cancelled) {
-          setCount(null)
-          setLoadState('error')
-        }
-      }
-    }
-
-    void load()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return { count, loadState }
+  const { pendingCount, loadState } = useAdminVerification()
+  return { count: pendingCount, loadState }
 }

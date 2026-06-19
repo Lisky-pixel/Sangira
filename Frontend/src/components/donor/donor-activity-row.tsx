@@ -1,5 +1,5 @@
 import { formatDonorActivityEvent } from '../../lib/format-donor-activity'
-import { formatActivityTimestamp } from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import type { DonorActivityEvent } from '../../types/donor-impact'
 
 type DonorActivityRowProps = {
@@ -19,7 +19,7 @@ export function DonorActivityRow({ event }: DonorActivityRowProps) {
         dateTime={event.timestamp}
         className="text-body shrink-0 text-xs whitespace-nowrap"
       >
-        {formatActivityTimestamp(event.timestamp)}
+        {formatRelativeTime(event.timestamp)}
       </time>
     </li>
   )

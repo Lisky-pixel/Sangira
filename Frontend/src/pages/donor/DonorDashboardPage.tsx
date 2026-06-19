@@ -13,10 +13,7 @@ import { useDonorDashboard } from '../../hooks/use-donor-dashboard'
 import { useMyListings } from '../../hooks/use-my-listings'
 import { getGreeting } from '../../lib/greeting'
 import { filterOngoingListings } from '../../lib/my-listings-filters'
-import {
-  formatRelativeMinutes,
-  minutesAgoFromIso,
-} from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import { donorListingManagePath, ROUTES } from '../../routes/paths'
 
@@ -209,9 +206,7 @@ export function DonorDashboardPage() {
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <StatusChip status="requested" />
                         <span className="text-body text-xs">
-                          {formatRelativeMinutes(
-                            minutesAgoFromIso(request.requestedAt),
-                          )}
+                          {formatRelativeTime(request.requestedAt)}
                         </span>
                       </div>
                     </div>

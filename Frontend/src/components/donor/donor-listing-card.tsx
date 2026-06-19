@@ -1,11 +1,8 @@
 import { Link } from 'react-router'
 import { LISTING_STATUS } from '../../constants/listing-status'
-import {
-  formatCompletedLabel,
-  formatPickupByTime,
-} from '../../lib/format-listing-time'
+import { formatPickupByTime } from '../../lib/format-listing-time'
 import { resolveListingTabStatus } from '../../lib/my-listings-filters'
-import { hoursAgoFromIso } from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import { cn } from '../../lib/utils'
 import { myListingsContent } from '../../placeholder/my-listings-content'
 import { postListingContent } from '../../placeholder/post-listing-content'
@@ -46,7 +43,7 @@ function isMutedListing(listing: Listing) {
 
 export function DonorListingCard({ listing }: DonorListingCardProps) {
   const photo = listing.photos[0]
-  const postedHours = hoursAgoFromIso(listing.createdAt)
+  const postedRelative = formatRelativeTime(listing.createdAt)
   const displayStatus = resolveListingTabStatus(listing)
   const requestCount = listing.requestCount ?? 0
   const muted = isMutedListing(listing)
@@ -66,12 +63,11 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
         )
       : displayStatus === LISTING_STATUS.COMPLETED
         ? myListingsContent.card.completedAt(
-            formatCompletedLabel(listing.updatedAt) ||
-              myListingsContent.card.completedYesterday,
+            formatRelativeTime(listing.updatedAt),
           )
         : displayStatus === LISTING_STATUS.EXPIRED
           ? myListingsContent.card.expiredAt(
-              formatCompletedLabel(listing.expiresAt),
+              formatRelativeTime(listing.expiresAt),
             )
           : null
 
@@ -113,7 +109,7 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
             <span>{footerPrimary}</span>
           ) : (
             <>
-              <span>{myListingsContent.card.postedAgo(postedHours)}</span>
+              <span>{myListingsContent.card.postedAgo(postedRelative)}</span>
               <span aria-hidden="true">·</span>
               <span>{requestLabel}</span>
             </>

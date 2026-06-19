@@ -34,15 +34,13 @@ export const myListingsContent = {
   },
   card: {
     manage: 'Manage',
-    postedAgo: (hours: number) => `Posted ${hours}h ago`,
+    postedAgo: (relative: string) => `Posted ${relative}`,
     requestCount: (count: number) =>
       count === 1 ? '1 request' : `${count} requests`,
     noRequests: 'No requests yet',
     pickingUpBy: (ngoName: string, time: string) =>
       `${ngoName} picking up by ${time}`,
     completedAt: (label: string) => `Completed ${label}`,
-    // TODO: wire completed timestamp from listing when backend ships
-    completedYesterday: 'yesterday',
     expiredAt: (label: string) => `Expired ${label}`,
     continueHandover: 'Continue handover',
   },

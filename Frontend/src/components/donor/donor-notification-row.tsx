@@ -1,6 +1,6 @@
 import { Building2, Check, type LucideIcon } from 'lucide-react'
 import { DONOR_NOTIFICATION_TYPE } from '../../constants/notifications'
-import { formatNotificationRelativeTime } from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import { cn } from '../../lib/utils'
 import type { AppNotification } from '../../types/notification'
 
@@ -22,7 +22,7 @@ export function DonorNotificationRow({
   onActivate,
 }: DonorNotificationRowProps) {
   const Icon = NOTIFICATION_ICONS[notification.type] ?? Check
-  const relativeTime = formatNotificationRelativeTime(notification.createdAt)
+  const relativeTime = formatRelativeTime(notification.createdAt)
   const isInteractive = Boolean(href && onActivate)
 
   const content = (

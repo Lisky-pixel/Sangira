@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { REQUEST_STATUS } from '../../constants/request-status'
-import { minutesAgoFromIso } from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import { getOrgInitials } from '../../lib/org-initials'
 import { resolveListingTabStatus } from '../../lib/my-listings-filters'
 import { listingManageContent } from '../../placeholder/listing-manage-content'
@@ -31,7 +31,7 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
   const [isAccepting, setIsAccepting] = useState(false)
   const navigate = useNavigate()
   const initials = getOrgInitials(request.ngo.organisationName)
-  const requestedMinutes = minutesAgoFromIso(request.createdAt)
+  const requestedLabel = formatRelativeTime(request.createdAt)
   const isAccepted = request.status === REQUEST_STATUS.ACCEPTED
 
   const handleAccept = async () => {
@@ -81,7 +81,7 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
             </p>
 
             <p className="text-body mt-1 text-sm">
-              {listingManageContent.requests.requestedAgo(requestedMinutes)}
+              {listingManageContent.requests.requestedAgo(requestedLabel)}
             </p>
           </div>
 

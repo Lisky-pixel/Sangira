@@ -29,7 +29,7 @@ export const donorDashboardContent = {
     heading: 'Active listings',
     viewAll: 'View all',
     manage: 'Manage',
-    postedAgo: (hours: number) => `Posted ${hours}h ago`,
+    postedAgo: (relative: string) => `Posted ${relative}`,
     requestCount: (count: number) =>
       count === 1 ? '1 request' : `${count} requests`,
     noRequests: 'No requests yet',

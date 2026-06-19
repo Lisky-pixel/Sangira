@@ -1,8 +1,4 @@
-import { formatCompletedLabel } from '../../lib/format-listing-time'
-import {
-  formatRelativeMinutes,
-  minutesAgoFromIso,
-} from '../../lib/relative-time'
+import { formatRelativeTime } from '../../lib/relative-time'
 import {
   NGO_DECLINED_REASON,
   ngoMyRequestsContent,
@@ -19,8 +15,7 @@ type NgoPendingRequestCardProps = {
 export function NgoPendingRequestCard({ request }: NgoPendingRequestCardProps) {
   const unitLabel =
     postListingContent.quantityUnitLabels[request.listing.quantityUnit]
-  const requestedMinutes = minutesAgoFromIso(request.createdAt)
-  const requestedLabel = formatRelativeMinutes(requestedMinutes)
+  const requestedLabel = formatRelativeTime(request.createdAt)
 
   return (
     <article className="border-border rounded-2xl border bg-white p-5 shadow-sm">
@@ -54,7 +49,7 @@ type NgoCompactRequestRowProps = {
 export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
   const unitLabel =
     postListingContent.quantityUnitLabels[request.listing.quantityUnit]
-  const whenLabel = formatCompletedLabel(
+  const whenLabel = formatRelativeTime(
     request.completedAt ?? request.declinedAt ?? request.updatedAt,
   )
 

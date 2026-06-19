@@ -35,8 +35,7 @@ export const listingManageContent = {
       'NGO requests will be enabled once the recipient portal is live.',
     capacityToday: (meals: number) => `Capacity today: ${meals} meals`,
     distanceAway: (km: number) => `${km} km away`,
-    requestedAgo: (minutes: number) =>
-      minutes === 1 ? 'Requested 1 min ago' : `Requested ${minutes} mins ago`,
+    requestedAgo: (relative: string) => `Requested ${relative}`,
     acceptConfirmTitle: 'Accept this request?',
     acceptConfirmDescription: (ngoName: string, listingTitle: string) =>
       `Accept ${ngoName} for ${listingTitle}? This declines other requests.`,

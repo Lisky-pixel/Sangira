@@ -8,6 +8,7 @@ import { resolveListingTabStatus } from '../../lib/my-listings-filters'
 import { hoursAgoFromIso } from '../../lib/relative-time'
 import { cn } from '../../lib/utils'
 import { myListingsContent } from '../../placeholder/my-listings-content'
+import { postListingContent } from '../../placeholder/post-listing-content'
 import { donorListingManagePath } from '../../routes/paths'
 import type { Listing } from '../../types/listing'
 import { CountdownChip } from '../ui/countdown-chip'
@@ -49,6 +50,7 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
   const displayStatus = resolveListingTabStatus(listing)
   const requestCount = listing.requestCount ?? 0
   const muted = isMutedListing(listing)
+  const foodTypeLabel = postListingContent.foodTypeLabels[listing.foodType]
 
   const requestLabel =
     requestCount > 0
@@ -104,6 +106,7 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
         <h3 className="text-charcoal font-display text-base font-semibold">
           {listing.title}
         </h3>
+        <p className="text-body mt-1 text-sm">{foodTypeLabel}</p>
 
         <div className="text-body mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
           {footerPrimary ? (

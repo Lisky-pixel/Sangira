@@ -13,6 +13,7 @@ type NgoListingCardProps = {
 
 export function NgoListingCard({ listing, hasRequested = false }: NgoListingCardProps) {
   const photo = listing.photos[0]
+  const foodTypeLabel = ngoBrowseContent.foodTypeLabels[listing.foodType]
   const storageLabel =
     ngoBrowseContent.storageLabels[listing.storageCondition]
 
@@ -38,6 +39,7 @@ export function NgoListingCard({ listing, hasRequested = false }: NgoListingCard
         <h3 className="text-charcoal font-display text-base font-semibold">
           {listing.title}
         </h3>
+        <p className="text-body mt-1 text-sm">{foodTypeLabel}</p>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <span className="text-charcoal text-sm font-medium">

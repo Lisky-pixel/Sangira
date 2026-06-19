@@ -15,17 +15,13 @@ import {
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
-import { STATIC_MAP_DEFAULT_SIZE } from '../../constants/maps'
-import {
-  buildStaticMapUrl,
-  openInMaps,
-} from '../../lib/open-in-maps'
 import {
   canCancelListing,
   canEditListing,
   getStatusChipVariant,
   shouldShowCountdownChip,
 } from '../../lib/listing-manage'
+import { openInMaps } from '../../lib/open-in-maps'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { listingManageContent } from '../../placeholder/listing-manage-content'
@@ -84,41 +80,6 @@ function DetailRow({
       <Icon aria-hidden="true" className="text-primary size-4 shrink-0" />
       <span>{children}</span>
     </div>
-  )
-}
-
-function MapThumbnail({ listing }: { listing: Listing }) {
-  const coordinates =
-    listing.pickupLocation?.coordinates ?? listing.pickupCoordinates
-  const staticMapUrl = coordinates
-    ? buildStaticMapUrl(
-        coordinates,
-        STATIC_MAP_DEFAULT_SIZE.width,
-        STATIC_MAP_DEFAULT_SIZE.height,
-      )
-    : null
-
-  return (
-    <button
-      type="button"
-      onClick={() => openInMaps(listing)}
-      className="border-border focus-visible:outline-primary mt-3 w-full overflow-hidden rounded-xl border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-      aria-label={listingManageContent.map.openInMapsAria}
-    >
-      {staticMapUrl ? (
-        <img
-          src={staticMapUrl}
-          alt={listingManageContent.map.alt}
-          className="aspect-[8/3] w-full object-cover"
-          loading="lazy"
-        />
-      ) : (
-        <div className="bg-sand text-body flex aspect-[8/3] w-full flex-col items-center justify-center gap-2 text-sm">
-          <MapPin aria-hidden="true" className="text-primary size-6" />
-          <span>{listingManageContent.map.placeholderLabel}</span>
-        </div>
-      )}
-    </button>
   )
 }
 
@@ -198,7 +159,7 @@ export function ManageListingDetails({ listing }: ManageListingDetailsProps) {
           <button
             type="button"
             onClick={() => openInMaps(listing)}
-            className="text-charcoal focus-visible:outline-primary inline-flex items-start gap-2 text-left text-sm font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-charcoal hover:text-primary focus-visible:outline-primary inline-flex cursor-pointer items-start gap-2 text-left text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <MapPin
               aria-hidden="true"
@@ -209,7 +170,6 @@ export function ManageListingDetails({ listing }: ManageListingDetailsProps) {
               {listing.pickupAddress}
             </span>
           </button>
-          <MapThumbnail listing={listing} />
         </div>
 
         {listing.pickupInstructions ? (

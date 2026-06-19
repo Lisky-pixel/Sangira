@@ -14,11 +14,6 @@ export const listingManageContent = {
     atPrefix: 'Pickup at',
     instructionsPrefix: 'Pickup instructions:',
   },
-  map: {
-    alt: 'Map showing pickup location',
-    placeholderLabel: 'Map preview',
-    openInMapsAria: 'Open pickup location in maps',
-  },
   cancelModal: {
     title: 'Cancel this listing?',
     description: 'NGOs will no longer see it.',

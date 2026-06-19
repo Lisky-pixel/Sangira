@@ -397,6 +397,7 @@ export async function browseActiveListingsForNgo(): Promise<
     role: ROLES.DONOR,
     'verification.status': VERIFICATION_STATUS.APPROVED,
   })
+    // TODO: include avatarUrl (+ legacy profileImageUrl) when browse cards show donor avatars
     .select('_id organisationName createdAt')
     .lean()
 
@@ -466,11 +467,15 @@ export async function getBrowseListingForNgo(input: {
     role: ROLES.DONOR,
     'verification.status': VERIFICATION_STATUS.APPROVED,
   })
-    .select('organisationName createdAt avatarUrl')
+    .select('organisationName createdAt avatarUrl profileImageUrl')
     .lean()
 
   if (!donor) {
     throw notFound('Listing not found', 'LISTING_NOT_FOUND')
+  }
+
+  const donorWithLegacy = donor as typeof donor & {
+    profileImageUrl?: string | null
   }
 
   const donorId = donor._id.toString()
@@ -490,7 +495,8 @@ export async function getBrowseListingForNgo(input: {
       donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
       donorCreatedAt: donor.createdAt,
       donorCompletedTransfers: impact.totals.completedTransfers,
-      donorAvatarUrl: donor.avatarUrl,
+      donorAvatarUrl: donorWithLegacy.avatarUrl,
+      donorLegacyProfileImageUrl: donorWithLegacy.profileImageUrl,
     }),
     hasRequested,
   }

@@ -1,6 +1,7 @@
 import { VERIFICATION_STATUS } from '../constants/enums.js'
 import type { NotificationPreferences } from '../constants/notification-preferences.js'
 import { normalizeNotificationPrefs } from './normalize-notification-prefs.js'
+import { resolveAvatarUrl } from './resolve-avatar-url.js'
 
 type SerializableUser = {
   notificationPrefs?: NotificationPreferences | Record<string, unknown>
@@ -32,12 +33,10 @@ export function serializeUser(user: SerializableUser) {
       : (user as unknown as UserJson)
 
   const { profileImageUrl: legacyAvatar, ...rest } = json
-  const avatarUrl =
-    typeof rest.avatarUrl === 'string'
-      ? rest.avatarUrl
-      : typeof legacyAvatar === 'string'
-        ? legacyAvatar
-        : undefined
+  const avatarUrl = resolveAvatarUrl({
+    avatarUrl: rest.avatarUrl,
+    profileImageUrl: legacyAvatar,
+  })
 
   return {
     ...rest,

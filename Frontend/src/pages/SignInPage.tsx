@@ -16,6 +16,9 @@ import { toast } from '../lib/toast'
 import { ROUTES } from '../routes/paths'
 import { looksLikePhone } from '../lib/identifier'
 import { normalizePhone } from '../constants/phone'
+import { SUPPORT_MAILTO_HREF } from '../constants/support'
+
+const signInNavLinkClassName = 'text-body hover:text-primary'
 
 function SignInForm() {
   const navigate = useNavigate()
@@ -146,15 +149,15 @@ function SignInForm() {
           aria-label="Helpful links"
           className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
         >
-          <Link to={ROUTES.PRIVACY} className="text-body hover:text-primary">
+          <Link to={ROUTES.PRIVACY} className={signInNavLinkClassName}>
             {signInContent.links.privacy}
           </Link>
-          <Link to={ROUTES.HELP} className="text-body hover:text-primary">
+          <a href={SUPPORT_MAILTO_HREF} className={signInNavLinkClassName}>
             {signInContent.links.help}
-          </Link>
-          <Link to={ROUTES.CONTACT} className="text-body hover:text-primary">
+          </a>
+          <a href={SUPPORT_MAILTO_HREF} className={signInNavLinkClassName}>
             {signInContent.links.contact}
-          </Link>
+          </a>
         </nav>
       </form>
     </FormProvider>

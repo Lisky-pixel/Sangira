@@ -8,6 +8,7 @@ import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
 import { DONOR_RECENT_ACTIVITY_LIMIT } from '../../constants/donor-activity'
 import { DONOR_DASHBOARD_ONGOING_LISTING_LIMIT, NEEDS_ACTION_LIMIT } from '../../constants/donor-dashboard'
+import { SUPPORT_MAILTO_HREF } from '../../constants/support'
 import { useDonorDashboard } from '../../hooks/use-donor-dashboard'
 import { useMyListings } from '../../hooks/use-my-listings'
 import { getGreeting } from '../../lib/greeting'
@@ -306,13 +307,18 @@ export function DonorDashboardPage() {
             </span>
             <div className="min-w-0">
               <h2 className="text-charcoal font-display text-lg font-bold">
-                {donorDashboardContent.needHelp.heading}
+                <a
+                  href={SUPPORT_MAILTO_HREF}
+                  className="text-primary hover:underline"
+                >
+                  {donorDashboardContent.needHelp.heading}
+                </a>
               </h2>
               <p className="text-body mt-2 text-sm">
                 {donorDashboardContent.needHelp.body}
               </p>
               <ButtonLink
-                to={donorDashboardContent.supportRoute}
+                href={SUPPORT_MAILTO_HREF}
                 variant="outline"
                 className="mt-4"
               >

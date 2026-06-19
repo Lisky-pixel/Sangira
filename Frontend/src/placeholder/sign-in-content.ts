@@ -20,8 +20,8 @@ export const signInContent = {
   registerLabel: 'Register your organisation',
   links: {
     privacy: 'Privacy Policy',
-    help: 'Help Center',
-    contact: 'Contact Us',
+    help: 'Need help?',
+    contact: 'Contact us',
   },
   validation: {
     identifierInvalid: 'Enter a valid email or Rwanda mobile number',

@@ -1,4 +1,3 @@
-import { ROUTES } from '../routes/paths'
 
 export const donorDashboardContent = {
   topNav: {
@@ -121,5 +120,4 @@ export const donorDashboardContent = {
       `Expires in ${hours}h ${minutes}m`,
     expired: 'Expired',
   },
-  supportRoute: ROUTES.CONTACT,
 } as const

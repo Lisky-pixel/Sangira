@@ -1,8 +1,12 @@
 import { Link } from 'react-router'
+import { SUPPORT_MAILTO_HREF } from '../../constants/support'
 import { headerMinimalContent } from '../../placeholder/register-content'
 import { pendingVerificationContent } from '../../placeholder/pending-verification-content'
 import { ROUTES } from '../../routes/paths'
 import { cn } from '../../lib/utils'
+
+const supportLinkClassName =
+  'text-body hover:text-primary text-sm transition-colors'
 
 type HeaderMinimalProps = {
   className?: string
@@ -29,12 +33,12 @@ export function HeaderMinimal({
 
         {variant === 'authed' ? (
           <div className="flex shrink-0 items-center gap-4 sm:gap-6">
-            <Link
-              to={ROUTES.HELP}
-              className="text-body hover:text-primary text-sm transition-colors"
+            <a
+              href={SUPPORT_MAILTO_HREF}
+              className={supportLinkClassName}
             >
               {headerMinimalContent.needHelpLabel}
-            </Link>
+            </a>
             <button
               type="button"
               onClick={onSignOut}
@@ -44,12 +48,12 @@ export function HeaderMinimal({
             </button>
           </div>
         ) : showHelpOnly ? (
-          <Link
-            to={ROUTES.HELP}
-            className="text-body hover:text-primary shrink-0 text-sm transition-colors"
+          <a
+            href={SUPPORT_MAILTO_HREF}
+            className={cn(supportLinkClassName, 'shrink-0')}
           >
             {headerMinimalContent.needHelpLabel}
-          </Link>
+          </a>
         ) : null}
       </div>
     </header>

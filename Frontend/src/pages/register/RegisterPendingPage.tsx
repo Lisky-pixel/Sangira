@@ -60,7 +60,7 @@ export function RegisterPendingPage() {
         </div>
 
         <ButtonLink
-          to={SUPPORT.href}
+          href={SUPPORT.href}
           variant="outline"
           size="lg"
           className="mt-6 w-full"

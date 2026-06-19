@@ -1,17 +1,20 @@
 import { Link } from 'react-router'
+import { SUPPORT_MAILTO_HREF } from '../../constants/support'
 import { landingFooterContent } from '../../placeholder/landing-content'
 import { ROUTES } from '../../routes/paths'
 import { cn } from '../../lib/utils'
 
+const footerLinkClassName = 'text-body hover:text-primary text-sm transition-colors'
+
 const footerRouteByKey: Record<
-  (typeof landingFooterContent.links)[number]['key'],
+  Extract<(typeof landingFooterContent.links)[number]['key'], 'privacy' | 'terms'>,
   string
 > = {
   privacy: ROUTES.PRIVACY,
   terms: ROUTES.TERMS,
-  help: ROUTES.HELP,
-  contact: ROUTES.CONTACT,
 }
+
+const supportFooterKeys = new Set(['help', 'contact'])
 
 type FooterProps = {
   className?: string
@@ -32,12 +35,21 @@ export function Footer({ className }: FooterProps) {
           <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {landingFooterContent.links.map((link) => (
               <li key={link.key}>
-                <Link
-                  to={footerRouteByKey[link.key]}
-                  className="text-body hover:text-primary text-sm transition-colors"
-                >
-                  {link.label}
-                </Link>
+                {supportFooterKeys.has(link.key) ? (
+                  <a
+                    href={SUPPORT_MAILTO_HREF}
+                    className={footerLinkClassName}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    to={footerRouteByKey[link.key as 'privacy' | 'terms']}
+                    className={footerLinkClassName}
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

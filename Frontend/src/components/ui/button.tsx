@@ -37,8 +37,11 @@ export function Button({ className, variant, size, ...props }: ButtonProps) {
   )
 }
 
-type ButtonLinkProps = ComponentProps<typeof Link> &
-  VariantProps<typeof buttonVariants>
+type ButtonLinkProps = VariantProps<typeof buttonVariants> &
+  (
+    | ({ to: string } & Omit<ComponentProps<typeof Link>, 'to'>)
+    | ({ href: string } & Omit<ComponentProps<'a'>, 'href'>)
+  )
 
 export function ButtonLink({
   className,
@@ -46,10 +49,13 @@ export function ButtonLink({
   size,
   ...props
 }: ButtonLinkProps) {
-  return (
-    <Link
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    />
-  )
+  const classes = cn(buttonVariants({ variant, size }), className)
+
+  if ('href' in props) {
+    const { href, ...anchorProps } = props
+    return <a href={href} className={classes} {...anchorProps} />
+  }
+
+  const { to, ...linkProps } = props
+  return <Link to={to} className={classes} {...linkProps} />
 }

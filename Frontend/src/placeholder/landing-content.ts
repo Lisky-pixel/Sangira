@@ -78,7 +78,7 @@ export const landingFooterContent = {
   links: [
     { label: 'Privacy policy', key: 'privacy' as const },
     { label: 'Terms of service', key: 'terms' as const },
-    { label: 'Help center', key: 'help' as const },
+    { label: 'Need help?', key: 'help' as const },
     { label: 'Contact us', key: 'contact' as const },
   ],
   copyright: '© 2026 Sangira Food Redistribution.',

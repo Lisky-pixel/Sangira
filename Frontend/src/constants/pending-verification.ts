@@ -1,4 +1,4 @@
-import { ROUTES } from '../routes/paths'
+import { SUPPORT_MAILTO_HREF } from './support'
 
 /** Interval for polling /auth/me while on a verification status screen */
 export const VERIFICATION_POLL_INTERVAL_MS = 45_000
@@ -19,6 +19,5 @@ export const GENERIC_UPLOAD_FILENAMES = new Set([
 ])
 
 export const SUPPORT = {
-  // TODO: replace with real support route or mailto target
-  href: ROUTES.CONTACT,
+  href: SUPPORT_MAILTO_HREF,
 } as const

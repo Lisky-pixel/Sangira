@@ -6,10 +6,7 @@ import {
 } from '../constants/admin-reports.js'
 import { MONGO_READ_PREFERENCE_PRIMARY } from '../constants/mongo.js'
 import { REQUEST_STATUS, VERIFICATION_STATUS } from '../constants/enums.js'
-import {
-  FOOD_TYPE_LABELS,
-  type FoodType,
-} from '../constants/listing-form.js'
+import { FOOD_TYPE_LABELS, type FoodType } from '../constants/listing-form.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
 import { User } from '../models/user.js'
@@ -151,7 +148,9 @@ async function sumMealsCompletedBetween(
   return row?.meals ?? 0
 }
 
-async function aggregateMealsByDayOfWeek(): Promise<AdminReportsMealsByDayOfWeek[]> {
+async function aggregateMealsByDayOfWeek(): Promise<
+  AdminReportsMealsByDayOfWeek[]
+> {
   const rows = await FoodRequest.aggregate<MealsByWeekdayRow>(
     [
       { $match: COMPLETED_REQUEST_FILTER },
@@ -165,9 +164,7 @@ async function aggregateMealsByDayOfWeek(): Promise<AdminReportsMealsByDayOfWeek
     READ_PRIMARY,
   )
 
-  const mealsByIsoDay = new Map(
-    rows.map((row) => [row._id, row.meals]),
-  )
+  const mealsByIsoDay = new Map(rows.map((row) => [row._id, row.meals]))
 
   return ADMIN_REPORTS_WEEKDAY_ORDER.map((day, index) => ({
     day,
@@ -175,7 +172,9 @@ async function aggregateMealsByDayOfWeek(): Promise<AdminReportsMealsByDayOfWeek
   }))
 }
 
-async function aggregateListingsByFoodType(): Promise<AdminReportsFoodTypeCount[]> {
+async function aggregateListingsByFoodType(): Promise<
+  AdminReportsFoodTypeCount[]
+> {
   const rows = await Listing.aggregate<FoodTypeCountRow>(
     [
       {
@@ -196,8 +195,8 @@ async function aggregateListingsByFoodType(): Promise<AdminReportsFoodTypeCount[
   }))
 }
 
-async function aggregateTopDonors(): Promise<AdminReportsRankedOrganisation[]> {
-  const rows = await FoodRequest.aggregate<RankedOrgRow>(
+async function countRankedDonors(): Promise<number> {
+  const [row] = await FoodRequest.aggregate<{ total: number }>(
     [
       { $match: COMPLETED_REQUEST_FILTER },
       {
@@ -215,12 +214,52 @@ async function aggregateTopDonors(): Promise<AdminReportsRankedOrganisation[]> {
           count: { $sum: 1 },
         },
       },
-      { $sort: { count: -1 } },
-      { $limit: ADMIN_REPORTS.TOP_DONORS_LIMIT },
+      { $count: 'total' },
     ],
     READ_PRIMARY,
   )
 
+  return row?.total ?? 0
+}
+
+async function fetchDonorRankingRows(options: {
+  skip?: number
+  limit?: number
+}): Promise<RankedOrgRow[]> {
+  const pipeline: mongoose.PipelineStage[] = [
+    { $match: COMPLETED_REQUEST_FILTER },
+    {
+      $lookup: {
+        from: Listing.collection.name,
+        localField: 'listing',
+        foreignField: '_id',
+        as: 'listingDoc',
+      },
+    },
+    { $unwind: '$listingDoc' },
+    {
+      $group: {
+        _id: '$listingDoc.donor',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ]
+
+  if (options.skip !== undefined) {
+    pipeline.push({ $skip: options.skip })
+  }
+
+  if (options.limit !== undefined) {
+    pipeline.push({ $limit: options.limit })
+  }
+
+  return FoodRequest.aggregate<RankedOrgRow>(pipeline, READ_PRIMARY)
+}
+
+async function hydrateDonorRankings(
+  rows: RankedOrgRow[],
+): Promise<AdminReportsRankedOrganisation[]> {
   if (rows.length === 0) {
     return []
   }
@@ -243,15 +282,22 @@ async function aggregateTopDonors(): Promise<AdminReportsRankedOrganisation[]> {
     const donor = donorById.get(row._id.toString())
     return {
       organisationName: formatOrganisationName(donor?.organisationName),
-      verified:
-        donor?.verification?.status === VERIFICATION_STATUS.APPROVED,
+      verified: donor?.verification?.status === VERIFICATION_STATUS.APPROVED,
       transfers: row.count,
     }
   })
 }
 
-async function aggregateMostServedNgos(): Promise<AdminReportsRankedOrganisation[]> {
-  const rows = await FoodRequest.aggregate<RankedOrgRow>(
+async function aggregateTopDonors(): Promise<AdminReportsRankedOrganisation[]> {
+  const rows = await fetchDonorRankingRows({
+    limit: ADMIN_REPORTS.TOP_DONORS_LIMIT,
+  })
+
+  return hydrateDonorRankings(rows)
+}
+
+async function countRankedNgos(): Promise<number> {
+  const [row] = await FoodRequest.aggregate<{ total: number }>(
     [
       { $match: COMPLETED_REQUEST_FILTER },
       {
@@ -260,12 +306,43 @@ async function aggregateMostServedNgos(): Promise<AdminReportsRankedOrganisation
           count: { $sum: 1 },
         },
       },
-      { $sort: { count: -1 } },
-      { $limit: ADMIN_REPORTS.TOP_NGOS_LIMIT },
+      { $count: 'total' },
     ],
     READ_PRIMARY,
   )
 
+  return row?.total ?? 0
+}
+
+async function fetchNgoRankingRows(options: {
+  skip?: number
+  limit?: number
+}): Promise<RankedOrgRow[]> {
+  const pipeline: mongoose.PipelineStage[] = [
+    { $match: COMPLETED_REQUEST_FILTER },
+    {
+      $group: {
+        _id: '$ngo',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ]
+
+  if (options.skip !== undefined) {
+    pipeline.push({ $skip: options.skip })
+  }
+
+  if (options.limit !== undefined) {
+    pipeline.push({ $limit: options.limit })
+  }
+
+  return FoodRequest.aggregate<RankedOrgRow>(pipeline, READ_PRIMARY)
+}
+
+async function hydrateNgoRankings(
+  rows: RankedOrgRow[],
+): Promise<AdminReportsRankedOrganisation[]> {
   if (rows.length === 0) {
     return []
   }
@@ -290,6 +367,76 @@ async function aggregateMostServedNgos(): Promise<AdminReportsRankedOrganisation
       pickups: row.count,
     }
   })
+}
+
+async function aggregateMostServedNgos(): Promise<
+  AdminReportsRankedOrganisation[]
+> {
+  const rows = await fetchNgoRankingRows({
+    limit: ADMIN_REPORTS.TOP_NGOS_LIMIT,
+  })
+
+  return hydrateNgoRankings(rows)
+}
+
+export type AdminReportsRankedListResult = {
+  items: AdminReportsRankedOrganisation[]
+  pagination: {
+    page: number
+    pageSize: number
+    totalItems: number
+    totalPages: number
+  }
+}
+
+function buildRankedListPagination(
+  page: number,
+  pageSize: number,
+  totalItems: number,
+) {
+  const totalPages = totalItems === 0 ? 1 : Math.ceil(totalItems / pageSize)
+  const safePage = Math.min(Math.max(page, 1), totalPages)
+
+  return {
+    page: safePage,
+    pageSize,
+    totalItems,
+    totalPages,
+  }
+}
+
+export async function listAdminReportsDonors(
+  page: number,
+  pageSize: number,
+): Promise<AdminReportsRankedListResult> {
+  const totalItems = await countRankedDonors()
+  const pagination = buildRankedListPagination(page, pageSize, totalItems)
+  const skip = (pagination.page - 1) * pageSize
+
+  const rows =
+    totalItems === 0
+      ? []
+      : await fetchDonorRankingRows({ skip, limit: pageSize })
+  const items = await hydrateDonorRankings(rows)
+
+  return { items, pagination }
+}
+
+export async function listAdminReportsNgos(
+  page: number,
+  pageSize: number,
+): Promise<AdminReportsRankedListResult> {
+  const totalItems = await countRankedNgos()
+  const pagination = buildRankedListPagination(page, pageSize, totalItems)
+  const skip = (pagination.page - 1) * pageSize
+
+  const rows =
+    totalItems === 0
+      ? []
+      : await fetchNgoRankingRows({ skip, limit: pageSize })
+  const items = await hydrateNgoRankings(rows)
+
+  return { items, pagination }
 }
 
 async function aggregateRollingAverageMatchTimeMinutes(
@@ -348,7 +495,9 @@ async function aggregateRollingAverageMatchTimeMinutes(
   return Math.round(row.avgMatchMs / ADMIN_REPORTS.MS_PER_MINUTE)
 }
 
-export async function getAdminReports(now = new Date()): Promise<AdminReportsData> {
+export async function getAdminReports(
+  now = new Date(),
+): Promise<AdminReportsData> {
   const thisMonth = getCalendarMonthRange(now, 0)
   const lastMonth = getCalendarMonthRange(now, -1)
 

@@ -25,6 +25,16 @@ export type AdminReportsRankedOrganisation = {
   pickups?: number
 }
 
+export type AdminReportsRankedListResult = {
+  items: AdminReportsRankedOrganisation[]
+  pagination: {
+    page: number
+    pageSize: number
+    totalItems: number
+    totalPages: number
+  }
+}
+
 export type AdminReportsStats = {
   mealsRedistributed: {
     total: number

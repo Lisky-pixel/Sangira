@@ -1,5 +1,6 @@
+import { Link } from 'react-router'
+import { ROUTES } from '../../routes/paths'
 import { adminReportsContent } from '../../placeholder/admin-reports-content'
-import { toast } from '../../lib/toast'
 import type { AdminReportsRankedOrganisation } from '../../types/admin-reports'
 import { VerifiedBadge } from '../ui/verified-badge'
 
@@ -17,9 +18,8 @@ export function AdminReportsRankedOrganisationsPanel({
       ? adminReportsContent.lists.topDonors
       : adminReportsContent.lists.mostServedNgos
 
-  const handleViewAll = () => {
-    toast.info(adminReportsContent.lists.viewAllDeferredToast)
-  }
+  const viewAllTo =
+    variant === 'donors' ? ROUTES.ADMIN_REPORTS_DONORS : ROUTES.ADMIN_REPORTS_NGOS
 
   return (
     <article className="border-border flex flex-col rounded-2xl border bg-white shadow-sm">
@@ -37,7 +37,7 @@ export function AdminReportsRankedOrganisationsPanel({
         <ul className="divide-border divide-y">
           {items.map((item, index) => {
             const count =
-              variant === 'donors' ? item.transfers ?? 0 : item.pickups ?? 0
+              variant === 'donors' ? (item.transfers ?? 0) : (item.pickups ?? 0)
 
             return (
               <li
@@ -66,14 +66,13 @@ export function AdminReportsRankedOrganisationsPanel({
       )}
 
       <footer className="border-border border-t px-5 py-4 sm:px-6">
-        <button
-          type="button"
-          onClick={handleViewAll}
+        <Link
+          to={viewAllTo}
           aria-label={copy.viewAllAria}
           className="text-primary text-sm font-medium hover:underline"
         >
           {copy.viewAll}
-        </button>
+        </Link>
       </footer>
     </article>
   )

@@ -23,6 +23,7 @@ import {
 } from '../validators/admin-verification.js'
 import { adminActivityQuerySchema } from '../validators/admin-activity.js'
 import { adminListingsQuerySchema } from '../validators/admin-listings.js'
+import { adminReportsRankingsQuerySchema } from '../validators/admin-reports-rankings.js'
 import {
   updateAdminProfileSchema,
   updatePlatformSettingsSchema,
@@ -65,10 +66,20 @@ adminPortalRouter.get(
 )
 
 adminPortalRouter.get(
-  '/me',
+  '/reports/donors',
   ...adminGuards,
-  adminMeController.getMeHandler,
+  validateQuery(adminReportsRankingsQuerySchema),
+  adminReportsController.listReportsDonorsHandler,
 )
+
+adminPortalRouter.get(
+  '/reports/ngos',
+  ...adminGuards,
+  validateQuery(adminReportsRankingsQuerySchema),
+  adminReportsController.listReportsNgosHandler,
+)
+
+adminPortalRouter.get('/me', ...adminGuards, adminMeController.getMeHandler)
 
 adminPortalRouter.patch(
   '/me/profile',

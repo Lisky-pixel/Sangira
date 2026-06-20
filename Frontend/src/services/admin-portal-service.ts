@@ -1,5 +1,6 @@
 import type {
   AdminReportsData,
+  AdminReportsRankedListResult,
 } from '../types/admin-reports'
 import type {
   ListAdminListingsParams,
@@ -32,9 +33,8 @@ import { unwrapApiResponse } from './api-response'
 
 export const adminPortalService = {
   async getOverview(): Promise<AdminOverviewData> {
-    const response = await apiClient.get<ApiEnvelope<AdminOverviewData>>(
-      '/admin/overview',
-    )
+    const response =
+      await apiClient.get<ApiEnvelope<AdminOverviewData>>('/admin/overview')
     return unwrapApiResponse(response)
   },
 
@@ -79,9 +79,9 @@ export const adminPortalService = {
   async getVerificationDocumentView(
     id: string,
   ): Promise<VerificationDocumentView> {
-    const response = await apiClient.get<
-      ApiEnvelope<VerificationDocumentView>
-    >(`/admin/verifications/${id}/document/view`)
+    const response = await apiClient.get<ApiEnvelope<VerificationDocumentView>>(
+      `/admin/verifications/${id}/document/view`,
+    )
     return unwrapApiResponse(response)
   },
 
@@ -190,9 +190,28 @@ export const adminPortalService = {
   },
 
   async getReports(): Promise<AdminReportsData> {
-    const response = await apiClient.get<ApiEnvelope<AdminReportsData>>(
-      '/admin/reports',
-    )
+    const response =
+      await apiClient.get<ApiEnvelope<AdminReportsData>>('/admin/reports')
+    return unwrapApiResponse(response)
+  },
+
+  async getReportsDonors(
+    page: number,
+    pageSize: number,
+  ): Promise<AdminReportsRankedListResult> {
+    const response = await apiClient.get<
+      ApiEnvelope<AdminReportsRankedListResult>
+    >('/admin/reports/donors', { params: { page, pageSize } })
+    return unwrapApiResponse(response)
+  },
+
+  async getReportsNgos(
+    page: number,
+    pageSize: number,
+  ): Promise<AdminReportsRankedListResult> {
+    const response = await apiClient.get<
+      ApiEnvelope<AdminReportsRankedListResult>
+    >('/admin/reports/ngos', { params: { page, pageSize } })
     return unwrapApiResponse(response)
   },
 }

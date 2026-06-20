@@ -48,6 +48,8 @@ import { AdminListingsPage } from '../pages/admin/AdminListingsPage'
 import { AdminProfilePage } from '../pages/admin/AdminProfilePage'
 import { AdminChangePasswordPage } from '../pages/admin/AdminChangePasswordPage'
 import { AdminReportsPage } from '../pages/admin/AdminReportsPage'
+import { AdminReportsDonorsPage } from '../pages/admin/AdminReportsDonorsPage'
+import { AdminReportsNgosPage } from '../pages/admin/AdminReportsNgosPage'
 import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage'
 import { AdminUsersPage } from '../pages/admin/AdminUsersPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
@@ -307,6 +309,14 @@ export const router = createBrowserRouter([
           {
             path: 'reports',
             element: <AdminReportsPage />,
+          },
+          {
+            path: 'reports/donors',
+            element: <AdminReportsDonorsPage />,
+          },
+          {
+            path: 'reports/ngos',
+            element: <AdminReportsNgosPage />,
           },
           {
             path: 'profile',

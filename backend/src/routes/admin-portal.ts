@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import * as adminListingsController from '../controllers/admin-listings-controller.js'
 import * as adminActivityController from '../controllers/admin-activity-controller.js'
 import * as adminOverviewController from '../controllers/admin-overview-controller.js'
 import * as adminUsersController from '../controllers/admin-users-controller.js'
@@ -18,6 +19,7 @@ import {
   rejectVerificationSchema,
 } from '../validators/admin-verification.js'
 import { adminActivityQuerySchema } from '../validators/admin-activity.js'
+import { adminListingsQuerySchema } from '../validators/admin-listings.js'
 import {
   adminUserIdParamSchema,
   adminUserOptionalReasonSchema,
@@ -40,6 +42,13 @@ adminPortalRouter.get(
   ...adminGuards,
   validateQuery(adminActivityQuerySchema),
   adminActivityController.listAdminActivityHandler,
+)
+
+adminPortalRouter.get(
+  '/listings',
+  ...adminGuards,
+  validateQuery(adminListingsQuerySchema),
+  adminListingsController.listListingsHandler,
 )
 
 adminPortalRouter.get(

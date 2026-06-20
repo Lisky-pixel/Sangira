@@ -1,4 +1,8 @@
 import type {
+  ListAdminListingsParams,
+  ListAdminListingsResult,
+} from '../types/admin-listings'
+import type {
   AdminUserActionResult,
   AdminUserDocumentView,
   AdminUserDetail,
@@ -168,6 +172,16 @@ export const adminPortalService = {
   async restoreUserVerification(id: string): Promise<AdminUserActionResult> {
     const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
       `/admin/users/${id}/restore-verification`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async listListings(
+    params: ListAdminListingsParams,
+  ): Promise<ListAdminListingsResult> {
+    const response = await apiClient.get<ApiEnvelope<ListAdminListingsResult>>(
+      '/admin/listings',
+      { params },
     )
     return unwrapApiResponse(response)
   },

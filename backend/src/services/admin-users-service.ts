@@ -19,6 +19,7 @@ import {
   ADMIN_USER_LIST_ROLE_FILTER,
   ADMIN_USER_LIST_STATUS,
   ADMIN_USER_LIST_STATUS_FILTER,
+  ADMIN_USER_LIST_VERIFICATION_STATUSES,
   type AdminUserAction,
   type AdminUserListStatus,
 } from '../constants/admin-users.js'
@@ -95,6 +96,11 @@ type OrgUserLean = {
 
 const ORG_USER_FILTER = {
   role: { $in: [ROLES.DONOR, ROLES.NGO] },
+} as const
+
+/** Excludes pending/rejected — those belong in the verification queue only. */
+const MANAGED_USERS_VERIFICATION_SCOPE = {
+  'verification.status': { $in: [...ADMIN_USER_LIST_VERIFICATION_STATUSES] },
 } as const
 
 const DETAIL_SELECT =
@@ -471,6 +477,7 @@ export async function listAdminUsers(query: AdminUsersQuery) {
   const pageSize = query.pageSize
   const filter = {
     ...ORG_USER_FILTER,
+    ...MANAGED_USERS_VERIFICATION_SCOPE,
     ...buildRoleFilter(query.role),
     ...buildStatusFilter(query.status),
     ...buildSearchFilter(query.search),

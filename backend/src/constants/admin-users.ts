@@ -1,3 +1,5 @@
+import { VERIFICATION_STATUS } from './enums.js'
+
 export const ADMIN_USERS_PAGE = {
   PAGE_SIZE: 20,
   DEFAULT_PAGE_SIZE: 20,
@@ -39,6 +41,12 @@ export const ADMIN_USER_LIST_ROLE_FILTER = {
   DONOR: 'donor',
   NGO: 'ngo',
 } as const
+
+/** Users list — only orgs that passed verification (approved or later revoked). */
+export const ADMIN_USER_LIST_VERIFICATION_STATUSES = [
+  VERIFICATION_STATUS.APPROVED,
+  VERIFICATION_STATUS.REVOKED,
+] as const
 
 export const ADMIN_USER_ENFORCEMENT = {
   SUSPENDED_MESSAGE:

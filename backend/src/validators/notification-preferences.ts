@@ -3,6 +3,7 @@ import {
   NOTIFICATION_CHANNEL_KEY,
   NOTIFICATION_EVENT_KEY,
 } from '../constants/notification-preferences.js'
+import { ADMIN_NOTIFICATION_EVENT_KEY } from '../constants/admin-notification-preferences.js'
 
 const notificationChannelPatchSchema = z
   .object({
@@ -21,14 +22,33 @@ const notificationEventPatchSchema = z
   })
   .strict()
 
+const adminNotificationEventPatchSchema = z
+  .object({
+    [ADMIN_NOTIFICATION_EVENT_KEY.NEW_VERIFICATION_SUBMITTED]: z
+      .boolean()
+      .optional(),
+    [ADMIN_NOTIFICATION_EVENT_KEY.VERIFICATION_SLA_BREACH]: z
+      .boolean()
+      .optional(),
+    [ADMIN_NOTIFICATION_EVENT_KEY.FLAGGED_ACTIVITY]: z.boolean().optional(),
+    [ADMIN_NOTIFICATION_EVENT_KEY.WEEKLY_SUMMARY_EMAIL]: z
+      .boolean()
+      .optional(),
+  })
+  .strict()
+
 export const updateNotificationPreferencesSchema = z
   .object({
     channels: notificationChannelPatchSchema.optional(),
     events: notificationEventPatchSchema.optional(),
+    adminEvents: adminNotificationEventPatchSchema.optional(),
   })
   .strict()
   .refine(
-    (value) => value.channels !== undefined || value.events !== undefined,
+    (value) =>
+      value.channels !== undefined ||
+      value.events !== undefined ||
+      value.adminEvents !== undefined,
     { message: 'At least one preference must be provided' },
   )
 

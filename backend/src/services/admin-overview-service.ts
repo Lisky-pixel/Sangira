@@ -8,7 +8,6 @@ import {
   ADMIN_OVERVIEW_FLAG_TYPE,
   ADMIN_OVERVIEW_FLAG_REVIEW_PATH,
   ADMIN_OVERVIEW_FLAGS_LIMIT,
-  ADMIN_OVERVIEW_PENDING_URGENT_HOURS,
   ADMIN_OVERVIEW_STUCK_HANDOVER_HOURS,
   type AdminOverviewFlagType,
 } from '../constants/admin-overview.js'
@@ -24,6 +23,7 @@ import {
   countPendingVerificationsWaitingOverHours,
 } from './admin-verification-service.js'
 import { countUnmatchedExpiredListingsThisMonth } from '../utils/count-unmatched-expired-listings.js'
+import { getVerificationSlaTargetHours } from './platform-settings-service.js'
 
 export type AdminOverviewActivityEvent = AdminPlatformActivityEvent
 
@@ -38,7 +38,8 @@ export type AdminOverviewFlag = {
 export type AdminOverviewData = {
   stats: {
     pendingVerifications: number
-    pendingOver48h: number
+    pendingOverSlaHours: number
+    verificationSlaTargetHours: number
     activeListings: number
     transfersThisWeek: number
     transfersLastWeekDelta: number
@@ -187,9 +188,11 @@ export async function getAdminOverview(now = new Date()): Promise<AdminOverviewD
   const nextWeekStart = new Date(thisWeekStart)
   nextWeekStart.setDate(nextWeekStart.getDate() + 7)
 
+  const verificationSlaTargetHours = await getVerificationSlaTargetHours()
+
   const [
     pendingVerifications,
-    pendingOver48h,
+    pendingOverSlaHours,
     activeListings,
     transfersThisWeek,
     transfersLastWeek,
@@ -199,7 +202,7 @@ export async function getAdminOverview(now = new Date()): Promise<AdminOverviewD
   ] = await Promise.all([
     countPendingVerifications(),
     countPendingVerificationsWaitingOverHours(
-      ADMIN_OVERVIEW_PENDING_URGENT_HOURS,
+      verificationSlaTargetHours,
       now,
     ),
     countActiveListings(now),
@@ -213,7 +216,8 @@ export async function getAdminOverview(now = new Date()): Promise<AdminOverviewD
   return {
     stats: {
       pendingVerifications,
-      pendingOver48h,
+      pendingOverSlaHours,
+      verificationSlaTargetHours,
       activeListings,
       transfersThisWeek,
       transfersLastWeekDelta: transfersThisWeek - transfersLastWeek,

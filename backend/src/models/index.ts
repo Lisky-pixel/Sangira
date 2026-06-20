@@ -1,3 +1,4 @@
+export { PlatformSettings } from './platform-settings.js'
 export { User, Donor, Ngo, Admin } from './user.js'
 export type { IUser, IUserMethods, UserDocument } from './user.js'
 export { Listing } from './listing.js'

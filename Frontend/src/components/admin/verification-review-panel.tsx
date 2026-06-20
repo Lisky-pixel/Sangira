@@ -3,9 +3,9 @@ import { AlertTriangle, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   VERIFICATION_ERROR_CODES,
-  VERIFICATION_WAITING_URGENT_HOURS,
 } from '../../constants/admin-verification'
 import { VERIFICATION_STATUS } from '../../constants/verification-status'
+import { useAdminPlatformSettings } from '../../hooks/use-admin-platform-settings'
 import { formatSubmittedDateTime } from '../../lib/format-verification-date'
 import { maskPhoneForDisplay } from '../../lib/profile-format'
 import {
@@ -96,6 +96,7 @@ export function VerificationReviewPanel({
   onOpenChange,
   onDecision,
 }: VerificationReviewPanelProps) {
+  const { verificationSlaTargetHours } = useAdminPlatformSettings()
   const [detail, setDetail] = useState<VerificationDetail | null>(null)
   const [loadState, setLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>(
     'idle',
@@ -280,7 +281,7 @@ export function VerificationReviewPanel({
     ? formatRelativeTimeCompact(detail.waitingSince)
     : ''
   const isUrgent = detail
-    ? getWaitingHours(detail.waitingSince) >= VERIFICATION_WAITING_URGENT_HOURS
+    ? getWaitingHours(detail.waitingSince) >= verificationSlaTargetHours
     : false
   const reviewedAtLabel = detail?.review?.reviewedAt
     ? formatSubmittedDateTime(detail.review.reviewedAt)

@@ -1,5 +1,7 @@
 import { Router } from 'express'
 import * as adminListingsController from '../controllers/admin-listings-controller.js'
+import * as adminMeController from '../controllers/admin-me-controller.js'
+import * as adminSettingsController from '../controllers/admin-settings-controller.js'
 import * as adminReportsController from '../controllers/admin-reports-controller.js'
 import * as adminActivityController from '../controllers/admin-activity-controller.js'
 import * as adminOverviewController from '../controllers/admin-overview-controller.js'
@@ -21,6 +23,10 @@ import {
 } from '../validators/admin-verification.js'
 import { adminActivityQuerySchema } from '../validators/admin-activity.js'
 import { adminListingsQuerySchema } from '../validators/admin-listings.js'
+import {
+  updateAdminProfileSchema,
+  updatePlatformSettingsSchema,
+} from '../validators/admin-me.js'
 import {
   adminUserIdParamSchema,
   adminUserOptionalReasonSchema,
@@ -56,6 +62,34 @@ adminPortalRouter.get(
   '/reports',
   ...adminGuards,
   adminReportsController.getReportsHandler,
+)
+
+adminPortalRouter.get(
+  '/me',
+  ...adminGuards,
+  adminMeController.getMeHandler,
+)
+
+adminPortalRouter.patch(
+  '/me/profile',
+  csrfGuard,
+  ...adminGuards,
+  validateBody(updateAdminProfileSchema),
+  adminMeController.updateProfileHandler,
+)
+
+adminPortalRouter.get(
+  '/settings',
+  ...adminGuards,
+  adminSettingsController.getSettingsHandler,
+)
+
+adminPortalRouter.patch(
+  '/settings/platform',
+  csrfGuard,
+  ...adminGuards,
+  validateBody(updatePlatformSettingsSchema),
+  adminSettingsController.updatePlatformSettingsHandler,
 )
 
 adminPortalRouter.get(

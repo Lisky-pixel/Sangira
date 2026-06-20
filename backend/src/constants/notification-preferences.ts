@@ -6,6 +6,12 @@
  * `channels` + `events` on read; the next PATCH persists the nested shape.
  */
 
+import {
+  DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS,
+  ADMIN_NOTIFICATION_EVENT_KEYS,
+  type AdminNotificationEventPreferences,
+} from './admin-notification-preferences.js'
+
 export const NOTIFICATION_CHANNEL_KEY = {
   EMAIL: 'email',
   IN_APP: 'inApp',
@@ -43,7 +49,10 @@ export type NotificationEventPreferences = Record<NotificationEventKey, boolean>
 export type NotificationPreferences = {
   channels: NotificationChannelPreferences
   events: NotificationEventPreferences
+  adminEvents?: AdminNotificationEventPreferences
 }
+
+export { type AdminNotificationEventPreferences }
 
 export const DEFAULT_NOTIFICATION_CHANNEL_PREFS: NotificationChannelPreferences =
   {
@@ -62,7 +71,10 @@ export const DEFAULT_NOTIFICATION_EVENT_PREFS: NotificationEventPreferences = {
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
   channels: DEFAULT_NOTIFICATION_CHANNEL_PREFS,
   events: DEFAULT_NOTIFICATION_EVENT_PREFS,
+  adminEvents: { ...DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS },
 }
+
+export { ADMIN_NOTIFICATION_EVENT_KEYS }
 
 /** @deprecated Use NOTIFICATION_EVENT_KEY */
 export const NOTIFICATION_PREF_KEY = NOTIFICATION_EVENT_KEY

@@ -64,9 +64,10 @@ export function AdminOverviewStatCards({ stats }: AdminOverviewStatCardsProps) {
         label={adminOverviewContent.stats.pendingVerifications.label}
         value={stats.pendingVerifications}
         subline={
-          stats.pendingOver48h > 0
+          stats.pendingOverSlaHours > 0
             ? adminOverviewContent.stats.pendingVerifications.urgent(
-                stats.pendingOver48h,
+                stats.pendingOverSlaHours,
+                stats.verificationSlaTargetHours,
               )
             : null
         }

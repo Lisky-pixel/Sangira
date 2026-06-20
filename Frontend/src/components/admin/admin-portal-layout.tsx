@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router'
 import { adminPortalContent } from '../../placeholder/admin-portal-content'
 import { AdminVerificationProvider } from '../../realtime/admin-verification-provider'
+import { AdminPlatformSettingsProvider } from '../../realtime/admin-platform-settings-provider'
 import { AdminSidebar } from './admin-sidebar'
 
 export function AdminPortalLayout() {
@@ -11,6 +12,7 @@ export function AdminPortalLayout() {
 
   return (
     <AdminVerificationProvider>
+      <AdminPlatformSettingsProvider>
       <div className="bg-cream min-h-screen font-sans lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <aside className="border-border hidden bg-white lg:block lg:border-r">
         <div className="sticky top-0 h-screen">
@@ -64,6 +66,7 @@ export function AdminPortalLayout() {
         </main>
       </div>
       </div>
+      </AdminPlatformSettingsProvider>
     </AdminVerificationProvider>
   )
 }

@@ -19,6 +19,7 @@ import {
   DEFAULT_NOTIFICATION_EVENT_PREFS,
   type NotificationPreferences,
 } from '../constants/notification-preferences.js'
+import { DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS } from '../constants/admin-notification-preferences.js'
 
 export type IUser = {
   email: string
@@ -121,6 +122,26 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         impactSummary: {
           type: Boolean,
           default: DEFAULT_NOTIFICATION_EVENT_PREFS.impactSummary,
+        },
+      },
+      adminEvents: {
+        newVerificationSubmitted: {
+          type: Boolean,
+          default:
+            DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS.newVerificationSubmitted,
+        },
+        verificationSlaBreach: {
+          type: Boolean,
+          default:
+            DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS.verificationSlaBreach,
+        },
+        flaggedActivity: {
+          type: Boolean,
+          default: DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS.flaggedActivity,
+        },
+        weeklySummaryEmail: {
+          type: Boolean,
+          default: DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS.weeklySummaryEmail,
         },
       },
     },

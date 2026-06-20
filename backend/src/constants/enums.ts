@@ -60,6 +60,7 @@ export const REQUEST_STATUS_VALUES = Object.values(REQUEST_STATUS)
 export const NOTIFICATION_TYPE = {
   VERIFICATION_APPROVED: 'verification_approved',
   VERIFICATION_REJECTED: 'verification_rejected',
+  VERIFICATION_SUBMITTED: 'verification_submitted',
   NEW_MATCH: 'new_match',
   REQUEST_RECEIVED: 'request_received',
   REQUEST_ACCEPTED: 'request_accepted',

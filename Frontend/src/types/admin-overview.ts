@@ -27,7 +27,8 @@ export type AdminOverviewFlag = {
 
 export type AdminOverviewStats = {
   pendingVerifications: number
-  pendingOver48h: number
+  pendingOverSlaHours: number
+  verificationSlaTargetHours: number
   activeListings: number
   transfersThisWeek: number
   transfersLastWeekDelta: number

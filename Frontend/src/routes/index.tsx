@@ -38,12 +38,14 @@ import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
 import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
-import { AdminComingSoon } from '../components/admin'
 import { AdminActivityPage } from '../pages/admin/AdminActivityPage'
 import { AdminOverviewPage } from '../pages/admin/AdminOverviewPage'
 import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
 import { AdminListingsPage } from '../pages/admin/AdminListingsPage'
+import { AdminProfilePage } from '../pages/admin/AdminProfilePage'
+import { AdminChangePasswordPage } from '../pages/admin/AdminChangePasswordPage'
 import { AdminReportsPage } from '../pages/admin/AdminReportsPage'
+import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage'
 import { AdminUsersPage } from '../pages/admin/AdminUsersPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
 import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
@@ -291,11 +293,15 @@ export const router = createBrowserRouter([
           },
           {
             path: 'profile',
-            element: <AdminComingSoon />,
+            element: <AdminProfilePage />,
+          },
+          {
+            path: 'profile/change-password',
+            element: <AdminChangePasswordPage />,
           },
           {
             path: 'settings',
-            element: <AdminComingSoon />,
+            element: <AdminSettingsPage />,
           },
         ],
       },

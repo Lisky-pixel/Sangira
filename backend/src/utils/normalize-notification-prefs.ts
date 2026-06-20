@@ -2,16 +2,19 @@ import {
   DEFAULT_NOTIFICATION_PREFS,
   NOTIFICATION_CHANNEL_KEYS,
   NOTIFICATION_EVENT_KEYS,
+  ADMIN_NOTIFICATION_EVENT_KEYS,
   type NotificationChannelKey,
   type NotificationChannelPreferences,
   type NotificationEventKey,
   type NotificationEventPreferences,
+  type AdminNotificationEventPreferences,
   type NotificationPreferences,
 } from '../constants/notification-preferences.js'
 
 type LegacyNotificationPrefs = {
   channels?: Partial<NotificationChannelPreferences>
   events?: Partial<NotificationEventPreferences>
+  adminEvents?: Partial<AdminNotificationEventPreferences>
   sms?: boolean
   inApp?: boolean
   email?: boolean
@@ -71,12 +74,28 @@ function mergeEventPrefs(
   }
 }
 
+function mergeAdminEventPrefs(
+  target: AdminNotificationEventPreferences,
+  source: LegacyNotificationPrefs,
+): void {
+  if (!source.adminEvents) {
+    return
+  }
+
+  for (const key of ADMIN_NOTIFICATION_EVENT_KEYS) {
+    if (typeof source.adminEvents[key] === 'boolean') {
+      target[key] = source.adminEvents[key]
+    }
+  }
+}
+
 export function normalizeNotificationPrefs(
   prefs: LegacyNotificationPrefs | null | undefined,
 ): NotificationPreferences {
   const normalized: NotificationPreferences = {
     channels: { ...DEFAULT_NOTIFICATION_PREFS.channels },
     events: { ...DEFAULT_NOTIFICATION_PREFS.events },
+    adminEvents: { ...DEFAULT_NOTIFICATION_PREFS.adminEvents! },
   }
 
   if (!prefs) {
@@ -85,6 +104,7 @@ export function normalizeNotificationPrefs(
 
   mergeChannelPrefs(normalized.channels, prefs)
   mergeEventPrefs(normalized.events, prefs)
+  mergeAdminEventPrefs(normalized.adminEvents!, prefs)
 
   return normalized
 }
@@ -94,6 +114,7 @@ export function mergeNotificationPrefs(
   patch: {
     channels?: Partial<NotificationChannelPreferences>
     events?: Partial<NotificationEventPreferences>
+    adminEvents?: Partial<AdminNotificationEventPreferences>
   },
 ): NotificationPreferences {
   return {
@@ -104,6 +125,10 @@ export function mergeNotificationPrefs(
     events: {
       ...current.events,
       ...patch.events,
+    },
+    adminEvents: {
+      ...current.adminEvents!,
+      ...patch.adminEvents,
     },
   }
 }

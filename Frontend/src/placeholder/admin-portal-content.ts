@@ -20,6 +20,7 @@ export const adminPortalContent = {
   },
   identity: {
     roleLabel: 'Administrator',
+    logoutAria: 'Log out of admin account',
   },
   pendingBadgeAria: (count: number) =>
     `${count} pending verification application${count === 1 ? '' : 's'}`,

@@ -8,7 +8,8 @@ export const adminOverviewContent = {
   stats: {
     pendingVerifications: {
       label: 'Pending verifications',
-      urgent: (count: number) => `! ${count} waiting over 48 h`,
+      urgent: (count: number, hours: number) =>
+        `! ${count} waiting over ${hours} h`,
     },
     activeListings: {
       label: 'Active listings',

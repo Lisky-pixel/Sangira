@@ -31,6 +31,7 @@ import {
   emitVerificationNew,
   emitVerificationUpdated,
 } from '../realtime/verification-events.js'
+import { notifyAdminsOfNewVerification } from './admin-notification-service.js'
 import { createInAppNotificationForUser } from './admin-verification-notifications.js'
 import type {
   AdminVerificationsQuery,
@@ -393,6 +394,11 @@ export async function broadcastVerificationNew(applicantId: string) {
   emitVerificationNew({
     item: serializeListItem(user),
     pendingCount,
+  })
+
+  void notifyAdminsOfNewVerification({
+    organisationName: user.organisationName?.trim() || 'An organisation',
+    role: user.role as typeof ROLES.DONOR | typeof ROLES.NGO,
   })
 }
 

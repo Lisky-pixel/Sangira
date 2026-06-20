@@ -1,3 +1,4 @@
+import { LogOut } from 'lucide-react'
 import {
   BarChart3,
   LayoutGrid,
@@ -11,6 +12,7 @@ import type { LucideIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '../../auth'
 import { useAdminPendingCount } from '../../hooks/use-admin-pending-count'
+import { useAdminLogout } from '../../hooks/use-admin-logout'
 import { getOrgInitials } from '../../lib/org-initials'
 import { cn } from '../../lib/utils'
 import {
@@ -95,6 +97,7 @@ type AdminSidebarProps = {
 export function AdminSidebar({ onNavigate, className }: AdminSidebarProps) {
   const { pathname } = useLocation()
   const { state } = useAuth()
+  const adminLogout = useAdminLogout()
   const { count } = useAdminPendingCount()
 
   const displayName =
@@ -188,7 +191,7 @@ export function AdminSidebar({ onNavigate, className }: AdminSidebarProps) {
           >
             {initials}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-charcoal truncate text-sm font-semibold">
               {displayName}
             </p>
@@ -196,6 +199,17 @@ export function AdminSidebar({ onNavigate, className }: AdminSidebarProps) {
               {adminPortalContent.identity.roleLabel}
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              void adminLogout()
+              onNavigate?.()
+            }}
+            className="text-body hover:text-clay-red shrink-0 rounded-md p-2 transition-colors"
+            aria-label={adminPortalContent.identity.logoutAria}
+          >
+            <LogOut aria-hidden="true" className="size-4" />
+          </button>
         </div>
       </div>
     </div>

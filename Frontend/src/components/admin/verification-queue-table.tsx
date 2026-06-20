@@ -1,10 +1,10 @@
 import { ChevronRight } from 'lucide-react'
-import { VERIFICATION_WAITING_URGENT_HOURS } from '../../constants/admin-verification'
 import { VERIFICATION_STATUS } from '../../constants/verification-status'
 import {
   formatRelativeTimeCompact,
   getWaitingHours,
 } from '../../lib/relative-time'
+import { useAdminPlatformSettings } from '../../hooks/use-admin-platform-settings'
 import { formatSubmittedDate } from '../../lib/format-verification-date'
 import { cn } from '../../lib/utils'
 import { adminVerificationContent } from '../../placeholder/admin-verification-content'
@@ -24,6 +24,7 @@ type VerificationQueueTableProps = {
 
 function WaitingCell({ item }: { item: VerificationListItem }) {
   const { table } = adminVerificationContent
+  const { verificationSlaTargetHours } = useAdminPlatformSettings()
 
   if (item.status === VERIFICATION_STATUS.APPROVED) {
     return (
@@ -57,7 +58,7 @@ function WaitingCell({ item }: { item: VerificationListItem }) {
 
   const waitingLabel = formatRelativeTimeCompact(item.waitingSince)
   const isUrgent =
-    getWaitingHours(item.waitingSince) >= VERIFICATION_WAITING_URGENT_HOURS
+    getWaitingHours(item.waitingSince) >= verificationSlaTargetHours
 
   return (
     <span

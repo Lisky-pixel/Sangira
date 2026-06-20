@@ -40,3 +40,15 @@ export type AdminOverviewData = {
   recentActivity: AdminOverviewActivityEvent[]
   flags: AdminOverviewFlag[]
 }
+
+export type AdminActivityPagination = {
+  page: number
+  pageSize: number
+  totalItems: number
+  totalPages: number
+}
+
+export type ListAdminActivityResult = {
+  activity: AdminOverviewActivityEvent[]
+  pagination: AdminActivityPagination
+}

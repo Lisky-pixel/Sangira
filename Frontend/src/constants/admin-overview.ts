@@ -2,6 +2,8 @@ export const ADMIN_RECENT_ACTIVITY_LIMIT = 8
 
 export const ADMIN_FLAGS_LIMIT = 5
 
+export const ADMIN_ACTIVITY_PAGE_SIZE = 20
+
 export const ADMIN_OVERVIEW_ACTIVITY_TYPE = {
   VERIFICATION_APPROVED: 'verification_approved',
   VERIFICATION_REJECTED: 'verification_rejected',

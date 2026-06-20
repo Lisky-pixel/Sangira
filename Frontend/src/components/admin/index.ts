@@ -1,5 +1,6 @@
 export { AdminComingSoon } from './admin-coming-soon'
 export { AdminOverviewActivityFeed } from './admin-overview-activity-feed'
+export { AdminOverviewActivityRow } from './admin-overview-activity-row'
 export { AdminOverviewFlagsPanel } from './admin-overview-flags-panel'
 export { AdminOverviewStatCards } from './admin-overview-stat-cards'
 export { VerificationQueueTable } from './verification-queue-table'

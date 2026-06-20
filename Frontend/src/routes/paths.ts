@@ -128,7 +128,6 @@ export const DONOR_COMING_SOON_PATHS = [
 
 /** TEMPORARY — admin portal feature routes not yet implemented */
 export const ADMIN_COMING_SOON_PATHS = [
-  ROUTES.ADMIN_ACTIVITY,
   ROUTES.ADMIN_USERS,
   ROUTES.ADMIN_LISTINGS,
   ROUTES.ADMIN_REPORTS,

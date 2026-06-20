@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import * as adminActivityController from '../controllers/admin-activity-controller.js'
 import * as adminOverviewController from '../controllers/admin-overview-controller.js'
 import * as adminVerificationController from '../controllers/admin-verification-controller.js'
 import { ROLES } from '../constants/enums.js'
@@ -15,6 +16,7 @@ import {
   adminVerificationsQuerySchema,
   rejectVerificationSchema,
 } from '../validators/admin-verification.js'
+import { adminActivityQuerySchema } from '../validators/admin-activity.js'
 
 export const adminPortalRouter = Router()
 
@@ -24,6 +26,13 @@ adminPortalRouter.get(
   '/overview',
   ...adminGuards,
   adminOverviewController.getOverviewHandler,
+)
+
+adminPortalRouter.get(
+  '/activity',
+  ...adminGuards,
+  validateQuery(adminActivityQuerySchema),
+  adminActivityController.listAdminActivityHandler,
 )
 
 adminPortalRouter.get(

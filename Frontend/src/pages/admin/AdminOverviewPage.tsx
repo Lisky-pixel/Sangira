@@ -5,6 +5,7 @@ import {
   AdminOverviewFlagsPanel,
   AdminOverviewStatCards,
 } from '../../components/admin'
+import { ADMIN_RECENT_ACTIVITY_LIMIT } from '../../constants/admin-overview'
 import { adminOverviewContent } from '../../placeholder/admin-overview-content'
 import { adminPortalService } from '../../services/admin-portal-service'
 import type { AdminOverviewData } from '../../types/admin-overview'
@@ -87,7 +88,10 @@ export function AdminOverviewPage() {
                   {adminOverviewContent.activity.viewAll}
                 </Link>
               </header>
-              <AdminOverviewActivityFeed events={overview.recentActivity} />
+              <AdminOverviewActivityFeed
+                events={overview.recentActivity}
+                maxItems={ADMIN_RECENT_ACTIVITY_LIMIT}
+              />
             </section>
 
             <AdminOverviewFlagsPanel flags={overview.flags} />

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
-import { ACCOUNT_STATUS } from '../constants/account-status'
 import { ROUTES } from '../routes/paths'
 import {
   authService,
@@ -78,17 +77,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (identifier: string, password: string) => {
       const data = await authService.login(identifier, password)
       const session = toSession(data.user, data.verificationStatus)
-
-      if (
-        session.accountStatus === ACCOUNT_STATUS.SUSPENDED ||
-        session.accountStatus === ACCOUNT_STATUS.REVOKED
-      ) {
-        throw new ApiError(
-          'This account has been suspended or revoked',
-          'ACCOUNT_BLOCKED',
-          { status: 403 },
-        )
-      }
 
       setState({ status: 'authed', ...session })
       return session

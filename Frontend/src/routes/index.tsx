@@ -42,6 +42,7 @@ import { AdminComingSoon } from '../components/admin'
 import { AdminActivityPage } from '../pages/admin/AdminActivityPage'
 import { AdminOverviewPage } from '../pages/admin/AdminOverviewPage'
 import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
 import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
 import { COMING_SOON_PATHS, ROUTES } from './paths'
@@ -276,7 +277,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'users',
-            element: <AdminComingSoon />,
+            element: <AdminUsersPage />,
           },
           {
             path: 'listings',

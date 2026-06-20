@@ -25,7 +25,10 @@ export async function resubmit(
   next: NextFunction,
 ) {
   try {
-    const result = await resubmitVerificationDocument(req.auth!.userId, req.file!)
+    const result = await resubmitVerificationDocument(
+      req.auth!.userId,
+      req.file,
+    )
 
     return sendSuccess(res, {
       verificationStatus: result.verificationStatus,

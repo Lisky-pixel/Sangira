@@ -47,9 +47,16 @@ function resolveUserRole(role: string): VerificationDocumentRole {
   return ROLES.DONOR
 }
 
+function isResubmittableVerificationStatus(status: string) {
+  return (
+    status === VERIFICATION_STATUS.REJECTED ||
+    status === VERIFICATION_STATUS.REVOKED
+  )
+}
+
 export async function resubmitVerificationDocument(
   userId: string,
-  file: Express.Multer.File,
+  file?: Express.Multer.File,
 ) {
   const user = await User.findById(userId)
 
@@ -60,31 +67,47 @@ export async function resubmitVerificationDocument(
   const verification = (user as { verification?: VerificationSubdoc })
     .verification
 
-  if (!verification || verification.status !== VERIFICATION_STATUS.REJECTED) {
+  if (!verification || !isResubmittableVerificationStatus(verification.status)) {
     throw conflict(
-      'Verification resubmission is only allowed when status is rejected',
+      'Verification resubmission is only allowed when status is rejected or revoked',
       'INVALID_VERIFICATION_STATUS',
     )
   }
 
-  const upload = await uploadCertificate(file.buffer, file.originalname).catch(
-    () => {
-      throw badRequest(
-        'Failed to upload verification document',
-        'DOCUMENT_UPLOAD_FAILED',
-      )
-    },
-  )
-  const now = new Date()
-  const storedFilename = resolveStoredDocumentFilename(
-    file.originalname,
-    file.mimetype,
-    resolveUserRole(user.role),
-  )
+  const isRevoked = verification.status === VERIFICATION_STATUS.REVOKED
+  const hasDocuments = verification.documents.length > 0
 
-  verification.documents.push(
-    buildVerificationDocumentEntry(upload, storedFilename, now),
-  )
+  if (!file && !(isRevoked && hasDocuments)) {
+    throw badRequest('Verification document is required', 'DOCUMENT_REQUIRED')
+  }
+
+  const now = new Date()
+
+  if (file) {
+    const upload = await uploadCertificate(file.buffer, file.originalname).catch(
+      () => {
+        throw badRequest(
+          'Failed to upload verification document',
+          'DOCUMENT_UPLOAD_FAILED',
+        )
+      },
+    )
+    const storedFilename = resolveStoredDocumentFilename(
+      file.originalname,
+      file.mimetype,
+      resolveUserRole(user.role),
+    )
+
+    verification.documents.push(
+      buildVerificationDocumentEntry(upload, storedFilename, now),
+    )
+
+    if ('businessCertificateUrl' in user) {
+      ;(user as { businessCertificateUrl?: string }).businessCertificateUrl =
+        upload.url
+    }
+  }
+
   verification.status = VERIFICATION_STATUS.PENDING
   verification.submittedAt = now
   verification.reason = undefined
@@ -92,11 +115,6 @@ export async function resubmitVerificationDocument(
   verification.reasonDetails = undefined
   verification.reviewedAt = undefined
   verification.reviewedBy = undefined
-
-  if ('businessCertificateUrl' in user) {
-    ;(user as { businessCertificateUrl?: string }).businessCertificateUrl =
-      upload.url
-  }
 
   user.markModified('verification')
   await user.save()

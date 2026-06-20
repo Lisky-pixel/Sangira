@@ -49,6 +49,7 @@ const ALL_VERIFICATIONS_FILTER = {
       VERIFICATION_STATUS.PENDING,
       VERIFICATION_STATUS.REJECTED,
       VERIFICATION_STATUS.APPROVED,
+      VERIFICATION_STATUS.REVOKED,
     ],
   },
 } as const
@@ -103,7 +104,7 @@ export type SerializedVerificationListItem = {
   review?: {
     reviewedBy?: string
     reviewedAt?: string
-    action: 'approved' | 'rejected'
+    action: 'approved' | 'rejected' | 'revoked'
   }
 }
 
@@ -199,7 +200,9 @@ function serializeListItem(user: ApplicantLean): SerializedVerificationListItem 
           action:
             status === VERIFICATION_STATUS.APPROVED
               ? ('approved' as const)
-              : ('rejected' as const),
+              : status === VERIFICATION_STATUS.REVOKED
+                ? ('revoked' as const)
+                : ('rejected' as const),
         }
       : undefined
 
@@ -284,8 +287,11 @@ export async function listVerifications(query: AdminVerificationsQuery) {
   const page = query.page
   const pageSize = query.pageSize
 
-  const [totalItems, totalPending, users] = await Promise.all([
-    User.countDocuments(ALL_VERIFICATIONS_FILTER),
+  const [countRows, totalPending, users] = await Promise.all([
+    User.aggregate<{ count: number }>([
+      { $match: ALL_VERIFICATIONS_FILTER },
+      { $count: 'count' },
+    ]),
     countPendingVerifications(),
     User.aggregate<ApplicantLean>([
       { $match: ALL_VERIFICATIONS_FILTER },
@@ -308,12 +314,18 @@ export async function listVerifications(query: AdminVerificationsQuery) {
                 },
                 {
                   case: {
-                    $eq: ['$verification.status', VERIFICATION_STATUS.APPROVED],
+                    $eq: ['$verification.status', VERIFICATION_STATUS.REVOKED],
                   },
                   then: 2,
                 },
+                {
+                  case: {
+                    $eq: ['$verification.status', VERIFICATION_STATUS.APPROVED],
+                  },
+                  then: 3,
+                },
               ],
-              default: 3,
+              default: 4,
             },
           },
           pendingWait: {
@@ -348,6 +360,8 @@ export async function listVerifications(query: AdminVerificationsQuery) {
       },
     ]),
   ])
+
+  const totalItems = countRows[0]?.count ?? 0
 
   return {
     items: users.map(serializeListItem),

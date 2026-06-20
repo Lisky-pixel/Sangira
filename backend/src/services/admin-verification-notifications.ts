@@ -1,22 +1,20 @@
 import { Notification } from '../models/notification.js'
-import { NOTIFICATION_TYPE, type NotificationType } from '../constants/enums.js'
+import { type NotificationType } from '../constants/enums.js'
 import { emitNotificationNew } from '../realtime/notification-events.js'
 
-type CreateVerificationNotificationInput = {
+type CreateInAppNotificationInput = {
   userId: string
-  type:
-    | typeof NOTIFICATION_TYPE.VERIFICATION_APPROVED
-    | typeof NOTIFICATION_TYPE.VERIFICATION_REJECTED
+  type: NotificationType
   title: string
   body: string
 }
 
 export async function createInAppNotificationForUser(
-  input: CreateVerificationNotificationInput,
+  input: CreateInAppNotificationInput,
 ) {
   const doc = await Notification.create({
     user: input.userId,
-    type: input.type as NotificationType,
+    type: input.type,
     title: input.title,
     body: input.body,
     read: false,

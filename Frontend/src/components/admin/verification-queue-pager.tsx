@@ -9,6 +9,12 @@ type VerificationQueuePagerProps = {
   totalItems: number
   onPageChange: (page: number) => void
   className?: string
+  labels?: {
+    showing: (shown: number, total: number) => string
+    previous: string
+    next: string
+    navAriaLabel: string
+  }
 }
 
 export function VerificationQueuePager({
@@ -18,8 +24,9 @@ export function VerificationQueuePager({
   totalItems,
   onPageChange,
   className,
+  labels,
 }: VerificationQueuePagerProps) {
-  const { pager } = adminVerificationContent
+  const pager = labels ?? adminVerificationContent.pager
 
   return (
     <div

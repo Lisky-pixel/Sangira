@@ -12,7 +12,6 @@ export const ACCOUNT_STATUS = {
   ACTIVE: 'active',
   FLAGGED: 'flagged',
   SUSPENDED: 'suspended',
-  REVOKED: 'revoked',
 } as const
 
 export type AccountStatus =
@@ -24,6 +23,7 @@ export const VERIFICATION_STATUS = {
   PENDING: 'pending',
   APPROVED: 'approved',
   REJECTED: 'rejected',
+  REVOKED: 'revoked',
 } as const
 
 export type VerificationStatus =
@@ -70,6 +70,8 @@ export const NOTIFICATION_TYPE = {
   LISTING_EXPIRED: 'listing_expired',
   ACCOUNT_FLAGGED: 'account_flagged',
   ACCOUNT_SUSPENDED: 'account_suspended',
+  ACCOUNT_REACTIVATED: 'account_reactivated',
+  VERIFICATION_REVOKED: 'verification_revoked',
 } as const
 
 export type NotificationType =

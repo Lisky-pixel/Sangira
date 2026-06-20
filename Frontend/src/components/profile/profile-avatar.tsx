@@ -15,6 +15,7 @@ type ProfileAvatarProps = {
   avatarUrl?: string
   onAvatarUpdated: () => Promise<void>
   className?: string
+  readOnly?: boolean
 }
 
 function validateAvatarFile(file: File): 'type' | 'size' | null {
@@ -32,11 +33,13 @@ export function ProfileAvatar({
   avatarUrl,
   onAvatarUpdated,
   className,
+  readOnly = false,
 }: ProfileAvatarProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const initials = getOrganisationInitials(organisationName)
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return
@@ -84,22 +87,26 @@ export function ProfileAvatar({
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="text-primary text-sm font-medium hover:underline"
-      >
-        {donorProfileContent.avatar.editPhoto}
-      </button>
+      {!readOnly ? (
+        <>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="text-primary text-sm font-medium hover:underline"
+          >
+            {donorProfileContent.avatar.editPhoto}
+          </button>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPTED_AVATAR_PHOTO_ACCEPT}
-        className="sr-only"
-        aria-label={donorProfileContent.avatar.uploadAria}
-        onChange={(event) => void handleFileChange(event)}
-      />
+          <input
+            ref={inputRef}
+            type="file"
+            accept={ACCEPTED_AVATAR_PHOTO_ACCEPT}
+            className="sr-only"
+            aria-label={donorProfileContent.avatar.uploadAria}
+            onChange={(event) => void handleFileChange(event)}
+          />
+        </>
+      ) : null}
     </div>
   )
 }

@@ -25,6 +25,18 @@ export function resolveVerificationRoute(
       return ROUTES.REGISTER_PENDING
     case VERIFICATION_STATUS.REJECTED:
       return ROUTES.REGISTER_REJECTED
+    case VERIFICATION_STATUS.REVOKED: {
+      const roleValue = options.role ?? null
+      const role = isPortalRole(roleValue) && roleValue !== ADMIN_ROLE
+        ? roleValue
+        : undefined
+
+      if (role) {
+        return resolvePortalRoute(role)
+      }
+
+      return ROUTES.SIGN_IN
+    }
     case VERIFICATION_STATUS.APPROVED: {
       const celebrationSeen =
         options.celebrationSeen ?? hasSeenVerificationCelebration()

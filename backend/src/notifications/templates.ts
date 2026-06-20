@@ -148,3 +148,93 @@ Reason: ${input.reasonLabel}${input.details?.trim() ? `\nDetails: ${input.detail
   }
 }
 
+export function accountSuspended(input: {
+  organisationName: string
+  reason: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+  const reason = escapeHtml(input.reason)
+
+  return {
+    subject: 'Your Sangira account has been suspended',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Account suspended</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>${org}</strong> has been suspended on Sangira and cannot perform platform actions until reactivated.
+      </p>
+      <p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>Reason:</strong> ${reason}
+      </p>
+      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">Contact support if you believe this is a mistake.</p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Account suspended
+
+Organisation: ${input.organisationName}
+Reason: ${input.reason}
+
+Contact support if you believe this is a mistake.`,
+  }
+}
+
+export function accountReactivated(input: {
+  organisationName: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+
+  return {
+    subject: 'Your Sangira account has been reactivated',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Account reactivated</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>${org}</strong> has been reactivated. You can sign in and resume using Sangira.
+      </p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Account reactivated
+
+${input.organisationName} has been reactivated. You can sign in and resume using Sangira.`,
+  }
+}
+
+export function verificationRevoked(input: {
+  organisationName: string
+  reason: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+  const reason = escapeHtml(input.reason)
+
+  return {
+    subject: 'Your Sangira verification has been revoked',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Verification revoked</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        Verification for <strong>${org}</strong> has been revoked. Platform actions are disabled until you are verified again.
+      </p>
+      <p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>Reason:</strong> ${reason}
+      </p>
+      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">You may resubmit documents through the normal verification flow.</p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Verification revoked
+
+Organisation: ${input.organisationName}
+Reason: ${input.reason}
+
+You may resubmit documents through the normal verification flow.`,
+  }
+}
+

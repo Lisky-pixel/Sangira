@@ -5,7 +5,7 @@ import type { VerificationStatus } from '../constants/verification-status'
 export type VerificationListReview = {
   reviewedBy?: string
   reviewedAt?: string
-  action: 'approved' | 'rejected'
+  action: 'approved' | 'rejected' | 'revoked'
 }
 
 export type VerificationListItem = {

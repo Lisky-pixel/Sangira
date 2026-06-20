@@ -1,10 +1,9 @@
 import { Router } from 'express'
 import * as notificationController from '../controllers/notification-controller.js'
-import { ROLES } from '../constants/enums.js'
 import { csrfGuard } from '../middleware/csrf.js'
-import { requireAuth } from '../middleware/require-auth.js'
-import { requireRole } from '../middleware/require-role.js'
-import { requireVerified } from '../middleware/require-verified.js'
+import {
+  donorParticipantReadGuards,
+} from '../middleware/participant-guards.js'
 import { validateParams, validateQuery } from '../middleware/validate.js'
 import {
   listNotificationsQuerySchema,
@@ -13,15 +12,9 @@ import {
 
 export const notificationsRouter = Router()
 
-const donorNotificationGuards = [
-  requireAuth,
-  requireVerified,
-  requireRole(ROLES.DONOR),
-] as const
-
 notificationsRouter.get(
   '/',
-  ...donorNotificationGuards,
+  ...donorParticipantReadGuards,
   validateQuery(listNotificationsQuerySchema),
   notificationController.listNotifications,
 )
@@ -29,14 +22,14 @@ notificationsRouter.get(
 notificationsRouter.post(
   '/read-all',
   csrfGuard,
-  ...donorNotificationGuards,
+  ...donorParticipantReadGuards,
   notificationController.markAllNotificationsRead,
 )
 
 notificationsRouter.post(
   '/:id/read',
   csrfGuard,
-  ...donorNotificationGuards,
+  ...donorParticipantReadGuards,
   validateParams(notificationIdParamSchema),
   notificationController.markNotificationRead,
 )

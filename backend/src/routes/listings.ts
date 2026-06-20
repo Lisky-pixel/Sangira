@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import * as listingController from '../controllers/listing-controller.js'
-import { ROLES } from '../constants/enums.js'
 import { csrfGuard } from '../middleware/csrf.js'
-import { requireAuth } from '../middleware/require-auth.js'
-import { requireRole } from '../middleware/require-role.js'
-import { requireVerified } from '../middleware/require-verified.js'
+import {
+  donorParticipantReadGuards,
+  donorParticipantWriteGuards,
+  ngoParticipantReadGuards,
+} from '../middleware/participant-guards.js'
 import {
   requireListingPhoto,
   uploadListingPhotoMiddleware,
@@ -20,35 +21,22 @@ import {
 
 export const listingsRouter = Router()
 
-const donorListingGuards = [
-  requireAuth,
-  requireVerified,
-  requireRole(ROLES.DONOR),
-] as const
-
 listingsRouter.get(
   '/mine',
-  requireAuth,
-  requireRole(ROLES.DONOR),
+  ...donorParticipantReadGuards,
   validateQuery(listMineListingsQuerySchema),
   listingController.listMine,
 )
 
-const ngoBrowseGuards = [
-  requireAuth,
-  requireVerified,
-  requireRole(ROLES.NGO),
-] as const
-
 listingsRouter.get(
   '/browse',
-  ...ngoBrowseGuards,
+  ...ngoParticipantReadGuards,
   listingController.browse,
 )
 
 listingsRouter.get(
   '/browse/:id',
-  ...ngoBrowseGuards,
+  ...ngoParticipantReadGuards,
   validateParams(listingIdParamSchema),
   listingController.browseById,
 )
@@ -56,7 +44,7 @@ listingsRouter.get(
 listingsRouter.post(
   '/',
   csrfGuard,
-  ...donorListingGuards,
+  ...donorParticipantWriteGuards,
   uploadListingPhotoMiddleware,
   requireListingPhoto,
   validateBody(createListingSchema),
@@ -65,14 +53,14 @@ listingsRouter.post(
 
 listingsRouter.get(
   '/:id/requests',
-  ...donorListingGuards,
+  ...donorParticipantReadGuards,
   validateParams(listingIdParamSchema),
   listingController.listListingRequests,
 )
 
 listingsRouter.get(
   '/:id',
-  ...donorListingGuards,
+  ...donorParticipantReadGuards,
   validateParams(listingIdParamSchema),
   listingController.getById,
 )
@@ -80,7 +68,7 @@ listingsRouter.get(
 listingsRouter.patch(
   '/:id',
   csrfGuard,
-  ...donorListingGuards,
+  ...donorParticipantWriteGuards,
   validateParams(listingIdParamSchema),
   uploadListingPhotoMiddleware,
   validateOptionalListingPhoto,
@@ -91,7 +79,7 @@ listingsRouter.patch(
 listingsRouter.post(
   '/:id/cancel',
   csrfGuard,
-  ...donorListingGuards,
+  ...donorParticipantWriteGuards,
   validateParams(listingIdParamSchema),
   listingController.cancelListing,
 )

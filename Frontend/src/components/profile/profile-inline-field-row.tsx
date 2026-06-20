@@ -7,6 +7,7 @@ import { ApiError } from '../../services/api-error'
 import { profileService } from '../../services/profile-service'
 import { toast } from '../../lib/toast'
 import { donorProfileContent } from '../../placeholder/donor-profile-content'
+import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
 import { cn } from '../../lib/utils'
 import {
   contactNameSchema,
@@ -33,6 +34,7 @@ type ProfileInlineFieldRowProps = {
   displayValue: string
   defaultValue: string
   onSaved: () => Promise<void>
+  readOnly?: boolean
 }
 
 export function ProfileInlineFieldRow({
@@ -41,6 +43,7 @@ export function ProfileInlineFieldRow({
   displayValue,
   defaultValue,
   onSaved,
+  readOnly = false,
 }: ProfileInlineFieldRowProps) {
   const [editing, setEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -59,6 +62,7 @@ export function ProfileInlineFieldRow({
   const fieldError = errors[fieldName as keyof typeof errors]
 
   const startEditing = () => {
+    if (readOnly) return
     reset({ [fieldName]: defaultValue } as ProfileFieldFormValues[typeof fieldName])
     setEditing(true)
   }
@@ -82,7 +86,13 @@ export function ProfileInlineFieldRow({
       toast.success(donorProfileContent.toast.fieldSaved)
       setEditing(false)
     } catch (error) {
-      if (error instanceof ApiError && error.code === 'PHONE_EXISTS') {
+      if (
+        error instanceof ApiError &&
+        (error.code === 'ACCOUNT_SUSPENDED' ||
+          error.code === 'VERIFICATION_REVOKED')
+      ) {
+        toast.error(participantEnforcementContent.editsBlockedNote)
+      } else if (error instanceof ApiError && error.code === 'PHONE_EXISTS') {
         toast.error(donorProfileContent.toast.phoneTaken)
       } else {
         toast.error(donorProfileContent.toast.fieldError)
@@ -138,7 +148,7 @@ export function ProfileInlineFieldRow({
         )}
       </div>
 
-      {!editing ? (
+      {!editing && !readOnly ? (
         <button
           type="button"
           onClick={startEditing}

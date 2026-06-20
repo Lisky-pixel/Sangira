@@ -8,7 +8,8 @@ import type {
 const STATUS_BUCKET: Record<VerificationStatus, number> = {
   [VERIFICATION_STATUS.PENDING]: 0,
   [VERIFICATION_STATUS.REJECTED]: 1,
-  [VERIFICATION_STATUS.APPROVED]: 2,
+  [VERIFICATION_STATUS.REVOKED]: 2,
+  [VERIFICATION_STATUS.APPROVED]: 3,
 }
 
 export function sortVerificationQueueItems(
@@ -53,7 +54,9 @@ export function verificationDetailToListItem(
             action:
               detail.status === VERIFICATION_STATUS.APPROVED
                 ? 'approved'
-                : 'rejected',
+                : detail.status === VERIFICATION_STATUS.REVOKED
+                  ? 'revoked'
+                  : 'rejected',
           }
         : undefined,
   }
@@ -87,7 +90,9 @@ export function applyVerificationUpdateToListItem(
       action:
         payload.newStatus === VERIFICATION_STATUS.APPROVED
           ? 'approved'
-          : 'rejected',
+          : payload.newStatus === VERIFICATION_STATUS.REVOKED
+            ? 'revoked'
+            : 'rejected',
     },
   }
 }

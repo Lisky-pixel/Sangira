@@ -1,4 +1,5 @@
 import { useAuth } from '../../auth'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { ProfileAvatar } from '../../components/profile/profile-avatar'
 import { ProfileInlineFieldRow } from '../../components/profile/profile-inline-field-row'
 import { ProfileReadOnlyRow } from '../../components/profile/profile-readonly-row'
@@ -20,6 +21,7 @@ import { donorProfileContent } from '../../placeholder/donor-profile-content'
 
 export function DonorProfilePage() {
   const { state, refreshMe } = useAuth()
+  const { blocked: editsBlocked } = useParticipantEditBlocked()
   const { impact, loadState: impactLoadState } = useDonorImpact()
 
   if (state.status !== 'authed') {
@@ -61,6 +63,7 @@ export function DonorProfilePage() {
             organisationName={organisationName}
             avatarUrl={avatarUrl}
             onAvatarUpdated={handleRefresh}
+            readOnly={editsBlocked}
           />
 
           <div className="min-w-0 flex-1 text-center lg:text-left">
@@ -109,6 +112,7 @@ export function DonorProfilePage() {
             displayValue={organisationName}
             defaultValue={organisationName}
             onSaved={handleRefresh}
+            readOnly={editsBlocked}
           />
 
           <ProfileInlineFieldRow
@@ -121,6 +125,7 @@ export function DonorProfilePage() {
             displayValue={contactName}
             defaultValue={contactName}
             onSaved={handleRefresh}
+            readOnly={editsBlocked}
           />
 
           <ProfileInlineFieldRow
@@ -132,6 +137,7 @@ export function DonorProfilePage() {
             displayValue={maskPhoneForDisplay(phone) || phone}
             defaultValue={phone}
             onSaved={handleRefresh}
+            readOnly={editsBlocked}
           />
 
           <ProfileReadOnlyRow
@@ -151,6 +157,7 @@ export function DonorProfilePage() {
             displayValue={address}
             defaultValue={address}
             onSaved={handleRefresh}
+            readOnly={editsBlocked}
           />
         </div>
       </section>

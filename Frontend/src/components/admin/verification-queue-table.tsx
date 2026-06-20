@@ -45,6 +45,16 @@ function WaitingCell({ item }: { item: VerificationListItem }) {
     )
   }
 
+  if (item.status === VERIFICATION_STATUS.REVOKED) {
+    return (
+      <StatusChip
+        status="rejected"
+        label={table.statusRevoked}
+        className="whitespace-nowrap"
+      />
+    )
+  }
+
   const waitingLabel = formatRelativeTimeCompact(item.waitingSince)
   const isUrgent =
     getWaitingHours(item.waitingSince) >= VERIFICATION_WAITING_URGENT_HOURS

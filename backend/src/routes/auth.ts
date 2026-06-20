@@ -12,6 +12,7 @@ import {
   requireAvatarPhoto,
   uploadAvatarPhotoMiddleware,
 } from '../middleware/upload.js'
+import { requireActiveAccount } from '../middleware/require-active-account.js'
 import { rejectReadonlyProfileFields } from '../middleware/reject-readonly-profile-fields.js'
 import { validateBody } from '../middleware/validate.js'
 import { loginSchema, registerSchema } from '../validators/auth.js'
@@ -91,6 +92,7 @@ authRouter.patch(
   '/me/notification-preferences',
   csrfGuard,
   requireAuth,
+  requireActiveAccount,
   validateBody(updateNotificationPreferencesSchema),
   authController.patchNotificationPreferences,
 )
@@ -99,6 +101,7 @@ authRouter.patch(
   '/me/profile',
   csrfGuard,
   requireAuth,
+  requireActiveAccount,
   rejectReadonlyProfileFields,
   validateBody(patchProfileSchema),
   profileController.patchProfile,
@@ -108,6 +111,7 @@ authRouter.patch(
   '/me/avatar',
   csrfGuard,
   requireAuth,
+  requireActiveAccount,
   uploadAvatarPhotoMiddleware,
   requireAvatarPhoto,
   profileController.patchAvatar,

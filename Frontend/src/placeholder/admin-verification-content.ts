@@ -22,6 +22,7 @@ export const adminVerificationContent = {
     rowAria: (name: string) => `Open review for ${name}`,
     statusApproved: 'Approved',
     statusRejected: 'Rejected',
+    statusRevoked: 'Revoked',
   },
   roleChip: {
     donor: 'Donor',
@@ -81,7 +82,19 @@ export const adminVerificationContent = {
       reason
         ? `Rejected by ${reviewer} on ${reviewedAt} — ${reason}`
         : `Rejected by ${reviewer} on ${reviewedAt}`,
+    readOnlyRevoked: (reviewer: string, reviewedAt: string, reason?: string) =>
+      reason
+        ? `Revoked by ${reviewer} on ${reviewedAt} — ${reason}`
+        : `Revoked by ${reviewer} on ${reviewedAt}`,
     reviewedHeader: (reviewedAt: string) => `Reviewed ${reviewedAt}`,
+    restore: 'Restore verification',
+    restoreConfirm: {
+      title: 'Restore verification',
+      description: (org: string) =>
+        `Restore ${org} to approved status? They will regain full access and receive a confirmation email.`,
+      confirm: 'Restore verification',
+      cancel: 'Cancel',
+    },
   },
   rejectModal: {
     title: 'Reject application',
@@ -101,6 +114,9 @@ export const adminVerificationContent = {
     conflict: (message: string) => message,
     approveError: 'Could not approve this application. Please try again.',
     rejectError: 'Could not reject this application. Please try again.',
+    restored: (org: string) =>
+      `${org} verification restored — confirmation email sent.`,
+    restoreError: 'Could not restore verification. Please try again.',
   },
   reasonOptions: [
     {

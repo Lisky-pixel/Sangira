@@ -13,7 +13,7 @@ export type VerificationQueueListItem = {
   review?: {
     reviewedBy?: string
     reviewedAt?: string
-    action: 'approved' | 'rejected'
+    action: 'approved' | 'rejected' | 'revoked'
   }
 }
 

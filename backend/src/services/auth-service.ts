@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs'
 import type { Request } from 'express'
 import { uploadCertificate } from '../config/cloudinary.js'
 import {
-  ACCOUNT_STATUS,
   ROLES,
   VERIFICATION_STATUS,
   type Role,
@@ -12,7 +11,6 @@ import { Donor, Ngo, User } from '../models/user.js'
 import { RefreshToken } from '../models/refresh-token.js'
 import {
   conflict,
-  forbidden,
   unauthorized,
   badRequest,
   ValidationAppError,
@@ -197,16 +195,6 @@ export async function loginUser(input: LoginInput, req: Request) {
     throw unauthorized('Invalid credentials', 'INVALID_CREDENTIALS')
   }
 
-  if (
-    user.accountStatus === ACCOUNT_STATUS.SUSPENDED ||
-    user.accountStatus === ACCOUNT_STATUS.REVOKED
-  ) {
-    throw forbidden(
-      'This account has been suspended or revoked',
-      'ACCOUNT_BLOCKED',
-    )
-  }
-
   const tokens = await issueAuthTokens(
     user._id.toString(),
     user.role as Role,
@@ -252,16 +240,6 @@ export async function refreshSession(
   const user = await User.findById(stored.user)
   if (!user) {
     throw unauthorized('Invalid refresh token', 'INVALID_REFRESH_TOKEN')
-  }
-
-  if (
-    user.accountStatus === ACCOUNT_STATUS.SUSPENDED ||
-    user.accountStatus === ACCOUNT_STATUS.REVOKED
-  ) {
-    throw forbidden(
-      'This account has been suspended or revoked',
-      'ACCOUNT_BLOCKED',
-    )
   }
 
   stored.revoked = true

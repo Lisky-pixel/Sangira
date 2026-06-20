@@ -1,8 +1,11 @@
 import { sendEmail as sendBrevoEmail, type SendEmailInput } from '../config/brevo.js'
 import {
+  accountReactivated,
+  accountSuspended,
   verificationApproved,
   verificationCode,
   verificationRejected,
+  verificationRevoked,
 } from './templates.js'
 
 export { NotificationError } from '../utils/notification-error.js'
@@ -67,6 +70,61 @@ export async function sendVerificationRejectedEmail(input: {
     html: template.html,
     text: template.text,
     tags: ['verification', 'rejected'],
+  })
+}
+
+export async function sendAccountSuspendedEmail(input: {
+  to: string
+  organisationName: string
+  reason: string
+}) {
+  const template = accountSuspended({
+    organisationName: input.organisationName,
+    reason: input.reason,
+  })
+
+  return sendEmail({
+    to: input.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    tags: ['account', 'suspended'],
+  })
+}
+
+export async function sendAccountReactivatedEmail(input: {
+  to: string
+  organisationName: string
+}) {
+  const template = accountReactivated({
+    organisationName: input.organisationName,
+  })
+
+  return sendEmail({
+    to: input.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    tags: ['account', 'reactivated'],
+  })
+}
+
+export async function sendVerificationRevokedEmail(input: {
+  to: string
+  organisationName: string
+  reason: string
+}) {
+  const template = verificationRevoked({
+    organisationName: input.organisationName,
+    reason: input.reason,
+  })
+
+  return sendEmail({
+    to: input.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    tags: ['verification', 'revoked'],
   })
 }
 

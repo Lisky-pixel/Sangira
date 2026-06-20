@@ -20,7 +20,9 @@ import {
   ngoCapacityFormSchema,
   type NgoCapacityFormValues,
 } from '../../features/ngo-capacity/ngo-capacity-schema'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { toast } from '../../lib/toast'
+import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
 import { ngoCapacityContent } from '../../placeholder/ngo-capacity-content'
 import { ApiError } from '../../services/api-error'
 import { ngoCapacityService } from '../../services/ngo-capacity-service'
@@ -45,6 +47,7 @@ function toFormValues(
 }
 
 export function NgoCapacityPage() {
+  const { blocked: editsBlocked } = useParticipantEditBlocked()
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
@@ -111,9 +114,13 @@ export function NgoCapacityPage() {
         loading: ngoCapacityContent.save.loading,
         success: ngoCapacityContent.save.success,
         error: (error) =>
-          error instanceof ApiError
-            ? error.message
-            : ngoCapacityContent.save.error,
+          error instanceof ApiError &&
+          (error.code === 'ACCOUNT_SUSPENDED' ||
+            error.code === 'VERIFICATION_REVOKED')
+            ? participantEnforcementContent.editsBlockedNote
+            : error instanceof ApiError
+              ? error.message
+              : ngoCapacityContent.save.error,
       })
       const updated = await savePromise
       reset(toFormValues(updated))
@@ -147,6 +154,7 @@ export function NgoCapacityPage() {
 
       <FormProvider {...methods}>
         <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
+          <fieldset disabled={editsBlocked} className="flex flex-col gap-5">
           <Controller
             name="dailyCapacity"
             control={control}
@@ -261,6 +269,7 @@ export function NgoCapacityPage() {
               {ngoCapacityContent.save.footnote}
             </p>
           </div>
+          </fieldset>
         </form>
       </FormProvider>
     </div>

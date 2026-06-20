@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react'
 import { useAuth } from '../../auth'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { Toggle } from '../../components/ui/toggle'
 import { Button } from '../../components/ui/button'
 import {
@@ -11,6 +12,8 @@ import { normalizeNotificationPrefs } from '../../lib/notification-preferences'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { donorSettingsContent } from '../../placeholder/donor-settings-content'
+import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
+import { ApiError } from '../../services/api-error'
 import { notificationPreferencesService } from '../../services/notification-preferences-service'
 
 function SettingsCard({
@@ -56,6 +59,7 @@ function AccountRow({
 
 export function DonorSettingsPage() {
   const { state, logout, refreshMe } = useAuth()
+  const { blocked: editsBlocked } = useParticipantEditBlocked()
   const [draftPrefs, setDraftPrefs] = useState<NotificationPreferences | null>(
     null,
   )
@@ -85,12 +89,20 @@ export function DonorSettingsPage() {
         setDraftPrefs(null)
         await refreshMe()
         toast.success(donorSettingsContent.toast.preferenceSaved)
-      } catch {
+      } catch (error) {
         setDraftPrefs({
           ...prefs,
           events: { ...prefs.events, [key]: previousValue },
         })
-        toast.error(donorSettingsContent.toast.preferenceError)
+        if (
+          error instanceof ApiError &&
+          (error.code === 'ACCOUNT_SUSPENDED' ||
+            error.code === 'VERIFICATION_REVOKED')
+        ) {
+          toast.error(participantEnforcementContent.editsBlockedNote)
+        } else {
+          toast.error(donorSettingsContent.toast.preferenceError)
+        }
       } finally {
         setSavingKey(null)
       }
@@ -130,7 +142,7 @@ export function DonorSettingsPage() {
                   label={row.title}
                   description={row.description}
                   checked={prefs.events[key]}
-                  disabled={savingKey === key}
+                  disabled={editsBlocked || savingKey === key}
                   onChange={(checked) => void handlePreferenceChange(key, checked)}
                 />
               </li>

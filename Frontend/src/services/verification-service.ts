@@ -13,14 +13,22 @@ type DocumentViewResponse = {
 }
 
 export async function resubmitDocument(
-  file: File,
+  file?: File,
 ): Promise<ResubmitResponse> {
-  const formData = new FormData()
-  formData.append('document', file)
+  if (file) {
+    const formData = new FormData()
+    formData.append('document', file)
+
+    const response = await apiClient.post<ApiEnvelope<ResubmitResponse>>(
+      '/verification/resubmit',
+      formData,
+    )
+
+    return unwrapApiResponse(response)
+  }
 
   const response = await apiClient.post<ApiEnvelope<ResubmitResponse>>(
     '/verification/resubmit',
-    formData,
   )
 
   return unwrapApiResponse(response)

@@ -8,7 +8,12 @@ type RequireVerificationProps = {
   children: React.ReactNode
 }
 
-/** Portal routes — only approved accounts pass through */
+const PORTAL_VERIFICATION_STATUSES = [
+  VERIFICATION_STATUS.APPROVED,
+  VERIFICATION_STATUS.REVOKED,
+] as const
+
+/** Portal routes — approved and revoked (read-only) accounts pass through */
 export function RequireVerification({ children }: RequireVerificationProps) {
   const { state } = useAuth()
 
@@ -20,7 +25,11 @@ export function RequireVerification({ children }: RequireVerificationProps) {
     return null
   }
 
-  if (state.verificationStatus !== VERIFICATION_STATUS.APPROVED) {
+  if (
+    !PORTAL_VERIFICATION_STATUSES.includes(
+      state.verificationStatus as (typeof PORTAL_VERIFICATION_STATUSES)[number],
+    )
+  ) {
     return (
       <Navigate
         to={resolveVerificationRoute(state.verificationStatus, {

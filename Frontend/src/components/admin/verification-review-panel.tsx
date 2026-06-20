@@ -102,6 +102,7 @@ export function VerificationReviewPanel({
   )
   const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
   const [rejectOpen, setRejectOpen] = useState(false)
+  const [restoreConfirmOpen, setRestoreConfirmOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -141,6 +142,7 @@ export function VerificationReviewPanel({
       setLoadState('idle')
       setApproveConfirmOpen(false)
       setRejectOpen(false)
+      setRestoreConfirmOpen(false)
     }
     onOpenChange(nextOpen)
   }
@@ -156,6 +158,14 @@ export function VerificationReviewPanel({
 
     if (application.status === VERIFICATION_STATUS.APPROVED) {
       return reviewPanel.readOnlyApproved(reviewer, reviewedAt)
+    }
+
+    if (application.status === VERIFICATION_STATUS.REVOKED) {
+      return reviewPanel.readOnlyRevoked(
+        reviewer,
+        reviewedAt,
+        application.review?.reason,
+      )
     }
 
     return reviewPanel.readOnlyRejected(
@@ -236,8 +246,35 @@ export function VerificationReviewPanel({
     }
   }
 
+  const handleRestore = async () => {
+    if (!applicationId || !detail) return
+
+    setSubmitting(true)
+    try {
+      await adminPortalService.restoreUserVerification(applicationId)
+      const application =
+        await adminPortalService.getVerificationDetail(applicationId)
+      toast.success(
+        adminVerificationContent.toast.restored(detail.organisationName),
+      )
+      setDetail(application)
+      setLoadState('ready')
+      setRestoreConfirmOpen(false)
+      onOpenChange(false)
+    } catch (error) {
+      if (error instanceof ApiError && error.message) {
+        toast.error(adminVerificationContent.toast.conflict(error.message))
+      } else {
+        toast.error(adminVerificationContent.toast.restoreError)
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const { reviewPanel } = adminVerificationContent
   const isPending = detail?.status === VERIFICATION_STATUS.PENDING
+  const isRevoked = detail?.status === VERIFICATION_STATUS.REVOKED
   const canAct = isPending && loadState === 'ready'
   const waitingLabel = detail
     ? formatRelativeTimeCompact(detail.waitingSince)
@@ -386,7 +423,48 @@ export function VerificationReviewPanel({
             </div>
 
             <div className="border-border border-t px-5 py-5">
-              {!isPending && detail ? (
+              {isRevoked && detail ? (
+                restoreConfirmOpen ? (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-charcoal text-sm font-medium">
+                      {reviewPanel.restoreConfirm.title}
+                    </p>
+                    <p className="text-body text-sm">
+                      {reviewPanel.restoreConfirm.description(
+                        detail.organisationName,
+                      )}
+                    </p>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => void handleRestore()}
+                        className="flex-1"
+                      >
+                        {reviewPanel.restoreConfirm.confirm}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={submitting}
+                        onClick={() => setRestoreConfirmOpen(false)}
+                        className="flex-1"
+                      >
+                        {reviewPanel.restoreConfirm.cancel}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => setRestoreConfirmOpen(true)}
+                    className="w-full"
+                  >
+                    {reviewPanel.restore}
+                  </Button>
+                )
+              ) : !isPending && detail ? (
                 <p className="text-body text-center text-sm">
                   {resolveReadOnlyDecisionMessage(detail)}
                 </p>

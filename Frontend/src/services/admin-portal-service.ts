@@ -1,3 +1,12 @@
+import type {
+  AdminUserActionResult,
+  AdminUserDocumentView,
+  AdminUserDetail,
+  AdminUserOptionalReasonPayload,
+  AdminUserRequiredReasonPayload,
+  ListAdminUsersParams,
+  ListAdminUsersResult,
+} from '../types/admin-users'
 import type { GetAdminPendingVerificationCountResult } from '../types/admin-portal'
 import type {
   AdminOverviewData,
@@ -83,6 +92,83 @@ export const adminPortalService = {
     const response = await apiClient.post<
       ApiEnvelope<VerificationDecisionResult>
     >(`/admin/verifications/${id}/reject`, payload)
+    return unwrapApiResponse(response)
+  },
+
+  async listUsers(params: ListAdminUsersParams): Promise<ListAdminUsersResult> {
+    const response = await apiClient.get<ApiEnvelope<ListAdminUsersResult>>(
+      '/admin/users',
+      { params },
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async getUserDetail(id: string): Promise<AdminUserDetail> {
+    const response = await apiClient.get<
+      ApiEnvelope<{ user: AdminUserDetail }>
+    >(`/admin/users/${id}`)
+    const data = unwrapApiResponse(response)
+    return data.user
+  },
+
+  async getUserDocumentView(id: string): Promise<AdminUserDocumentView> {
+    const response = await apiClient.get<ApiEnvelope<AdminUserDocumentView>>(
+      `/admin/users/${id}/document/view`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async flagUser(
+    id: string,
+    payload: AdminUserOptionalReasonPayload,
+  ): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/flag`,
+      payload,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async unflagUser(id: string): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/unflag`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async suspendUser(
+    id: string,
+    payload: AdminUserRequiredReasonPayload,
+  ): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/suspend`,
+      payload,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async reactivateUser(id: string): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/reactivate`,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async revokeUserVerification(
+    id: string,
+    payload: AdminUserRequiredReasonPayload,
+  ): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/revoke-verification`,
+      payload,
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async restoreUserVerification(id: string): Promise<AdminUserActionResult> {
+    const response = await apiClient.post<ApiEnvelope<AdminUserActionResult>>(
+      `/admin/users/${id}/restore-verification`,
+    )
     return unwrapApiResponse(response)
   },
 }

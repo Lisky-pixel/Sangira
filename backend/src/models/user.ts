@@ -9,6 +9,7 @@ import {
   type Role,
 } from '../constants/enums.js'
 import { listingPickupLocationSchema } from './schemas/listing-pickup-location.js'
+import { adminAuditEntrySchema } from './schemas/admin-audit-entry.js'
 import { geoPointSchema, verificationSchema } from './schemas/geo-point.js'
 import { TRANSPORT_MODE_VALUES } from '../constants/transport-mode.js'
 import { normalizePhone } from '../utils/phone.js'
@@ -176,6 +177,10 @@ const donorSchema = new Schema({
     type: verificationSchema,
     default: () => ({ status: VERIFICATION_STATUS.PENDING }),
   },
+  adminAuditTrail: {
+    type: [adminAuditEntrySchema],
+    default: [],
+  },
 })
 
 const ngoTransportSchema = new Schema(
@@ -214,6 +219,10 @@ const ngoSchema = new Schema({
   verification: {
     type: verificationSchema,
     default: () => ({ status: VERIFICATION_STATUS.PENDING }),
+  },
+  adminAuditTrail: {
+    type: [adminAuditEntrySchema],
+    default: [],
   },
 })
 

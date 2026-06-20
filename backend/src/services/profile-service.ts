@@ -1,5 +1,5 @@
 import { uploadAvatarPhoto } from '../config/cloudinary.js'
-import { ROLES } from '../constants/enums.js'
+import { AVATAR_UPLOAD_ROLES } from '../constants/avatar-photo.js'
 import {
   PROFILE_PHONE_TAKEN_CODE,
   PROFILE_PHONE_TAKEN_MESSAGE,
@@ -113,8 +113,10 @@ export async function updateAvatarForUser(input: {
     throw notFound('User not found', 'USER_NOT_FOUND')
   }
 
-  if (user.role !== ROLES.DONOR) {
-    throw forbidden('Only donors can update this avatar', 'PROFILE_FORBIDDEN')
+  if (
+    !(AVATAR_UPLOAD_ROLES as readonly string[]).includes(user.role ?? '')
+  ) {
+    throw forbidden('This account cannot update an avatar', 'PROFILE_FORBIDDEN')
   }
 
   const upload = await uploadAvatarPhoto(

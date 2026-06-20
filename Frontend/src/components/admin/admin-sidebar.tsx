@@ -105,6 +105,10 @@ export function AdminSidebar({ onNavigate, className }: AdminSidebarProps) {
       ? state.user.name.trim()
       : adminPortalContent.identity.roleLabel
   const initials = getOrgInitials(displayName)
+  const avatarUrl =
+    state.status === 'authed' && typeof state.user.avatarUrl === 'string'
+      ? state.user.avatarUrl
+      : undefined
 
   const primaryItems: AdminNavItem[] = [
     {
@@ -187,9 +191,17 @@ export function AdminSidebar({ onNavigate, className }: AdminSidebarProps) {
         <div className="border-border mt-4 flex items-center gap-3 rounded-xl border bg-white px-3 py-3">
           <div
             aria-hidden="true"
-            className="bg-primary flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+            className="bg-primary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white"
           >
-            {initials}
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              initials
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-charcoal truncate text-sm font-semibold">

@@ -3,6 +3,7 @@ import { VERIFICATION_STATUS } from '../constants/enums.js'
 import { MONGO_READ_PREFERENCE_PRIMARY } from '../constants/mongo.js'
 import { Admin, User } from '../models/user.js'
 import { conflict, notFound } from '../utils/app-error.js'
+import { resolveAvatarUrl } from '../utils/resolve-avatar-url.js'
 import { normalizePhone } from '../utils/phone.js'
 import type { UpdateAdminProfileInput } from '../validators/admin-me.js'
 
@@ -11,6 +12,7 @@ export type SerializedAdminProfile = {
   name: string
   email: string
   phone?: string
+  avatarUrl?: string
   createdAt: string
   passwordChangedAt?: string
 }
@@ -32,15 +34,23 @@ function serializeAdminProfile(
     name?: string
     email: string
     phone?: string
+    avatarUrl?: string | null
+    profileImageUrl?: string | null
     createdAt: Date
     passwordChangedAt?: Date
   },
 ): SerializedAdminProfile {
+  const avatarUrl = resolveAvatarUrl({
+    avatarUrl: admin.avatarUrl,
+    profileImageUrl: admin.profileImageUrl,
+  })
+
   return {
     id: admin._id.toString(),
     name: admin.name?.trim() || 'Administrator',
     email: admin.email,
     ...(admin.phone ? { phone: admin.phone } : {}),
+    ...(avatarUrl ? { avatarUrl } : {}),
     createdAt: admin.createdAt.toISOString(),
     ...(admin.passwordChangedAt
       ? { passwordChangedAt: admin.passwordChangedAt.toISOString() }
@@ -73,12 +83,14 @@ export async function getAdminReviewerActivity(
 
 export async function getAdminMe(adminId: string): Promise<AdminMeData> {
   const admin = await Admin.findById(adminId)
-    .select('name email phone createdAt passwordChangedAt')
+    .select('name email phone avatarUrl profileImageUrl createdAt passwordChangedAt')
     .lean<{
       _id: mongoose.Types.ObjectId
       name?: string
       email: string
       phone?: string
+      avatarUrl?: string | null
+      profileImageUrl?: string | null
       createdAt: Date
       passwordChangedAt?: Date
     }>()
@@ -141,6 +153,8 @@ export async function updateAdminProfile(
     name: admin.get('name') as string | undefined,
     email: admin.email,
     phone: admin.get('phone') as string | undefined,
+    avatarUrl: admin.get('avatarUrl') as string | undefined,
+    profileImageUrl: admin.get('profileImageUrl') as string | undefined,
     createdAt: admin.createdAt,
     passwordChangedAt: admin.passwordChangedAt,
   })

@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '../../auth'
 import { AdminInlineFieldRow } from '../../components/admin/admin-inline-field-row'
+import { ProfileAvatar } from '../../components/profile/profile-avatar'
 import { ProfileReadOnlyRow } from '../../components/profile/profile-readonly-row'
 import { ButtonLink } from '../../components/ui/button'
 import { ADMIN_PROFILE_FIELD } from '../../constants/admin-profile'
@@ -9,16 +11,23 @@ import {
   formatShortMonthYear,
   maskPhoneForDisplay,
 } from '../../lib/profile-format'
-import { getOrgInitials } from '../../lib/org-initials'
 import { adminProfileContent } from '../../placeholder/admin-profile-content'
 import { adminProfileService } from '../../services/admin-profile-service'
 import type { AdminMeData } from '../../types/admin-profile'
 
 export function AdminProfilePage() {
+  const { refreshMe } = useAuth()
   const [data, setData] = useState<AdminMeData | null>(null)
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
     'loading',
   )
+
+  const handleAvatarUpdated = useCallback(async () => {
+    await Promise.all([
+      refreshMe(),
+      adminProfileService.getMe().then(setData),
+    ])
+  }, [refreshMe])
 
   useEffect(() => {
     let cancelled = false
@@ -65,6 +74,8 @@ export function AdminProfilePage() {
     profile.passwordChangedAt,
   )
   const phone = profile.phone ?? ''
+  const avatarUrl =
+    typeof profile.avatarUrl === 'string' ? profile.avatarUrl : undefined
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
@@ -77,12 +88,12 @@ export function AdminProfilePage() {
 
       <section className="border-border rounded-2xl border bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-          <div
-            aria-hidden="true"
-            className="bg-sand text-charcoal mx-auto flex size-20 shrink-0 items-center justify-center rounded-full text-2xl font-bold sm:mx-0"
-          >
-            {getOrgInitials(profile.name)}
-          </div>
+          <ProfileAvatar
+            organisationName={profile.name}
+            avatarUrl={avatarUrl}
+            onAvatarUpdated={handleAvatarUpdated}
+            className="mx-auto sm:mx-0"
+          />
 
           <div className="min-w-0 flex-1 text-center sm:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">

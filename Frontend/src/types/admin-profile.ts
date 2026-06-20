@@ -3,6 +3,7 @@ export type AdminProfile = {
   name: string
   email: string
   phone?: string
+  avatarUrl?: string
   createdAt: string
   passwordChangedAt?: string
 }

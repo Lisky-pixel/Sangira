@@ -386,6 +386,7 @@ export async function acceptRequestForDonor(input: {
         {
           $set: {
             status: REQUEST_STATUS.ACCEPTED,
+            acceptedAt: new Date(),
             confirmation: {
               donorConfirmed: false,
               ngoConfirmed: false,

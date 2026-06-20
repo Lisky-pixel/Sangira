@@ -1,4 +1,7 @@
 import type {
+  AdminReportsData,
+} from '../types/admin-reports'
+import type {
   ListAdminListingsParams,
   ListAdminListingsResult,
 } from '../types/admin-listings'
@@ -182,6 +185,13 @@ export const adminPortalService = {
     const response = await apiClient.get<ApiEnvelope<ListAdminListingsResult>>(
       '/admin/listings',
       { params },
+    )
+    return unwrapApiResponse(response)
+  },
+
+  async getReports(): Promise<AdminReportsData> {
+    const response = await apiClient.get<ApiEnvelope<AdminReportsData>>(
+      '/admin/reports',
     )
     return unwrapApiResponse(response)
   },

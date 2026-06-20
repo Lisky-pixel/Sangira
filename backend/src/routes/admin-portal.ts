@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import * as adminListingsController from '../controllers/admin-listings-controller.js'
+import * as adminReportsController from '../controllers/admin-reports-controller.js'
 import * as adminActivityController from '../controllers/admin-activity-controller.js'
 import * as adminOverviewController from '../controllers/admin-overview-controller.js'
 import * as adminUsersController from '../controllers/admin-users-controller.js'
@@ -49,6 +50,12 @@ adminPortalRouter.get(
   ...adminGuards,
   validateQuery(adminListingsQuerySchema),
   adminListingsController.listListingsHandler,
+)
+
+adminPortalRouter.get(
+  '/reports',
+  ...adminGuards,
+  adminReportsController.getReportsHandler,
 )
 
 adminPortalRouter.get(

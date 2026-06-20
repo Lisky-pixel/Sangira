@@ -43,6 +43,7 @@ import { AdminActivityPage } from '../pages/admin/AdminActivityPage'
 import { AdminOverviewPage } from '../pages/admin/AdminOverviewPage'
 import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
 import { AdminListingsPage } from '../pages/admin/AdminListingsPage'
+import { AdminReportsPage } from '../pages/admin/AdminReportsPage'
 import { AdminUsersPage } from '../pages/admin/AdminUsersPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
 import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
@@ -286,7 +287,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'reports',
-            element: <AdminComingSoon />,
+            element: <AdminReportsPage />,
           },
           {
             path: 'profile',

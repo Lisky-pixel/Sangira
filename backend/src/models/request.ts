@@ -34,6 +34,8 @@ const requestSchema = new Schema(
       enum: Object.values(REQUEST_STATUS),
       default: REQUEST_STATUS.REQUESTED,
     },
+    /** Set when donor accepts a request — used for platform match-time analytics */
+    acceptedAt: { type: Date },
     confirmation: {
       // Pickup handover — QR token + PIN generated at accept; confirmation flags used in pickup slice
       donorConfirmed: { type: Boolean, default: false },

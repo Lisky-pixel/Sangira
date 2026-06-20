@@ -25,6 +25,12 @@ export const ngoParticipantWriteGuards = [
   requireRole(ROLES.NGO),
 ] as const
 
+/** Donor + NGO in-app notification reads (user-scoped) */
+export const participantNotificationReadGuards = [
+  requireAuth,
+  requireRole(ROLES.DONOR, ROLES.NGO),
+] as const
+
 export const handoverParticipantReadGuards = [
   requireAuth,
   requireRole(ROLES.DONOR, ROLES.NGO),

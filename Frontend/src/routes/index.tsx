@@ -23,11 +23,14 @@ import { ManageListingPage } from '../pages/donor/ManageListingPage'
 import { MyListingsPage } from '../pages/donor/MyListingsPage'
 import { PostListingPage } from '../pages/donor/PostListingPage'
 import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
+import { NgoChangePasswordPage } from '../pages/ngo/NgoChangePasswordPage'
 import { NgoConfirmPickupPage } from '../pages/ngo/NgoConfirmPickupPage'
 import { NgoCapacityPage } from '../pages/ngo/NgoCapacityPage'
 import { NgoDashboardPage } from '../pages/ngo/NgoDashboardPage'
 import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
 import { NgoMyRequestsPage } from '../pages/ngo/NgoMyRequestsPage'
+import { NgoProfilePage } from '../pages/ngo/NgoProfilePage'
+import { NgoSettingsPage } from '../pages/ngo/NgoSettingsPage'
 import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -202,6 +205,20 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: ROUTES.NGO_CHANGE_PASSWORD,
+        element: (
+          <RequireAuth>
+            <RequireRole role="ngo">
+              <NgoChangePasswordPage />
+            </RequireRole>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/ngo/change-password',
+        element: <Navigate replace to={ROUTES.NGO_CHANGE_PASSWORD} />,
+      },
+      {
         path: ROUTES.NGO_PORTAL_LEGACY,
         element: <Navigate replace to={ROUTES.NGO_DASHBOARD} />,
       },
@@ -243,11 +260,11 @@ export const router = createBrowserRouter([
           },
           {
             path: 'profile',
-            element: <NgoComingSoon />,
+            element: <NgoProfilePage />,
           },
           {
             path: 'settings',
-            element: <NgoComingSoon />,
+            element: <NgoSettingsPage />,
           },
           {
             path: 'notifications',

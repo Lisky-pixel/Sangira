@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import { Bell, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { isUserRole } from '../../constants/registration-roles'
@@ -9,6 +9,7 @@ import { ROUTES } from '../../routes/paths'
 import { useAuth } from '../../auth'
 import { VerifiedBadge } from '../ui/verified-badge'
 import { AvatarMenu } from '../donor/avatar-menu'
+import { DonorNotificationsBell } from '../donor/donor-notifications-bell'
 
 type NgoNavItem = {
   label: string
@@ -154,13 +155,7 @@ export function NgoTopNav({ className }: NgoTopNavProps) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link
-            to={ROUTES.NGO_NOTIFICATIONS}
-            className="text-body hover:text-primary rounded-md p-2 transition-colors"
-            aria-label={ngoPortalContent.topNav.notificationsAria}
-          >
-            <Bell aria-hidden="true" className="size-5" />
-          </Link>
+          <DonorNotificationsBell />
 
           <span aria-hidden="true" className="bg-border hidden h-6 w-px sm:block" />
 

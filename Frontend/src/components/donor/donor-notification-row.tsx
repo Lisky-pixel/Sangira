@@ -1,5 +1,8 @@
-import { Building2, Check, type LucideIcon } from 'lucide-react'
-import { DONOR_NOTIFICATION_TYPE } from '../../constants/notifications'
+import { Building2, Check, Package, type LucideIcon } from 'lucide-react'
+import {
+  DONOR_NOTIFICATION_TYPE,
+  NGO_NOTIFICATION_TYPE,
+} from '../../constants/notifications'
 import { formatRelativeTime } from '../../lib/relative-time'
 import { cn } from '../../lib/utils'
 import type { AppNotification } from '../../types/notification'
@@ -14,6 +17,7 @@ const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
   [DONOR_NOTIFICATION_TYPE.REQUEST_RECEIVED]: Building2,
   [DONOR_NOTIFICATION_TYPE.REQUEST_ACCEPTED]: Check,
   [DONOR_NOTIFICATION_TYPE.TRANSFER_COMPLETE]: Check,
+  [NGO_NOTIFICATION_TYPE.NEW_LISTING]: Package,
 }
 
 export function DonorNotificationRow({

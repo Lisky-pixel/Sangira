@@ -17,7 +17,7 @@ import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
 import { User } from '../models/user.js'
 import { emitHandoverUpdated } from '../realtime/handover-events.js'
-import { notifyDonorTransferComplete } from './notification-service.js'
+import { notifyDonorTransferComplete, notifyNgoTransferComplete } from './notification-service.js'
 import {
   AppError,
   badRequest,
@@ -270,10 +270,16 @@ async function tryCompleteHandover(input: {
     })
 
     if (payload) {
-      await notifyDonorTransferComplete({
-        requestId: input.requestId,
-        listingId: input.listingId,
-      })
+      await Promise.all([
+        notifyDonorTransferComplete({
+          requestId: input.requestId,
+          listingId: input.listingId,
+        }),
+        notifyNgoTransferComplete({
+          requestId: input.requestId,
+          listingId: input.listingId,
+        }),
+      ])
     }
 
     return payload

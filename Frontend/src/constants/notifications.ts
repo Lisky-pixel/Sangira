@@ -1,6 +1,12 @@
-/** Mirrors backend NOTIFICATION_TYPE — donor in-app notifications */
+/** Mirrors backend NOTIFICATION_TYPE — participant in-app notifications */
 export const DONOR_NOTIFICATION_TYPE = {
   REQUEST_RECEIVED: 'request_received',
+  REQUEST_ACCEPTED: 'request_accepted',
+  TRANSFER_COMPLETE: 'transfer_complete',
+} as const
+
+export const NGO_NOTIFICATION_TYPE = {
+  NEW_LISTING: 'new_listing',
   REQUEST_ACCEPTED: 'request_accepted',
   TRANSFER_COMPLETE: 'transfer_complete',
 } as const

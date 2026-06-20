@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { resolveDonorNotificationHref } from '../../lib/donor-notification-navigation'
+import { useAuth } from '../../auth'
+import { resolveNotificationHref } from '../../lib/notification-navigation'
 import { donorNotificationsContent } from '../../placeholder/donor-notifications-content'
 import type { AppNotification } from '../../types/notification'
 import { DonorNotificationRow } from './donor-notification-row'
@@ -24,6 +25,8 @@ export function DonorNotificationsPanel({
 }: DonorNotificationsPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const { state } = useAuth()
+  const role = state.status === 'authed' ? state.user.role : ''
 
   useEffect(() => {
     if (!open) {
@@ -65,7 +68,7 @@ export function DonorNotificationsPanel({
   }
 
   const handleNotificationActivate = (notification: AppNotification) => {
-    const href = resolveDonorNotificationHref(notification)
+    const href = resolveNotificationHref(notification, role)
     if (!href) {
       return
     }
@@ -114,7 +117,7 @@ export function DonorNotificationsPanel({
       ) : (
         <ul className="divide-border max-h-[min(24rem,70vh)] divide-y overflow-y-auto">
           {notifications.map((notification) => {
-            const href = resolveDonorNotificationHref(notification)
+            const href = resolveNotificationHref(notification, role)
 
             return (
               <DonorNotificationRow

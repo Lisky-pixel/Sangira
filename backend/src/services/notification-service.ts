@@ -2,13 +2,19 @@ import { Notification } from '../models/notification.js'
 import { User } from '../models/user.js'
 import { Listing } from '../models/listing.js'
 import { Request as FoodRequest } from '../models/request.js'
-import { NOTIFICATION_TYPE } from '../constants/enums.js'
+import { NOTIFICATION_TYPE, ROLES, ACCOUNT_STATUS, VERIFICATION_STATUS } from '../constants/enums.js'
+import type { QuantityUnit } from '../constants/listing-form.js'
 import { NOTIFICATION_EVENT_KEY } from '../constants/notification-preferences.js'
+import { NGO_NOTIFICATION_EVENT_KEY } from '../constants/ngo-notification-preferences.js'
 import {
   DONOR_NOTIFICATION_TITLE,
   formatDonorNotificationBody,
   NOTIFICATION_LIST,
 } from '../constants/notifications.js'
+import {
+  NGO_NOTIFICATION_TITLE,
+  formatNgoNotificationBody,
+} from '../constants/ngo-notifications.js'
 import { normalizeNotificationPrefs } from '../utils/normalize-notification-prefs.js'
 import { notFound } from '../utils/app-error.js'
 import { emitNotificationNew } from '../realtime/notification-events.js'
@@ -108,6 +114,130 @@ async function donorWantsNewRequestNotifications(
   return prefs.events[NOTIFICATION_EVENT_KEY.NEW_REQUEST]
 }
 
+async function ngoWantsNewListingNotifications(
+  notificationPrefs: unknown,
+): Promise<boolean> {
+  const prefs = normalizeNotificationPrefs(
+    notificationPrefs as Parameters<typeof normalizeNotificationPrefs>[0],
+  )
+  return prefs.ngoEvents?.[NGO_NOTIFICATION_EVENT_KEY.NEW_LISTING_AVAILABLE] ?? false
+}
+
+export async function maybeNotifyNgosNewListing(input: {
+  listingId: string
+  listingTitle: string
+  donorId: string
+  quantity: number
+  quantityUnit: QuantityUnit
+}): Promise<void> {
+  const donor = await User.findById(input.donorId)
+    .select('organisationName verification.status')
+    .lean<{
+      organisationName?: string | null
+      verification?: { status?: string }
+    }>()
+
+  if (donor?.verification?.status !== VERIFICATION_STATUS.APPROVED) {
+    return
+  }
+
+  const donorName = donor.organisationName?.trim() || 'A donor'
+
+  const ngos = await User.find({
+    role: ROLES.NGO,
+    accountStatus: ACCOUNT_STATUS.ACTIVE,
+    'verification.status': VERIFICATION_STATUS.APPROVED,
+  })
+    .select('_id notificationPrefs')
+    .lean()
+
+  await Promise.all(
+    ngos.map(async (ngo) => {
+      const wantsNewListing = await ngoWantsNewListingNotifications(
+        ngo.notificationPrefs,
+      )
+      if (!wantsNewListing) {
+        return
+      }
+
+      await createInAppNotification({
+        userId: ngo._id.toString(),
+        type: NOTIFICATION_TYPE.NEW_LISTING,
+        title: NGO_NOTIFICATION_TITLE[NOTIFICATION_TYPE.NEW_LISTING],
+        body: formatNgoNotificationBody({
+          type: NOTIFICATION_TYPE.NEW_LISTING,
+          listingTitle: input.listingTitle,
+          donorName,
+          quantity: input.quantity,
+          quantityUnit: input.quantityUnit,
+        }),
+        relatedListing: input.listingId,
+      })
+    }),
+  )
+}
+
+export async function notifyNgoRequestAccepted(input: {
+  ngoId: string
+  requestId: string
+  listingId: string
+  donorName: string
+  listingTitle: string
+}): Promise<void> {
+  await createInAppNotification({
+    userId: input.ngoId,
+    type: NOTIFICATION_TYPE.REQUEST_ACCEPTED,
+    title: NGO_NOTIFICATION_TITLE[NOTIFICATION_TYPE.REQUEST_ACCEPTED],
+    body: formatNgoNotificationBody({
+      type: NOTIFICATION_TYPE.REQUEST_ACCEPTED,
+      listingTitle: input.listingTitle,
+      donorName: input.donorName,
+    }),
+    relatedListing: input.listingId,
+    relatedRequest: input.requestId,
+  })
+}
+
+export async function notifyNgoTransferComplete(input: {
+  requestId: string
+  listingId: string
+}): Promise<void> {
+  const request = await FoodRequest.findById(input.requestId)
+    .select('ngo listing')
+    .lean()
+
+  if (!request) {
+    return
+  }
+
+  const listing = await Listing.findById(input.listingId)
+    .select('donor title quantity quantityUnit')
+    .lean()
+
+  if (!listing) {
+    return
+  }
+
+  const donor = (await User.findById(listing.donor)
+    .select('organisationName')
+    .lean()) as { organisationName?: string | null } | null
+
+  await createInAppNotification({
+    userId: request.ngo.toString(),
+    type: NOTIFICATION_TYPE.TRANSFER_COMPLETE,
+    title: NGO_NOTIFICATION_TITLE[NOTIFICATION_TYPE.TRANSFER_COMPLETE],
+    body: formatNgoNotificationBody({
+      type: NOTIFICATION_TYPE.TRANSFER_COMPLETE,
+      listingTitle: listing.title,
+      donorName: donor?.organisationName?.trim() || 'The donor',
+      quantity: listing.quantity,
+      quantityUnit: listing.quantityUnit,
+    }),
+    relatedListing: input.listingId,
+    relatedRequest: input.requestId,
+  })
+}
+
 export async function maybeNotifyDonorRequestReceived(input: {
   donorId: string
   requestId: string
@@ -196,8 +326,8 @@ export async function notifyDonorTransferComplete(input: {
   })
 }
 
-export async function listNotificationsForDonor(input: {
-  donorId: string
+export async function listNotificationsForUser(input: {
+  userId: string
   limit?: number
 }): Promise<{
   notifications: SerializedNotification[]
@@ -209,11 +339,11 @@ export async function listNotificationsForDonor(input: {
   )
 
   const [notifications, unreadCount] = await Promise.all([
-    Notification.find({ user: input.donorId })
+    Notification.find({ user: input.userId })
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean(),
-    Notification.countDocuments({ user: input.donorId, read: false }),
+    Notification.countDocuments({ user: input.userId, read: false }),
   ])
 
   return {
@@ -226,26 +356,26 @@ export async function listNotificationsForDonor(input: {
   }
 }
 
-export async function markAllNotificationsReadForDonor(
-  donorId: string,
+export async function markAllNotificationsReadForUser(
+  userId: string,
 ): Promise<{ unreadCount: number }> {
   await Notification.updateMany(
-    { user: donorId, read: false },
+    { user: userId, read: false },
     { $set: { read: true } },
   )
 
   return { unreadCount: 0 }
 }
 
-export async function markNotificationReadForDonor(input: {
-  donorId: string
+export async function markNotificationReadForUser(input: {
+  userId: string
   notificationId: string
 }): Promise<{
   notification: SerializedNotification
   unreadCount: number
 }> {
   const updated = await Notification.findOneAndUpdate(
-    { _id: input.notificationId, user: input.donorId },
+    { _id: input.notificationId, user: input.userId },
     { $set: { read: true } },
     { new: true },
   ).lean()
@@ -255,7 +385,7 @@ export async function markNotificationReadForDonor(input: {
   }
 
   const unreadCount = await Notification.countDocuments({
-    user: input.donorId,
+    user: input.userId,
     read: false,
   })
 
@@ -265,4 +395,31 @@ export async function markNotificationReadForDonor(input: {
     ),
     unreadCount,
   }
+}
+
+/** @deprecated Use listNotificationsForUser */
+export async function listNotificationsForDonor(input: {
+  donorId: string
+  limit?: number
+}) {
+  return listNotificationsForUser({
+    userId: input.donorId,
+    limit: input.limit,
+  })
+}
+
+/** @deprecated Use markAllNotificationsReadForUser */
+export async function markAllNotificationsReadForDonor(donorId: string) {
+  return markAllNotificationsReadForUser(donorId)
+}
+
+/** @deprecated Use markNotificationReadForUser */
+export async function markNotificationReadForDonor(input: {
+  donorId: string
+  notificationId: string
+}) {
+  return markNotificationReadForUser({
+    userId: input.donorId,
+    notificationId: input.notificationId,
+  })
 }

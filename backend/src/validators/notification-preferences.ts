@@ -4,6 +4,7 @@ import {
   NOTIFICATION_EVENT_KEY,
 } from '../constants/notification-preferences.js'
 import { ADMIN_NOTIFICATION_EVENT_KEY } from '../constants/admin-notification-preferences.js'
+import { NGO_NOTIFICATION_EVENT_KEY } from '../constants/ngo-notification-preferences.js'
 
 const notificationChannelPatchSchema = z
   .object({
@@ -19,6 +20,15 @@ const notificationEventPatchSchema = z
     [NOTIFICATION_EVENT_KEY.PICKUP_REMINDERS]: z.boolean().optional(),
     [NOTIFICATION_EVENT_KEY.LISTING_EXPIRING]: z.boolean().optional(),
     [NOTIFICATION_EVENT_KEY.IMPACT_SUMMARY]: z.boolean().optional(),
+  })
+  .strict()
+
+const ngoNotificationEventPatchSchema = z
+  .object({
+    [NGO_NOTIFICATION_EVENT_KEY.NEW_LISTING_AVAILABLE]: z.boolean().optional(),
+    [NGO_NOTIFICATION_EVENT_KEY.REQUEST_ACCEPTED]: z.boolean().optional(),
+    [NGO_NOTIFICATION_EVENT_KEY.PICKUP_REMINDERS]: z.boolean().optional(),
+    [NGO_NOTIFICATION_EVENT_KEY.CAPACITY_REMINDER]: z.boolean().optional(),
   })
   .strict()
 
@@ -41,6 +51,7 @@ export const updateNotificationPreferencesSchema = z
   .object({
     channels: notificationChannelPatchSchema.optional(),
     events: notificationEventPatchSchema.optional(),
+    ngoEvents: ngoNotificationEventPatchSchema.optional(),
     adminEvents: adminNotificationEventPatchSchema.optional(),
   })
   .strict()
@@ -48,6 +59,7 @@ export const updateNotificationPreferencesSchema = z
     (value) =>
       value.channels !== undefined ||
       value.events !== undefined ||
+      value.ngoEvents !== undefined ||
       value.adminEvents !== undefined,
     { message: 'At least one preference must be provided' },
   )

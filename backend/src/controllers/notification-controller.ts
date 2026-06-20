@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express'
 import {
-  listNotificationsForDonor,
-  markAllNotificationsReadForDonor,
-  markNotificationReadForDonor,
+  listNotificationsForUser,
+  markAllNotificationsReadForUser,
+  markNotificationReadForUser,
 } from '../services/notification-service.js'
 import type {
   ListNotificationsQuery,
@@ -17,8 +17,8 @@ export async function listNotifications(
 ) {
   try {
     const query = req.validatedQuery as ListNotificationsQuery
-    const result = await listNotificationsForDonor({
-      donorId: req.auth!.userId,
+    const result = await listNotificationsForUser({
+      userId: req.auth!.userId,
       limit: query.limit,
     })
 
@@ -34,7 +34,7 @@ export async function markAllNotificationsRead(
   next: NextFunction,
 ) {
   try {
-    const result = await markAllNotificationsReadForDonor(req.auth!.userId)
+    const result = await markAllNotificationsReadForUser(req.auth!.userId)
     return sendSuccess(res, result)
   } catch (error) {
     return next(error)
@@ -48,8 +48,8 @@ export async function markNotificationRead(
 ) {
   try {
     const params = req.validatedParams as NotificationIdParam
-    const result = await markNotificationReadForDonor({
-      donorId: req.auth!.userId,
+    const result = await markNotificationReadForUser({
+      userId: req.auth!.userId,
       notificationId: params.id,
     })
 

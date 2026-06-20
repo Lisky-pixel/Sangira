@@ -3,6 +3,7 @@ import {
   type NotificationEventKey,
   type NotificationPreferences,
 } from '../constants/notification-preferences'
+import type { NgoNotificationEventKey } from '../constants/ngo-notification-preferences'
 import type { ApiEnvelope } from '../types/api'
 import { apiClient } from './api-client'
 import { unwrapApiResponse } from './api-response'
@@ -20,6 +21,19 @@ export const notificationPreferencesService = {
       ApiEnvelope<UpdateNotificationPreferencesResponse>
     >('/auth/me/notification-preferences', {
       events: { [key]: value },
+    })
+
+    return unwrapApiResponse(response).notificationPrefs
+  },
+
+  async updateNgoEventPreference(
+    key: NgoNotificationEventKey,
+    value: boolean,
+  ): Promise<NotificationPreferences> {
+    const response = await apiClient.patch<
+      ApiEnvelope<UpdateNotificationPreferencesResponse>
+    >('/auth/me/notification-preferences', {
+      ngoEvents: { [key]: value },
     })
 
     return unwrapApiResponse(response).notificationPrefs

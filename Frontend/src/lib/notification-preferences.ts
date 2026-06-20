@@ -6,10 +6,16 @@ import {
   type NotificationEventPreferences,
   type NotificationPreferences,
 } from '../constants/notification-preferences'
+import {
+  DEFAULT_NGO_NOTIFICATION_EVENT_PREFS,
+  NGO_NOTIFICATION_EVENT_KEYS,
+  type NgoNotificationEventPreferences,
+} from '../constants/ngo-notification-preferences'
 
 type LegacyNotificationPrefs = {
   channels?: Partial<NotificationChannelPreferences>
   events?: Partial<NotificationEventPreferences>
+  ngoEvents?: Partial<NgoNotificationEventPreferences>
   sms?: boolean
   inApp?: boolean
   email?: boolean
@@ -69,12 +75,28 @@ function mergeEventPrefs(
   }
 }
 
+function mergeNgoEventPrefs(
+  target: NgoNotificationEventPreferences,
+  source: LegacyNotificationPrefs,
+): void {
+  if (!source.ngoEvents) {
+    return
+  }
+
+  for (const key of NGO_NOTIFICATION_EVENT_KEYS) {
+    if (typeof source.ngoEvents[key] === 'boolean') {
+      target[key] = source.ngoEvents[key]
+    }
+  }
+}
+
 export function normalizeNotificationPrefs(
   prefs: LegacyNotificationPrefs | null | undefined,
 ): NotificationPreferences {
   const normalized: NotificationPreferences = {
     channels: { ...DEFAULT_NOTIFICATION_PREFS.channels },
     events: { ...DEFAULT_NOTIFICATION_PREFS.events },
+    ngoEvents: { ...DEFAULT_NGO_NOTIFICATION_EVENT_PREFS },
   }
 
   if (!prefs) {
@@ -83,6 +105,7 @@ export function normalizeNotificationPrefs(
 
   mergeChannelPrefs(normalized.channels, prefs)
   mergeEventPrefs(normalized.events, prefs)
+  mergeNgoEventPrefs(normalized.ngoEvents!, prefs)
 
   return normalized
 }

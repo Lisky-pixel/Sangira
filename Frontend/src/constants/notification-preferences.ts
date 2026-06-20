@@ -1,4 +1,9 @@
 /** Mirrors backend notification preference shape */
+import {
+  DEFAULT_NGO_NOTIFICATION_EVENT_PREFS,
+  type NgoNotificationEventPreferences,
+} from './ngo-notification-preferences'
+
 export const NOTIFICATION_CHANNEL_KEY = {
   EMAIL: 'email',
   IN_APP: 'inApp',
@@ -36,6 +41,7 @@ export type NotificationEventPreferences = Record<NotificationEventKey, boolean>
 export type NotificationPreferences = {
   channels: NotificationChannelPreferences
   events: NotificationEventPreferences
+  ngoEvents?: NgoNotificationEventPreferences
 }
 
 export const DEFAULT_NOTIFICATION_CHANNEL_PREFS: NotificationChannelPreferences =
@@ -55,6 +61,7 @@ export const DEFAULT_NOTIFICATION_EVENT_PREFS: NotificationEventPreferences = {
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
   channels: DEFAULT_NOTIFICATION_CHANNEL_PREFS,
   events: DEFAULT_NOTIFICATION_EVENT_PREFS,
+  ngoEvents: { ...DEFAULT_NGO_NOTIFICATION_EVENT_PREFS },
 }
 
 /** @deprecated Use NOTIFICATION_EVENT_KEY */

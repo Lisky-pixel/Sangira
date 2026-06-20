@@ -3,11 +3,13 @@ import {
   NOTIFICATION_CHANNEL_KEYS,
   NOTIFICATION_EVENT_KEYS,
   ADMIN_NOTIFICATION_EVENT_KEYS,
+  NGO_NOTIFICATION_EVENT_KEYS,
   type NotificationChannelKey,
   type NotificationChannelPreferences,
   type NotificationEventKey,
   type NotificationEventPreferences,
   type AdminNotificationEventPreferences,
+  type NgoNotificationEventPreferences,
   type NotificationPreferences,
 } from '../constants/notification-preferences.js'
 
@@ -15,6 +17,7 @@ type LegacyNotificationPrefs = {
   channels?: Partial<NotificationChannelPreferences>
   events?: Partial<NotificationEventPreferences>
   adminEvents?: Partial<AdminNotificationEventPreferences>
+  ngoEvents?: Partial<NgoNotificationEventPreferences>
   sms?: boolean
   inApp?: boolean
   email?: boolean
@@ -74,6 +77,21 @@ function mergeEventPrefs(
   }
 }
 
+function mergeNgoEventPrefs(
+  target: NgoNotificationEventPreferences,
+  source: LegacyNotificationPrefs,
+): void {
+  if (!source.ngoEvents) {
+    return
+  }
+
+  for (const key of NGO_NOTIFICATION_EVENT_KEYS) {
+    if (typeof source.ngoEvents[key] === 'boolean') {
+      target[key] = source.ngoEvents[key]
+    }
+  }
+}
+
 function mergeAdminEventPrefs(
   target: AdminNotificationEventPreferences,
   source: LegacyNotificationPrefs,
@@ -95,6 +113,7 @@ export function normalizeNotificationPrefs(
   const normalized: NotificationPreferences = {
     channels: { ...DEFAULT_NOTIFICATION_PREFS.channels },
     events: { ...DEFAULT_NOTIFICATION_PREFS.events },
+    ngoEvents: { ...DEFAULT_NOTIFICATION_PREFS.ngoEvents! },
     adminEvents: { ...DEFAULT_NOTIFICATION_PREFS.adminEvents! },
   }
 
@@ -104,6 +123,7 @@ export function normalizeNotificationPrefs(
 
   mergeChannelPrefs(normalized.channels, prefs)
   mergeEventPrefs(normalized.events, prefs)
+  mergeNgoEventPrefs(normalized.ngoEvents!, prefs)
   mergeAdminEventPrefs(normalized.adminEvents!, prefs)
 
   return normalized
@@ -114,6 +134,7 @@ export function mergeNotificationPrefs(
   patch: {
     channels?: Partial<NotificationChannelPreferences>
     events?: Partial<NotificationEventPreferences>
+    ngoEvents?: Partial<NgoNotificationEventPreferences>
     adminEvents?: Partial<AdminNotificationEventPreferences>
   },
 ): NotificationPreferences {
@@ -125,6 +146,10 @@ export function mergeNotificationPrefs(
     events: {
       ...current.events,
       ...patch.events,
+    },
+    ngoEvents: {
+      ...current.ngoEvents!,
+      ...patch.ngoEvents,
     },
     adminEvents: {
       ...current.adminEvents!,

@@ -32,6 +32,7 @@ export const ROUTES = {
   NGO_REQUESTS: '/ngo/requests',
   NGO_CAPACITY: '/ngo/capacity',
   NGO_PROFILE: '/ngo/profile',
+  NGO_CHANGE_PASSWORD: '/ngo/profile/change-password',
   NGO_SETTINGS: '/ngo/settings',
   /** TEMPORARY — notifications until slice ships */
   NGO_NOTIFICATIONS: '/ngo/notifications',
@@ -114,11 +115,7 @@ export const COMING_SOON_PATHS = [
 ] as const
 
 /** TEMPORARY — NGO portal routes not yet implemented */
-export const NGO_COMING_SOON_PATHS = [
-  ROUTES.NGO_PROFILE,
-  ROUTES.NGO_SETTINGS,
-  ROUTES.NGO_NOTIFICATIONS,
-] as const
+export const NGO_COMING_SOON_PATHS = [] as const
 
 /** TEMPORARY — donor portal routes not yet implemented */
 export const DONOR_COMING_SOON_PATHS = [

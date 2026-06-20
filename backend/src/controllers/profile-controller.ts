@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import {
   updateAvatarForUser,
-  updateProfileForDonor,
+  updateProfileForUser,
 } from '../services/profile-service.js'
 import type { PatchProfileInput } from '../validators/profile.js'
 import { sendSuccess } from '../utils/response.js'
@@ -12,8 +12,9 @@ export async function patchProfile(
   next: NextFunction,
 ) {
   try {
-    const user = await updateProfileForDonor({
+    const user = await updateProfileForUser({
       userId: req.auth!.userId,
+      role: req.auth!.role,
       patch: req.body as PatchProfileInput,
     })
 

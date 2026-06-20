@@ -40,7 +40,9 @@ export function DonorNotificationsProvider({
   children,
 }: DonorNotificationsProviderProps) {
   const { state } = useAuth()
-  const enabled = state.status === 'authed' && state.user.role === 'donor'
+  const enabled =
+    state.status === 'authed' &&
+    (state.user.role === 'donor' || state.user.role === 'ngo')
 
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)

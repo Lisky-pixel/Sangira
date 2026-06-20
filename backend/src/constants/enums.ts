@@ -62,6 +62,7 @@ export const NOTIFICATION_TYPE = {
   VERIFICATION_REJECTED: 'verification_rejected',
   VERIFICATION_SUBMITTED: 'verification_submitted',
   NEW_MATCH: 'new_match',
+  NEW_LISTING: 'new_listing',
   REQUEST_RECEIVED: 'request_received',
   REQUEST_ACCEPTED: 'request_accepted',
   REQUEST_DECLINED: 'request_declined',

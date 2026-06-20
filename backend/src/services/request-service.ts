@@ -15,6 +15,7 @@ import { Request as FoodRequest } from '../models/request.js'
 import { Donor, User } from '../models/user.js'
 import {
   maybeNotifyDonorRequestReceived,
+  notifyNgoRequestAccepted,
   notifyDonorRequestAccepted,
 } from './notification-service.js'
 import {
@@ -450,11 +451,29 @@ export async function acceptRequestForDonor(input: {
       .select('organisationName')
       .lean()) as { organisationName?: string | null } | null
 
+    const donor = (await User.findById(input.donorId)
+      .select('organisationName contactName')
+      .lean()) as {
+      organisationName?: string | null
+      contactName?: string | null
+    } | null
+
     await notifyDonorRequestAccepted({
       donorId: input.donorId,
       requestId: input.requestId,
       listingId: listing._id.toString(),
       ngoName: ngo?.organisationName?.trim() || 'An NGO',
+      listingTitle: listing.title,
+    })
+
+    await notifyNgoRequestAccepted({
+      ngoId: request.ngo.toString(),
+      requestId: input.requestId,
+      listingId: listing._id.toString(),
+      donorName:
+        donor?.organisationName?.trim() ||
+        donor?.contactName?.trim() ||
+        'The donor',
       listingTitle: listing.title,
     })
 

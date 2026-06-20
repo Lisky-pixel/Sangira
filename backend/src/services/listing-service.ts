@@ -32,6 +32,7 @@ import {
 } from '../utils/serialize-browse-listing.js'
 import { ngoHasActiveRequestForListing } from './request-service.js'
 import { aggregateDonorImpact } from './donor-impact-service.js'
+import { maybeNotifyNgosNewListing } from './notification-service.js'
 
 type CreateListingFile = {
   buffer: Buffer
@@ -98,6 +99,14 @@ export async function createListingForDonor(input: {
     ...(pickupLocation ? { pickupLocation } : {}),
     expiresAt: input.data.expiresAt,
     status: LISTING_STATUS.ACTIVE,
+  })
+
+  void maybeNotifyNgosNewListing({
+    listingId: listing._id.toString(),
+    listingTitle: title,
+    donorId: input.donorId,
+    quantity: input.data.quantity,
+    quantityUnit: input.data.quantityUnit,
   })
 
   return serializeListing({

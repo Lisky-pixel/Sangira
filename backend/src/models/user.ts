@@ -20,6 +20,7 @@ import {
   type NotificationPreferences,
 } from '../constants/notification-preferences.js'
 import { DEFAULT_ADMIN_NOTIFICATION_EVENT_PREFS } from '../constants/admin-notification-preferences.js'
+import { DEFAULT_NGO_NOTIFICATION_EVENT_PREFS } from '../constants/ngo-notification-preferences.js'
 
 export type IUser = {
   email: string
@@ -122,6 +123,25 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         impactSummary: {
           type: Boolean,
           default: DEFAULT_NOTIFICATION_EVENT_PREFS.impactSummary,
+        },
+      },
+      ngoEvents: {
+        newListingAvailable: {
+          type: Boolean,
+          default:
+            DEFAULT_NGO_NOTIFICATION_EVENT_PREFS.newListingAvailable,
+        },
+        requestAccepted: {
+          type: Boolean,
+          default: DEFAULT_NGO_NOTIFICATION_EVENT_PREFS.requestAccepted,
+        },
+        pickupReminders: {
+          type: Boolean,
+          default: DEFAULT_NGO_NOTIFICATION_EVENT_PREFS.pickupReminders,
+        },
+        capacityReminder: {
+          type: Boolean,
+          default: DEFAULT_NGO_NOTIFICATION_EVENT_PREFS.capacityReminder,
         },
       },
       adminEvents: {

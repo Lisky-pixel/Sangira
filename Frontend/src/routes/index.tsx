@@ -39,6 +39,7 @@ import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
 import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
 import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
 import { AdminComingSoon } from '../components/admin'
+import { AdminOverviewPage } from '../pages/admin/AdminOverviewPage'
 import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
 import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
 import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
@@ -262,6 +263,10 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
+            element: <AdminOverviewPage />,
+          },
+          {
+            path: 'activity',
             element: <AdminComingSoon />,
           },
           {

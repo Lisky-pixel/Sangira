@@ -1,4 +1,5 @@
 import type { GetAdminPendingVerificationCountResult } from '../types/admin-portal'
+import type { AdminOverviewData } from '../types/admin-overview'
 import type {
   ListVerificationsResult,
   RejectVerificationPayload,
@@ -11,6 +12,13 @@ import { apiClient } from './api-client'
 import { unwrapApiResponse } from './api-response'
 
 export const adminPortalService = {
+  async getOverview(): Promise<AdminOverviewData> {
+    const response = await apiClient.get<ApiEnvelope<AdminOverviewData>>(
+      '/admin/overview',
+    )
+    return unwrapApiResponse(response)
+  },
+
   async getPendingVerificationCount(): Promise<number> {
     const response = await apiClient.get<
       ApiEnvelope<GetAdminPendingVerificationCountResult>

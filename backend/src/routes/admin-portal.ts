@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import * as adminOverviewController from '../controllers/admin-overview-controller.js'
 import * as adminVerificationController from '../controllers/admin-verification-controller.js'
 import { ROLES } from '../constants/enums.js'
 import { csrfGuard } from '../middleware/csrf.js'
@@ -18,6 +19,12 @@ import {
 export const adminPortalRouter = Router()
 
 const adminGuards = [requireAuth, requireRole(ROLES.ADMIN)] as const
+
+adminPortalRouter.get(
+  '/overview',
+  ...adminGuards,
+  adminOverviewController.getOverviewHandler,
+)
 
 adminPortalRouter.get(
   '/verifications/pending-count',

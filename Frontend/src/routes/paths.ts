@@ -43,6 +43,8 @@ export const ROUTES = {
   CONTACT: '/contact',
   ADMIN_LOGIN: '/admin/login',
   ADMIN_OVERVIEW: '/admin',
+  /** TEMPORARY — platform-wide activity page until slice ships */
+  ADMIN_ACTIVITY: '/admin/activity',
   /** TEMPORARY — admin feature pages until slices ship */
   ADMIN_VERIFICATIONS: '/admin/verifications',
   ADMIN_USERS: '/admin/users',
@@ -126,8 +128,7 @@ export const DONOR_COMING_SOON_PATHS = [
 
 /** TEMPORARY — admin portal feature routes not yet implemented */
 export const ADMIN_COMING_SOON_PATHS = [
-  ROUTES.ADMIN_OVERVIEW,
-  ROUTES.ADMIN_VERIFICATIONS,
+  ROUTES.ADMIN_ACTIVITY,
   ROUTES.ADMIN_USERS,
   ROUTES.ADMIN_LISTINGS,
   ROUTES.ADMIN_REPORTS,

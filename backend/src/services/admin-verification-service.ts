@@ -258,6 +258,28 @@ export async function countPendingVerifications(): Promise<number> {
   return result?.count ?? 0
 }
 
+export async function countPendingVerificationsWaitingOverHours(
+  hours: number,
+  now = new Date(),
+): Promise<number> {
+  const threshold = new Date(now.getTime() - hours * 60 * 60 * 1000)
+
+  const [result] = await User.aggregate<{ count: number }>([
+    { $match: PENDING_FILTER },
+    {
+      $addFields: {
+        submittedAt: {
+          $ifNull: ['$verification.submittedAt', '$createdAt'],
+        },
+      },
+    },
+    { $match: { submittedAt: { $lte: threshold } } },
+    { $count: 'count' },
+  ])
+
+  return result?.count ?? 0
+}
+
 export async function listVerifications(query: AdminVerificationsQuery) {
   const page = query.page
   const pageSize = query.pageSize

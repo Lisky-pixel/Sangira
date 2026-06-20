@@ -82,6 +82,11 @@ export type RejectVerificationPayload = {
   details?: string
 }
 
+export type VerificationDecisionResult = {
+  application: VerificationDetail
+  pendingCount: number
+}
+
 export type VerificationUpdatedPayload = {
   id: string
   newStatus: VerificationStatus

@@ -250,7 +250,12 @@ async function throwIfAlreadyHandled(verification: VerificationDoc | undefined) 
 }
 
 export async function countPendingVerifications(): Promise<number> {
-  return User.countDocuments(PENDING_FILTER)
+  // Use aggregate $count — countDocuments diverges from list $match under strictQuery + discriminators.
+  const [result] = await User.aggregate<{ count: number }>([
+    { $match: PENDING_FILTER },
+    { $count: 'count' },
+  ])
+  return result?.count ?? 0
 }
 
 export async function listVerifications(query: AdminVerificationsQuery) {
@@ -330,6 +335,7 @@ export async function listVerifications(query: AdminVerificationsQuery) {
       totalItems,
       totalPages: Math.max(1, Math.ceil(totalItems / pageSize)),
     },
+    /** Pending-only count for the sidebar badge — not pagination.totalItems */
     totalPending,
   }
 }
@@ -523,7 +529,7 @@ async function broadcastVerificationUpdate(input: {
   reviewedBy: string
   reviewedByName?: string
   reviewedAt: string
-}) {
+}): Promise<number> {
   const pendingCount = await countPendingVerifications()
   emitVerificationUpdated({
     id: input.id,
@@ -533,6 +539,12 @@ async function broadcastVerificationUpdate(input: {
     reviewedAt: input.reviewedAt,
     pendingCount,
   })
+  return pendingCount
+}
+
+export type VerificationDecisionResult = {
+  application: SerializedVerificationDetail
+  pendingCount: number
 }
 
 export async function approveVerification(input: {
@@ -575,7 +587,7 @@ export async function approveVerification(input: {
     body: 'Your organisation has been verified. You can sign in and start using Sangira.',
   })
 
-  await broadcastVerificationUpdate({
+  const pendingCount = await broadcastVerificationUpdate({
     id: user._id.toString(),
     newStatus: VERIFICATION_STATUS.APPROVED,
     reviewedBy: input.adminId,
@@ -583,7 +595,10 @@ export async function approveVerification(input: {
     reviewedAt: now.toISOString(),
   })
 
-  return getVerificationDetail(user._id.toString())
+  return {
+    application: await getVerificationDetail(user._id.toString()),
+    pendingCount,
+  }
 }
 
 export async function rejectVerification(input: {
@@ -635,7 +650,7 @@ export async function rejectVerification(input: {
     body: details ? `${reasonLabel}: ${details}` : reasonLabel,
   })
 
-  await broadcastVerificationUpdate({
+  const pendingCount = await broadcastVerificationUpdate({
     id: user._id.toString(),
     newStatus: VERIFICATION_STATUS.REJECTED,
     reviewedBy: input.adminId,
@@ -643,5 +658,8 @@ export async function rejectVerification(input: {
     reviewedAt: now.toISOString(),
   })
 
-  return getVerificationDetail(user._id.toString())
+  return {
+    application: await getVerificationDetail(user._id.toString()),
+    pendingCount,
+  }
 }

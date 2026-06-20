@@ -5,10 +5,15 @@ import type {
 } from '../types/admin-verification'
 
 export type AdminVerificationContextValue = {
-  pendingCount: number | null
+  /**
+   * Pending (waiting) applications only — shared by sidebar badge and queue
+   * header "awaiting review". Sourced from /pending-count, list totalPending,
+   * approve/reject pendingCount, and socket pendingCount — never totalItems.
+   */
+  pendingBadgeCount: number | null
   loadState: 'loading' | 'ready' | 'error'
-  refreshPendingCount: () => Promise<void>
-  decrementPendingCount: () => void
+  refreshPendingBadgeCount: () => Promise<void>
+  syncPendingBadgeCount: (count: number) => void
   subscribeVerificationUpdated: (
     handler: (payload: VerificationUpdatedPayload) => void,
   ) => () => void

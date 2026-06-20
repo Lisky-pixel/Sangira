@@ -1,12 +1,13 @@
-import { createApp } from './app/index.js'
 import { connectDatabase, disconnectDatabase } from './config/db.js'
 import { config } from './config/env.js'
-import { startListingExpiryJob } from './jobs/listing-expiry-job.js'
-import { closeSocketServer, initSocketServer } from './realtime/socket-server.js'
-import './models/index.js'
 
 async function bootstrap() {
+  await import('./models/index.js')
   await connectDatabase()
+
+  const { createApp } = await import('./app/index.js')
+  const { startListingExpiryJob } = await import('./jobs/listing-expiry-job.js')
+  const { closeSocketServer, initSocketServer } = await import('./realtime/socket-server.js')
 
   const stopListingExpiryJob = startListingExpiryJob()
 

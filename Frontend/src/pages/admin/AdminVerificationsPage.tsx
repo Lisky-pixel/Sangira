@@ -9,6 +9,8 @@ import {
   sortVerificationQueueItems,
   verificationDetailToListItem,
 } from '../../lib/sort-verification-queue'
+import { resolvePendingBadgeCountFromList, resolvePendingBadgeCountFromDecision } from '../../lib/admin-pending-badge'
+import { useAdminPendingCount } from '../../hooks/use-admin-pending-count'
 import {
   markVerificationUpdateAppliedFromDetail,
   shouldApplyVerificationNew,
@@ -17,7 +19,7 @@ import {
 import { useAdminVerification } from '../../realtime/admin-verification-context'
 import { adminVerificationContent } from '../../placeholder/admin-verification-content'
 import { adminPortalService } from '../../services/admin-portal-service'
-import type { VerificationDetail, VerificationListItem } from '../../types/admin-verification'
+import type { VerificationDecisionResult, VerificationListItem } from '../../types/admin-verification'
 import { VerificationQueuePager } from '../../components/admin/verification-queue-pager'
 import { VerificationQueueTable } from '../../components/admin/verification-queue-table'
 import { VerificationReviewPanel } from '../../components/admin/verification-review-panel'
@@ -32,11 +34,11 @@ function addRowHighlight(
 }
 
 export function AdminVerificationsPage() {
+  const { displayCount: pendingCount } = useAdminPendingCount()
   const {
-    pendingCount,
     subscribeVerificationUpdated,
     subscribeVerificationNew,
-    refreshPendingCount,
+    syncPendingBadgeCount,
   } = useAdminVerification()
 
   const [page, setPage] = useState(1)
@@ -99,6 +101,7 @@ export function AdminVerificationsPage() {
         setItems(result.items)
         setTotalItems(result.pagination.totalItems)
         setTotalPages(result.pagination.totalPages)
+        syncPendingBadgeCount(resolvePendingBadgeCountFromList(result))
         setLoadState('ready')
       } catch {
         if (!cancelled) {
@@ -112,7 +115,7 @@ export function AdminVerificationsPage() {
     return () => {
       cancelled = true
     }
-  }, [page])
+  }, [page, syncPendingBadgeCount])
 
   useEffect(() => {
     return subscribeVerificationUpdated((payload) => {
@@ -170,29 +173,28 @@ export function AdminVerificationsPage() {
     setPanelOpen(true)
   }
 
-  const handleDecision = (detail: VerificationDetail) => {
-    markVerificationUpdateAppliedFromDetail(detail)
+  const handleDecision = (result: VerificationDecisionResult) => {
+    markVerificationUpdateAppliedFromDetail(result.application)
+    syncPendingBadgeCount(resolvePendingBadgeCountFromDecision(result))
 
     setItems((current) => {
-      const hasRow = current.some((item) => item.id === detail.id)
+      const hasRow = current.some((item) => item.id === result.application.id)
       if (!hasRow) {
         return current
       }
 
       return sortVerificationQueueItems(
         current.map((item) =>
-          item.id === detail.id ? verificationDetailToListItem(detail) : item,
+          item.id === result.application.id
+            ? verificationDetailToListItem(result.application)
+            : item,
         ),
       )
     })
-    flashRow(detail.id)
+    flashRow(result.application.id)
     setSelectedId(null)
     setPanelOpen(false)
-    void refreshPendingCount()
   }
-
-  const pendingDisplay =
-    typeof pendingCount === 'number' ? pendingCount : 0
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -202,10 +204,7 @@ export function AdminVerificationsPage() {
         </h1>
         <p className="text-body mt-2 text-sm">
           {totalItems > 0
-            ? adminVerificationContent.pageSubtitle(
-                pendingDisplay,
-                totalItems,
-              )
+            ? adminVerificationContent.pageSubtitle(pendingCount, totalItems)
             : adminVerificationContent.pageSubtitleEmpty}
         </p>
       </header>

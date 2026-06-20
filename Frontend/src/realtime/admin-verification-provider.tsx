@@ -9,6 +9,7 @@ import {
 import { useAuth } from '../auth'
 import { isAdminRole } from '../constants/portal-roles'
 import { adminPortalService } from '../services/admin-portal-service'
+import { normalizePendingBadgeCount } from '../lib/admin-pending-badge'
 import type {
   VerificationNewPayload,
   VerificationUpdatedPayload,
@@ -36,9 +37,10 @@ export function AdminVerificationProvider({
   const enabled =
     state.status === 'authed' && isAdminRole(state.user.role)
 
-  const [pendingCount, setPendingCount] = useState<number | null>(null)
+  const [pendingBadgeCount, setPendingBadgeCount] = useState<number | null>(null)
   const [loadState, setLoadState] =
     useState<AdminVerificationContextValue['loadState']>('loading')
+  const pendingCountSyncGenerationRef = useRef(0)
 
   const updatedHandlersRef = useRef(
     new Set<(payload: VerificationUpdatedPayload) => void>(),
@@ -47,9 +49,14 @@ export function AdminVerificationProvider({
     new Set<(payload: VerificationNewPayload) => void>(),
   )
 
-  const refreshPendingCount = useCallback(async () => {
+  const syncPendingBadgeCount = useCallback((count: number) => {
+    pendingCountSyncGenerationRef.current += 1
+    setPendingBadgeCount(normalizePendingBadgeCount(count))
+  }, [])
+
+  const refreshPendingBadgeCount = useCallback(async () => {
     if (!enabled) {
-      setPendingCount(null)
+      setPendingBadgeCount(null)
       setLoadState('ready')
       return
     }
@@ -57,19 +64,13 @@ export function AdminVerificationProvider({
     setLoadState('loading')
     try {
       const count = await adminPortalService.getPendingVerificationCount()
-      setPendingCount(count)
+      setPendingBadgeCount(normalizePendingBadgeCount(count))
       setLoadState('ready')
     } catch {
-      setPendingCount(null)
+      setPendingBadgeCount(null)
       setLoadState('error')
     }
   }, [enabled])
-
-  const decrementPendingCount = useCallback(() => {
-    setPendingCount((current) =>
-      typeof current === 'number' ? Math.max(0, current - 1) : current,
-    )
-  }, [])
 
   const subscribeVerificationUpdated = useCallback(
     (handler: (payload: VerificationUpdatedPayload) => void) => {
@@ -97,22 +98,28 @@ export function AdminVerificationProvider({
     const load = async () => {
       if (!enabled) {
         if (!cancelled) {
-          setPendingCount(null)
+          setPendingBadgeCount(null)
           setLoadState('ready')
         }
         return
       }
 
       setLoadState('loading')
+      const generationAtStart = pendingCountSyncGenerationRef.current
       try {
         const count = await adminPortalService.getPendingVerificationCount()
-        if (!cancelled) {
-          setPendingCount(count)
+        if (
+          !cancelled &&
+          generationAtStart === pendingCountSyncGenerationRef.current
+        ) {
+          setPendingBadgeCount(normalizePendingBadgeCount(count))
+          setLoadState('ready')
+        } else if (!cancelled) {
           setLoadState('ready')
         }
       } catch {
         if (!cancelled) {
-          setPendingCount(null)
+          setPendingBadgeCount(null)
           setLoadState('error')
         }
       }
@@ -133,19 +140,19 @@ export function AdminVerificationProvider({
     retainAdminVerificationSocket()
 
     const handleUpdated = (payload: VerificationUpdatedPayload) => {
-      setPendingCount(payload.pendingCount)
+      setPendingBadgeCount(normalizePendingBadgeCount(payload.pendingCount))
       updatedHandlersRef.current.forEach((handler) => handler(payload))
     }
 
     const handleNew = (payload: VerificationNewPayload) => {
-      setPendingCount(payload.pendingCount)
+      setPendingBadgeCount(normalizePendingBadgeCount(payload.pendingCount))
       newHandlersRef.current.forEach((handler) => handler(payload))
     }
 
     const unsubscribeUpdated = subscribeSocketUpdated(handleUpdated)
     const unsubscribeNew = subscribeSocketNew(handleNew)
     const unsubscribeReconnect = subscribeAdminSocketReconnect(() => {
-      void refreshPendingCount()
+      void refreshPendingBadgeCount()
     })
 
     return () => {
@@ -154,22 +161,22 @@ export function AdminVerificationProvider({
       unsubscribeReconnect()
       releaseAdminVerificationSocket()
     }
-  }, [enabled, refreshPendingCount])
+  }, [enabled, refreshPendingBadgeCount])
 
   const value = useMemo(
     () => ({
-      pendingCount,
+      pendingBadgeCount,
       loadState,
-      refreshPendingCount,
-      decrementPendingCount,
+      refreshPendingBadgeCount,
+      syncPendingBadgeCount,
       subscribeVerificationUpdated,
       subscribeVerificationNew,
     }),
     [
-      pendingCount,
+      pendingBadgeCount,
       loadState,
-      refreshPendingCount,
-      decrementPendingCount,
+      refreshPendingBadgeCount,
+      syncPendingBadgeCount,
       subscribeVerificationUpdated,
       subscribeVerificationNew,
     ],

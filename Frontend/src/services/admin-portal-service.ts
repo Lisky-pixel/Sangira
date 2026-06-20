@@ -2,6 +2,7 @@ import type { GetAdminPendingVerificationCountResult } from '../types/admin-port
 import type {
   ListVerificationsResult,
   RejectVerificationPayload,
+  VerificationDecisionResult,
   VerificationDetail,
   VerificationDocumentView,
 } from '../types/admin-verification'
@@ -46,22 +47,20 @@ export const adminPortalService = {
     return unwrapApiResponse(response)
   },
 
-  async approveVerification(id: string): Promise<VerificationDetail> {
+  async approveVerification(id: string): Promise<VerificationDecisionResult> {
     const response = await apiClient.post<
-      ApiEnvelope<{ application: VerificationDetail }>
+      ApiEnvelope<VerificationDecisionResult>
     >(`/admin/verifications/${id}/approve`)
-    const data = unwrapApiResponse(response)
-    return data.application
+    return unwrapApiResponse(response)
   },
 
   async rejectVerification(
     id: string,
     payload: RejectVerificationPayload,
-  ): Promise<VerificationDetail> {
+  ): Promise<VerificationDecisionResult> {
     const response = await apiClient.post<
-      ApiEnvelope<{ application: VerificationDetail }>
+      ApiEnvelope<VerificationDecisionResult>
     >(`/admin/verifications/${id}/reject`, payload)
-    const data = unwrapApiResponse(response)
-    return data.application
+    return unwrapApiResponse(response)
   },
 }

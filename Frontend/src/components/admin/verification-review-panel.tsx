@@ -20,6 +20,7 @@ import { ApiError } from '../../services/api-error'
 import { adminPortalService } from '../../services/admin-portal-service'
 import type {
   DuplicateCheckResult,
+  VerificationDecisionResult,
   VerificationDetail,
 } from '../../types/admin-verification'
 import { Button } from '../ui/button'
@@ -32,7 +33,7 @@ type VerificationReviewPanelProps = {
   applicationId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
-  onDecision: (detail: VerificationDetail) => void
+  onDecision: (result: VerificationDecisionResult) => void
 }
 
 function resolveDuplicateBannerMessage(
@@ -191,12 +192,12 @@ export function VerificationReviewPanel({
 
     setSubmitting(true)
     try {
-      const application =
+      const result =
         await adminPortalService.approveVerification(applicationId)
       toast.success(
         adminVerificationContent.toast.approved(detail.organisationName),
       )
-      onDecision(application)
+      onDecision(result)
       onOpenChange(false)
     } catch (error) {
       if (!handleConflict(error)) {
@@ -216,14 +217,14 @@ export function VerificationReviewPanel({
 
     setSubmitting(true)
     try {
-      const application = await adminPortalService.rejectVerification(
+      const result = await adminPortalService.rejectVerification(
         applicationId,
         payload,
       )
       toast.success(
         adminVerificationContent.toast.rejected(detail.organisationName),
       )
-      onDecision(application)
+      onDecision(result)
       onOpenChange(false)
       setRejectOpen(false)
     } catch (error) {

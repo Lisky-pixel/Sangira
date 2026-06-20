@@ -90,12 +90,12 @@ export async function approveVerificationHandler(
   next: NextFunction,
 ) {
   try {
-    const application = await approveVerification({
+    const result = await approveVerification({
       applicantId: resolveApplicantId(req),
       adminId: req.auth!.userId,
       adminName: await resolveAdminName(req),
     })
-    return sendSuccess(res, { application })
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }
@@ -107,13 +107,13 @@ export async function rejectVerificationHandler(
   next: NextFunction,
 ) {
   try {
-    const application = await rejectVerification({
+    const result = await rejectVerification({
       applicantId: resolveApplicantId(req),
       adminId: req.auth!.userId,
       adminName: await resolveAdminName(req),
       payload: req.body,
     })
-    return sendSuccess(res, { application })
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

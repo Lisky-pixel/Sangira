@@ -4,12 +4,12 @@ import {
 } from '../constants/verification-reject-reasons'
 
 export const adminVerificationContent = {
-  pageTitle: 'Verification queue',
+  pageTitle: 'Verification Queue',
   pageSubtitle: (pending: number, total: number) =>
     `${pending} awaiting review · ${total} total application${total === 1 ? '' : 's'} · pending first`,
   pageSubtitleEmpty: 'No verification applications yet',
-  loading: 'Loading verification queue…',
-  loadError: 'Could not load the verification queue. Please try again.',
+  loading: 'Loading Verification Queue…',
+  loadError: 'Could not load the Verification Queue. Please try again.',
   empty: 'No verification applications to show.',
   table: {
     organisation: 'Organisation',
@@ -31,7 +31,7 @@ export const adminVerificationContent = {
     showing: (shown: number, total: number) => `Showing ${shown} of ${total}`,
     previous: 'Previous page',
     next: 'Next page',
-    navAriaLabel: 'Verification queue pagination',
+    navAriaLabel: 'Verification Queue pagination',
   },
   reviewPanel: {
     closeAria: 'Close review panel',

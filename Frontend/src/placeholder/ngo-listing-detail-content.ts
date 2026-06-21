@@ -8,8 +8,9 @@ export const ngoListingDetailContent = {
     locationHeading: 'Pickup location',
     openInMapsAria: 'Open pickup location in maps',
     instructionsTitle: 'Pickup instructions',
-    // TODO: distance/map slice — show "{distance} away · {area}" label and embedded map here
-    distanceMapSlot: null,
+    // TODO: distance/map slice — embedded map preview below distance label
+    distanceLine: (distanceAway: string, pickupArea: string) =>
+      `${distanceAway} · ${pickupArea}`,
   },
   donorCard: {
     verified: 'Verified',

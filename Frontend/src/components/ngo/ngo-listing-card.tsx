@@ -1,5 +1,10 @@
 import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
 import { ngoListingDetailPath } from '../../routes/paths'
+import {
+  formatDistanceAway,
+  getDistanceForListing,
+  type LngLat,
+} from '../../lib/distance'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 import { ButtonLink } from '../ui/button'
 import { CountdownChip } from '../ui/countdown-chip'
@@ -8,14 +13,22 @@ import { VerifiedBadge } from '../ui/verified-badge'
 
 type NgoListingCardProps = {
   listing: NgoBrowseListing
+  ngoCoordinates?: LngLat | null
   hasRequested?: boolean
 }
 
-export function NgoListingCard({ listing, hasRequested = false }: NgoListingCardProps) {
+export function NgoListingCard({
+  listing,
+  ngoCoordinates = null,
+  hasRequested = false,
+}: NgoListingCardProps) {
   const photo = listing.photos[0]
   const foodTypeLabel = ngoBrowseContent.foodTypeLabels[listing.foodType]
   const storageLabel =
     ngoBrowseContent.storageLabels[listing.storageCondition]
+  const distanceKm = getDistanceForListing(ngoCoordinates, listing)
+  const distanceAway =
+    distanceKm !== null ? formatDistanceAway(distanceKm) : null
 
   return (
     <article className="border-border flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm">
@@ -49,7 +62,7 @@ export function NgoListingCard({ listing, hasRequested = false }: NgoListingCard
         </div>
 
         <p className="text-body mt-2 text-sm">
-          {ngoBrowseContent.card.storageOnly(storageLabel)}
+          {ngoBrowseContent.card.metaLine(storageLabel, distanceAway)}
         </p>
 
         <div className="mt-auto pt-4">

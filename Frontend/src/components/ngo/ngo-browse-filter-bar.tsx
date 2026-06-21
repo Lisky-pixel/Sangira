@@ -10,6 +10,7 @@ import { toggleFilterValue } from '../../lib/ngo-browse-filters'
 type NgoBrowseFilterBarProps = {
   filters: NgoBrowseFilters
   onChange: (next: NgoBrowseFilters) => void
+  showLocationHint?: boolean
 }
 
 function FilterChip({
@@ -41,6 +42,7 @@ function FilterChip({
 export function NgoBrowseFilterBar({
   filters,
   onChange,
+  showLocationHint = false,
 }: NgoBrowseFilterBarProps) {
   const toggleFoodType = (foodType: FoodType) => {
     onChange({
@@ -113,19 +115,24 @@ export function NgoBrowseFilterBar({
         {/* TODO: distance/map slice — Within 5 km chip + Map view toggle */}
       </div>
 
-      <p className="text-body mt-4 flex items-start gap-2 text-sm">
-        <Info aria-hidden="true" className="text-primary mt-0.5 size-4 shrink-0" />
-        <span>
-          {ngoBrowseContent.filters.locationHint}{' '}
-          <Link
-            to={ROUTES.NGO_SETTINGS}
-            className="text-primary font-medium hover:underline"
-          >
-            {ngoBrowseContent.filters.locationHintLink}
-          </Link>
-          .
-        </span>
-      </p>
+      {showLocationHint ? (
+        <p className="text-body mt-4 flex items-start gap-2 text-sm">
+          <Info
+            aria-hidden="true"
+            className="text-primary mt-0.5 size-4 shrink-0"
+          />
+          <span>
+            {ngoBrowseContent.filters.locationHint}{' '}
+            <Link
+              to={ROUTES.NGO_PROFILE}
+              className="text-primary font-medium hover:underline"
+            >
+              {ngoBrowseContent.filters.locationHintLink}
+            </Link>
+            .
+          </span>
+        </p>
+      ) : null}
     </section>
   )
 }

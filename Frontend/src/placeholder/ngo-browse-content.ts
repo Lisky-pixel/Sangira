@@ -37,8 +37,8 @@ export const ngoBrowseContent = {
     expiresToday: 'Expires today',
     // TODO: distance/map slice — add "Within 5 km" chip and Map view toggle here
     locationHint:
-      'Set your location in Settings to see distances and nearby listings.',
-    locationHintLink: 'Settings',
+      'Set your location in your profile to see distances.',
+    locationHintLink: 'Profile',
   },
   foodTypeLabels: postListingContent.foodTypeLabels satisfies Record<
     FoodType,
@@ -65,8 +65,8 @@ export const ngoBrowseContent = {
     request: 'Request',
     requested: 'Requested',
     verifiedDonor: 'Verified',
-    // TODO: distance/map slice — prepend "{distance} · " before storage label
-    storageOnly: (storageLabel: string) => storageLabel,
+    metaLine: (storageLabel: string, distanceAway: string | null) =>
+      distanceAway ? `${distanceAway} · ${storageLabel}` : storageLabel,
   },
   loading: 'Loading listings…',
   loadError: 'Could not load listings',

@@ -16,6 +16,11 @@ import { REQUEST_ERROR_CODES } from '../../constants/request'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
 import type { FoodLabel, StorageCondition } from '../../constants/listing-form'
 import { formatMemberSince } from '../../lib/format-listing-time'
+import {
+  formatDistanceAway,
+  getDistanceForListing,
+  type LngLat,
+} from '../../lib/distance'
 import { getOrgInitials } from '../../lib/org-initials'
 import { openInMaps } from '../../lib/open-in-maps'
 import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-content'
@@ -33,6 +38,7 @@ import { NgoConfirmRequestDialog } from './ngo-confirm-request-dialog'
 
 type NgoListingDetailViewProps = {
   listing: NgoBrowseListing
+  ngoCoordinates?: LngLat | null
 }
 
 function storageIcon(condition: StorageCondition): LucideIcon {
@@ -80,7 +86,10 @@ function resolvePickupAddress(listing: NgoBrowseListing) {
   return listing.pickupAddress ?? listing.pickupLocation?.address ?? ''
 }
 
-export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
+export function NgoListingDetailView({
+  listing,
+  ngoCoordinates = null,
+}: NgoListingDetailViewProps) {
   const navigate = useNavigate()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [hasRequested, setHasRequested] = useState(
@@ -93,6 +102,9 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
     postListingContent.storageLabels[listing.storageCondition]
   const StorageIcon = storageIcon(listing.storageCondition)
   const pickupAddress = resolvePickupAddress(listing)
+  const distanceKm = getDistanceForListing(ngoCoordinates, listing)
+  const distanceAway =
+    distanceKm !== null ? formatDistanceAway(distanceKm) : null
   const donorInitials = getOrgInitials(listing.donor.organisationName)
   const memberSince = formatMemberSince(listing.donor.createdAt)
   const completedTransfers = listing.donor.completedTransfers
@@ -204,8 +216,17 @@ export function NgoListingDetailView({ listing }: NgoListingDetailViewProps) {
                 {ngoListingDetailContent.pickup.locationHeading}
               </h2>
 
-              {/* TODO: distance/map slice — distance label + embedded map preview */}
-              {ngoListingDetailContent.pickup.distanceMapSlot}
+              {/* TODO: distance/map slice — embedded map preview below distance label */}
+              {distanceAway ? (
+                <p className="text-body mt-2 text-sm">
+                  {pickupAddress
+                    ? ngoListingDetailContent.pickup.distanceLine(
+                        distanceAway,
+                        pickupAddress,
+                      )
+                    : distanceAway}
+                </p>
+              ) : null}
 
               {pickupAddress ? (
                 <button

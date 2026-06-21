@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../../auth'
 import { ListingsPager } from '../../components/donor/listings-pager'
 import { NgoBrowseFilterBar } from '../../components/ngo/ngo-browse-filter-bar'
 import { NgoListingCard } from '../../components/ngo/ngo-listing-card'
@@ -9,6 +10,7 @@ import {
   type NgoBrowseFilters,
 } from '../../lib/ngo-browse-filters'
 import { getActiveRequestedListingIds } from '../../lib/ngo-my-requests-filters'
+import { getNgoServiceCoordinates } from '../../lib/ngo-service-location'
 import { paginateItems } from '../../lib/paginate-items'
 import { toast } from '../../lib/toast'
 import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
@@ -17,6 +19,11 @@ import { requestService } from '../../services/request-service'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 
 export function NgoBrowseListingsPage() {
+  const { state } = useAuth()
+  const ngoCoordinates =
+    state.status === 'authed' ? getNgoServiceCoordinates(state.user) : null
+  const showLocationHint = state.status === 'authed' && ngoCoordinates === null
+
   const [listings, setListings] = useState<NgoBrowseListing[]>([])
   const [requestedListingIds, setRequestedListingIds] = useState<Set<string>>(
     new Set(),
@@ -103,7 +110,11 @@ export function NgoBrowseListingsPage() {
         </p>
       </header>
 
-      <NgoBrowseFilterBar filters={filters} onChange={handleFiltersChange} />
+      <NgoBrowseFilterBar
+        filters={filters}
+        onChange={handleFiltersChange}
+        showLocationHint={showLocationHint}
+      />
 
       {loadState === 'loading' ? (
         <p className="text-body text-sm">{ngoBrowseContent.loading}</p>
@@ -124,6 +135,7 @@ export function NgoBrowseListingsPage() {
                   <NgoListingCard
                     key={listing._id}
                     listing={listing}
+                    ngoCoordinates={ngoCoordinates}
                     hasRequested={requestedListingIds.has(listing._id)}
                   />
                 ))}

@@ -2,12 +2,12 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { LogOut, Settings, User } from 'lucide-react'
 import { Link } from 'react-router'
 import type { UserRole } from '../../constants/registration-roles'
-import { getOrgInitials } from '../../lib/org-initials'
 import { cn } from '../../lib/utils'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import { ngoPortalContent } from '../../placeholder/ngo-browse-content'
 import { ROUTES } from '../../routes/paths'
 import { useAuth } from '../../auth'
+import { AccountAvatar } from '../ui/account-avatar'
 
 type AvatarMenuProps = {
   organisationName: string
@@ -41,7 +41,6 @@ export function AvatarMenu({
   className,
 }: AvatarMenuProps) {
   const { logout } = useAuth()
-  const initials = getOrgInitials(organisationName)
   const copy = menuCopy(role)
 
   return (
@@ -56,17 +55,11 @@ export function AvatarMenu({
           )}
           aria-label={`${organisationName} account menu`}
         >
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt=""
-              className="size-8 rounded-full object-cover"
-            />
-          ) : (
-            <span className="bg-primary flex size-8 items-center justify-center rounded-full text-xs font-semibold text-white">
-              {initials}
-            </span>
-          )}
+          <AccountAvatar
+            name={organisationName}
+            avatarUrl={avatarUrl}
+            size="sm"
+          />
         </button>
       </DropdownMenu.Trigger>
 
@@ -77,9 +70,11 @@ export function AvatarMenu({
           className="border-border z-50 min-w-56 rounded-xl border bg-white p-2 shadow-lg"
         >
           <div className="flex items-center gap-3 px-2 py-2">
-            <span className="bg-primary flex size-10 items-center justify-center rounded-full text-sm font-semibold text-white">
-              {initials}
-            </span>
+            <AccountAvatar
+              name={organisationName}
+              avatarUrl={avatarUrl}
+              size="md"
+            />
             <div className="min-w-0">
               <p className="text-charcoal truncate text-sm font-semibold">
                 {organisationName}

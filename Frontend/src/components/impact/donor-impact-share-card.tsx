@@ -1,11 +1,31 @@
 import { Download } from 'lucide-react'
+import type { DonorImpactSummary } from '../../types/donor-impact'
+import { exportDonorImpactPdf } from '../../lib/export'
 import { donorImpactContent } from '../../placeholder/donor-impact-content'
-import { Button } from '../ui/button'
+import { exportContent } from '../../placeholder/export-content'
 import { toast } from '../../lib/toast'
+import { Button } from '../ui/button'
 
-export function DonorImpactShareCard() {
+type DonorImpactShareCardProps = {
+  organisationName: string
+  impact: DonorImpactSummary
+}
+
+export function DonorImpactShareCard({
+  organisationName,
+  impact,
+}: DonorImpactShareCardProps) {
   const handleDownload = () => {
-    toast.info(donorImpactContent.share.pdfDeferred)
+    void toast.promise(
+      Promise.resolve().then(() =>
+        exportDonorImpactPdf({ organisationName, impact }),
+      ),
+      {
+        loading: exportContent.toast.donorPdf.loading,
+        success: exportContent.toast.donorPdf.success,
+        error: exportContent.toast.donorPdf.error,
+      },
+    )
   }
 
   return (

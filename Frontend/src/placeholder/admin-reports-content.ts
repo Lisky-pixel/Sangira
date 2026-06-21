@@ -9,9 +9,8 @@ export const adminReportsContent = {
   exports: {
     csv: 'Export CSV',
     pdf: 'Export PDF',
-    csvAria: 'Export reports as CSV (coming soon)',
-    pdfAria: 'Export reports as PDF (coming soon)',
-    deferredToast: 'Report exports are coming soon.',
+    csvAria: 'Export reports as CSV',
+    pdfAria: 'Export reports as PDF',
   },
   stats: {
     mealsRedistributed: {

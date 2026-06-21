@@ -1,11 +1,63 @@
 import { FileSpreadsheet, FileText } from 'lucide-react'
+import {
+  adminReportsEmptyMessage,
+  exportAdminReportsCsv,
+  exportAdminReportsPdf,
+  hasAdminReportsExportData,
+} from '../../lib/export'
 import { adminReportsContent } from '../../placeholder/admin-reports-content'
+import { exportContent } from '../../placeholder/export-content'
+import type { AdminReportsData } from '../../types/admin-reports'
 import { toast } from '../../lib/toast'
 import { Button } from '../ui/button'
 
-export function AdminReportsHeaderActions() {
-  const handleExport = () => {
-    toast.info(adminReportsContent.exports.deferredToast)
+type AdminReportsHeaderActionsProps = {
+  reports: AdminReportsData | null
+}
+
+export function AdminReportsHeaderActions({
+  reports,
+}: AdminReportsHeaderActionsProps) {
+  const canExport = reports ? hasAdminReportsExportData(reports) : false
+
+  const handleCsvExport = () => {
+    if (!reports) {
+      return
+    }
+
+    if (!canExport) {
+      toast.info(adminReportsEmptyMessage())
+      return
+    }
+
+    void toast.promise(
+      Promise.resolve().then(() => exportAdminReportsCsv(reports)),
+      {
+        loading: exportContent.toast.adminCsv.loading,
+        success: exportContent.toast.adminCsv.success,
+        error: exportContent.toast.adminCsv.error,
+      },
+    )
+  }
+
+  const handlePdfExport = () => {
+    if (!reports) {
+      return
+    }
+
+    if (!canExport) {
+      toast.info(adminReportsEmptyMessage())
+      return
+    }
+
+    void toast.promise(
+      Promise.resolve().then(() => exportAdminReportsPdf(reports)),
+      {
+        loading: exportContent.toast.adminPdf.loading,
+        success: exportContent.toast.adminPdf.success,
+        error: exportContent.toast.adminPdf.error,
+      },
+    )
   }
 
   return (
@@ -18,7 +70,8 @@ export function AdminReportsHeaderActions() {
         variant="outline"
         className="gap-2"
         aria-label={adminReportsContent.exports.csvAria}
-        onClick={handleExport}
+        disabled={!reports || !canExport}
+        onClick={handleCsvExport}
       >
         <FileSpreadsheet aria-hidden="true" className="size-4" />
         {adminReportsContent.exports.csv}
@@ -28,7 +81,8 @@ export function AdminReportsHeaderActions() {
         variant="outline"
         className="gap-2"
         aria-label={adminReportsContent.exports.pdfAria}
-        onClick={handleExport}
+        disabled={!reports || !canExport}
+        onClick={handlePdfExport}
       >
         <FileText aria-hidden="true" className="size-4" />
         {adminReportsContent.exports.pdf}

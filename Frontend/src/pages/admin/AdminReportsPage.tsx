@@ -54,7 +54,7 @@ export function AdminReportsPage() {
             {adminReportsContent.pageSubtitle}
           </p>
         </div>
-        <AdminReportsHeaderActions />
+        <AdminReportsHeaderActions reports={reports} />
       </header>
 
       {loadState === 'loading' ? (

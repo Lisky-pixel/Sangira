@@ -35,7 +35,6 @@ export const donorImpactContent = {
     description:
       'Generate a summary report of your redistribution activity for your records or stakeholders.',
     downloadPdf: 'Download impact summary (PDF)',
-    pdfDeferred: 'PDF impact summaries are coming soon.',
   },
   routes: {
     dashboard: ROUTES.DONOR_DASHBOARD,

@@ -83,7 +83,10 @@ export function DonorImpactPage() {
           <DonorImpactMealsChart data={impact.monthlySeries} className="min-h-0 flex-1" />
         </article>
 
-        <DonorImpactShareCard />
+        <DonorImpactShareCard
+          organisationName={organisationName}
+          impact={impact}
+        />
       </section>
     </div>
   )

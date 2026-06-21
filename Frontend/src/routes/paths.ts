@@ -119,8 +119,6 @@ export const LANDING_ANCHORS = {
 } as const
 
 export const COMING_SOON_PATHS = [
-  ROUTES.PRIVACY,
-  ROUTES.TERMS,
   ROUTES.HELP,
   ROUTES.CONTACT,
 ] as const

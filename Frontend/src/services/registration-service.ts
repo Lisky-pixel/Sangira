@@ -21,6 +21,7 @@ export type RegistrationSubmitPayload = {
   email: string
   password: string
   document: File
+  termsAccepted: boolean
   ngo?: RegistrationNgoPayload
 }
 
@@ -40,6 +41,7 @@ function appendRegistrationFields(
   formData.append('email', payload.email)
   formData.append('password', payload.password)
   formData.append('document', payload.document)
+  formData.append('termsAccepted', String(payload.termsAccepted))
 
   if (payload.ngo) {
     formData.append('registrationNumber', payload.ngo.registrationNumber)
@@ -60,6 +62,10 @@ export async function submitRegistration(
 
   if (payload.role === 'ngo' && !payload.ngo?.registrationNumber) {
     throw new Error('Incomplete NGO registration payload')
+  }
+
+  if (!payload.termsAccepted) {
+    throw new Error('Terms must be accepted before registration')
   }
 
   const formData = new FormData()
@@ -84,6 +90,7 @@ export function buildRegistrationSubmitPayload(state: {
   registrationNumber: string
   dailyCapacity: number
   transportAvailable: boolean
+  termsAccepted: boolean
 }): RegistrationSubmitPayload | null {
   const document = state.documents[0]
 
@@ -104,6 +111,7 @@ export function buildRegistrationSubmitPayload(state: {
     email: state.email,
     password: state.password,
     document: document.file,
+    termsAccepted: state.termsAccepted,
   }
 
   if (state.role === 'ngo') {

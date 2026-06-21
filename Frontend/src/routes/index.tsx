@@ -11,6 +11,7 @@ import { DonorHandoverPage } from '../pages/donor/DonorHandoverPage'
 import { NgoComingSoon, NgoPortalLayout } from '../components/ngo'
 import { VERIFICATION_STATUS } from '../constants/verification-status'
 import { RegistrationWizard } from '../features/registration'
+import { TermsPage } from '../pages/TermsPage'
 import { ComingSoon } from '../pages/ComingSoon'
 import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
 import { DonorImpactPage } from '../pages/donor/DonorImpactPage'
@@ -344,6 +345,14 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.GET_STARTED_LEGACY,
         element: <Navigate replace to={ROUTES.REGISTER} />,
+      },
+      {
+        path: ROUTES.TERMS,
+        element: <TermsPage />,
+      },
+      {
+        path: ROUTES.PRIVACY,
+        element: <TermsPage />,
       },
       ...COMING_SOON_PATHS.map((path) => ({
         path,

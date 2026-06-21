@@ -17,6 +17,7 @@ export type RegistrationState = {
   registrationNumber: string
   dailyCapacity: number
   transportAvailable: boolean
+  termsAccepted: boolean
   // TODO: NGO sector (orphanage | shelter | community_centre) — unset at registration
 }
 
@@ -31,6 +32,7 @@ export const initialRegistrationState: RegistrationState = {
   registrationNumber: '',
   dailyCapacity: 0,
   transportAvailable: false,
+  termsAccepted: false,
 }
 
 export type RegistrationDetailsPayload = Pick<
@@ -48,6 +50,7 @@ export type RegistrationAction =
   | { type: 'SET_DETAILS'; payload: RegistrationDetailsPayload }
   | { type: 'SET_DOCUMENT'; document: RegistrationDocument | null }
   | { type: 'SET_NGO_FIELDS'; payload: RegistrationNgoFieldsPayload }
+  | { type: 'SET_TERMS_ACCEPTED'; termsAccepted: boolean }
   | { type: 'RESET' }
 
 export function registrationReducer(
@@ -66,6 +69,8 @@ export function registrationReducer(
       }
     case 'SET_NGO_FIELDS':
       return { ...state, ...action.payload }
+    case 'SET_TERMS_ACCEPTED':
+      return { ...state, termsAccepted: action.termsAccepted }
     case 'RESET':
       return initialRegistrationState
     default:

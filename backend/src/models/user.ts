@@ -31,6 +31,7 @@ export type IUser = {
   notificationPrefs: NotificationPreferences
   avatarUrl?: string
   passwordChangedAt?: Date
+  termsAcceptedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -167,6 +168,8 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     },
     avatarUrl: { type: String, trim: true },
     passwordChangedAt: { type: Date },
+    /** Set when the organisation accepts Terms & Conditions at registration */
+    termsAcceptedAt: { type: Date },
   },
   {
     timestamps: true,

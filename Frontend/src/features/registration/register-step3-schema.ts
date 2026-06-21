@@ -1,13 +1,14 @@
 import { z } from 'zod'
 import { DAILY_CAPACITY_MIN } from '../../constants/ngo-registration'
 import { registerStep3Content } from '../../placeholder/register-content'
+import { termsContent } from '../../placeholder/terms-content'
 
-const confirmedSchema = z.boolean().refine((value) => value, {
-  message: registerStep3Content.validation.confirmationRequired,
+const termsAcceptedSchema = z.boolean().refine((value) => value, {
+  message: termsContent.validationRequired,
 })
 
 export const registerStep3DonorSchema = z.object({
-  confirmed: confirmedSchema,
+  termsAccepted: termsAcceptedSchema,
 })
 
 export const registerStep3NgoSchema = z.object({
@@ -18,7 +19,7 @@ export const registerStep3NgoSchema = z.object({
     .number()
     .min(DAILY_CAPACITY_MIN, registerStep3Content.validation.dailyCapacityMin),
   transportAvailable: z.boolean(),
-  confirmed: confirmedSchema,
+  termsAccepted: termsAcceptedSchema,
 })
 
 export type RegisterStep3DonorFormValues = z.infer<

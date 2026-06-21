@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { TextField } from '../../components/form/text-field'
-import { Checkbox } from '../../components/ui/checkbox'
+import { TermsAgreementField } from '../../components/legal/terms-agreement-field'
 import { FileDropzone } from '../../components/ui/file-dropzone'
 import { InfoBanner } from '../../components/ui/info-banner'
 import { Button } from '../../components/ui/button'
@@ -73,6 +73,8 @@ function useStep3Submit(role: UserRole) {
       })
     }
 
+    dispatch({ type: 'SET_TERMS_ACCEPTED', termsAccepted: true })
+
     const payload = buildRegistrationSubmitPayload({
       role,
       organisationName: state.organisationName,
@@ -84,6 +86,7 @@ function useStep3Submit(role: UserRole) {
       registrationNumber: ngoValues?.registrationNumber ?? '',
       dailyCapacity: ngoValues?.dailyCapacity ?? 0,
       transportAvailable: ngoValues?.transportAvailable ?? false,
+      termsAccepted: true,
     })
 
     if (!payload) return
@@ -131,14 +134,24 @@ function RegisterStep3DonorForm({
   onReplace,
   fileInputRef,
 }: Step3SharedProps) {
+  const { state, dispatch } = useRegistration()
   const copy = registerStep3Content.copyByRole.donor
   const submitStep = useStep3Submit('donor')
 
   const methods = useForm<RegisterStep3DonorFormValues>({
     resolver: zodResolver(registerStep3DonorSchema),
     mode: 'onChange',
-    defaultValues: { confirmed: false },
+    defaultValues: { termsAccepted: state.termsAccepted },
   })
+
+  useEffect(() => {
+    return () => {
+      dispatch({
+        type: 'SET_TERMS_ACCEPTED',
+        termsAccepted: methods.getValues('termsAccepted'),
+      })
+    }
+  }, [dispatch, methods])
 
   const dropzoneHint = copy.dropzoneHint(
     ACCEPTED_DOCUMENT_LABEL,
@@ -146,7 +159,7 @@ function RegisterStep3DonorForm({
   )
 
   const handleSubmit = methods.handleSubmit(async (values) => {
-    if (!values.confirmed || !uploadedDocument) return
+    if (!values.termsAccepted || !uploadedDocument) return
 
     try {
       await submitStep()
@@ -157,7 +170,6 @@ function RegisterStep3DonorForm({
 
   const handleReplace = () => {
     onReplace()
-    methods.setValue('confirmed', false)
   }
 
   return (
@@ -187,14 +199,13 @@ function RegisterStep3DonorForm({
         ) : null}
 
         <Controller
-          name="confirmed"
+          name="termsAccepted"
           control={methods.control}
           render={({ field }) => (
-            <Checkbox
-              name="confirmed"
+            <TermsAgreementField
+              name="termsAccepted"
               checked={field.value}
-              onChange={(event) => field.onChange(event.target.checked)}
-              label={registerStep3Content.confirmationLabel}
+              onChange={field.onChange}
               className="mt-6"
             />
           )}
@@ -232,7 +243,7 @@ function RegisterStep3NgoForm({
       registrationNumber: state.registrationNumber,
       dailyCapacity: resolveDailyCapacity(state.dailyCapacity),
       transportAvailable: state.transportAvailable,
-      confirmed: false,
+      termsAccepted: state.termsAccepted,
     },
   })
 
@@ -247,13 +258,17 @@ function RegisterStep3NgoForm({
           transportAvailable: values.transportAvailable,
         },
       })
+      dispatch({
+        type: 'SET_TERMS_ACCEPTED',
+        termsAccepted: values.termsAccepted,
+      })
     }
   }, [dispatch, methods])
 
   const dropzoneHint = copy.dropzoneHint
 
   const handleSubmit = methods.handleSubmit(async (values) => {
-    if (!values.confirmed || !uploadedDocument) return
+    if (!values.termsAccepted || !uploadedDocument) return
 
     try {
       await submitStep(values)
@@ -264,7 +279,6 @@ function RegisterStep3NgoForm({
 
   const handleReplace = () => {
     onReplace()
-    methods.setValue('confirmed', false)
   }
 
   return (
@@ -329,14 +343,13 @@ function RegisterStep3NgoForm({
         ) : null}
 
         <Controller
-          name="confirmed"
+          name="termsAccepted"
           control={methods.control}
           render={({ field }) => (
-            <Checkbox
-              name="confirmed"
+            <TermsAgreementField
+              name="termsAccepted"
               checked={field.value}
-              onChange={(event) => field.onChange(event.target.checked)}
-              label={registerStep3Content.confirmationLabel}
+              onChange={field.onChange}
               className="mt-6"
             />
           )}

@@ -12,6 +12,12 @@ const passwordSchema = z
     'Password must be moderate strength or stronger',
   )
 
+const termsAcceptedSchema = z.preprocess((value) => {
+  if (value === 'true' || value === true) return true
+  if (value === 'false' || value === false) return false
+  return value
+}, z.literal(true, { message: 'You must accept the Terms and Conditions' }))
+
 const registerBaseSchema = z.object({
   organisationName: z
     .string()
@@ -23,6 +29,7 @@ const registerBaseSchema = z.object({
     .refine(isValidRwandanMobile, 'Enter a valid Rwanda mobile number'),
   email: z.string().email('Enter a valid email address'),
   password: passwordSchema,
+  termsAccepted: termsAcceptedSchema,
 })
 
 export const registerDonorSchema = registerBaseSchema.extend({

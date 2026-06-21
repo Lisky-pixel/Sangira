@@ -7,6 +7,7 @@ import {
   type Role,
 } from '../constants/enums.js'
 import { TRANSPORT_MODE } from '../constants/transport-mode.js'
+import { TERMS_ERROR_CODES, TERMS_MESSAGES } from '../constants/terms.js'
 import { Donor, Ngo, User } from '../models/user.js'
 import { RefreshToken } from '../models/refresh-token.js'
 import {
@@ -131,6 +132,13 @@ export async function registerUser(
     documents: [documentEntry],
   }
 
+  if (!input.termsAccepted) {
+    throw badRequest(
+      TERMS_MESSAGES.TERMS_NOT_ACCEPTED,
+      TERMS_ERROR_CODES.TERMS_NOT_ACCEPTED,
+    )
+  }
+
   try {
     if (input.role === ROLES.DONOR) {
       const user = await Donor.create({
@@ -142,6 +150,7 @@ export async function registerUser(
         phone: normalizedPhone,
         businessCertificateUrl: upload.url,
         verification,
+        termsAcceptedAt: now,
       })
 
       const tokens = await issueAuthTokens(user._id.toString(), ROLES.DONOR, req)
@@ -166,6 +175,7 @@ export async function registerUser(
           : {}),
       },
       verification,
+      termsAcceptedAt: now,
     })
 
     const tokens = await issueAuthTokens(user._id.toString(), ROLES.NGO, req)

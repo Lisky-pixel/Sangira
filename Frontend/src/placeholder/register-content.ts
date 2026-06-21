@@ -94,8 +94,6 @@ export const registerStep3Content = {
     transportLabel: 'We have our own transport',
   },
   slaBanner: 'Most reviews are completed within 2 business days.',
-  confirmationLabel:
-    'I confirm this document is current and belongs to my organisation',
   submitLabel: 'Submit for verification',
   dropzone: {
     ariaLabel: 'Upload verification document',
@@ -107,7 +105,6 @@ export const registerStep3Content = {
   validation: {
     invalidType: (acceptedLabel: string) => `File must be ${acceptedLabel}`,
     tooLarge: (maxSizeMb: number) => `File must be under ${maxSizeMb} MB`,
-    confirmationRequired: 'Please confirm your document is current',
     registrationNumberRequired:
       'Organisational registration number is required',
     dailyCapacityMin: 'Daily intake capacity must be zero or greater',

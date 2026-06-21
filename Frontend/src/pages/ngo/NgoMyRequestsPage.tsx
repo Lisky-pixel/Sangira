@@ -27,7 +27,8 @@ function parseTabParam(value: string | null): NgoRequestsTab {
     value === NGO_REQUESTS_TAB.PENDING ||
     value === NGO_REQUESTS_TAB.ACCEPTED ||
     value === NGO_REQUESTS_TAB.COMPLETED ||
-    value === NGO_REQUESTS_TAB.DECLINED
+    value === NGO_REQUESTS_TAB.DECLINED ||
+    value === NGO_REQUESTS_TAB.EXPIRED
   ) {
     return value
   }
@@ -43,6 +44,7 @@ export function NgoMyRequestsPage() {
     accepted: 0,
     completed: 0,
     declined: 0,
+    expired: 0,
   })
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(
     'loading',

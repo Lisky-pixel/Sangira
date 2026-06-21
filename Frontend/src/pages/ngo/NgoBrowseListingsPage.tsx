@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth'
 import { ListingsPager } from '../../components/donor/listings-pager'
 import { NgoBrowseFilterBar } from '../../components/ngo/ngo-browse-filter-bar'
+import { NgoBrowseMapPanelLazy } from '../../components/ngo/ngo-browse-map-lazy'
+import { NgoBrowseViewToggle } from '../../components/ngo/ngo-browse-view-toggle'
 import { NgoListingCard } from '../../components/ngo/ngo-listing-card'
 import { MY_LISTINGS_PAGE_SIZE } from '../../constants/my-listings'
 import {
@@ -17,6 +19,7 @@ import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
 import { listingService } from '../../services/listing-service'
 import { requestService } from '../../services/request-service'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
+import type { NgoBrowseViewMode } from '../../components/ngo/ngo-browse-view-toggle'
 
 export function NgoBrowseListingsPage() {
   const { state, refreshMe } = useAuth()
@@ -32,6 +35,7 @@ export function NgoBrowseListingsPage() {
   )
   const [filters, setFilters] = useState(EMPTY_NGO_BROWSE_FILTERS)
   const [page, setPage] = useState(1)
+  const [viewMode, setViewMode] = useState<NgoBrowseViewMode>('list')
 
   useEffect(() => {
     if (state.status === 'authed') {
@@ -115,7 +119,13 @@ export function NgoBrowseListingsPage() {
         </p>
       </header>
 
-      <NgoBrowseFilterBar filters={filters} onChange={handleFiltersChange} />
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-end">
+          <NgoBrowseViewToggle view={viewMode} onChange={setViewMode} />
+        </div>
+
+        <NgoBrowseFilterBar filters={filters} onChange={handleFiltersChange} />
+      </div>
 
       {loadState === 'loading' ? (
         <p className="text-body text-sm">{ngoBrowseContent.loading}</p>
@@ -127,7 +137,25 @@ export function NgoBrowseListingsPage() {
 
       {loadState === 'ready' ? (
         <>
-          {filteredListings.length === 0 ? (
+          {viewMode === 'map' ? (
+            filteredListings.length === 0 ? (
+              <p className="text-body text-sm">{emptyMessage}</p>
+            ) : (
+              <Suspense
+                fallback={
+                  <p className="text-body text-sm">
+                    {ngoBrowseContent.map.loading}
+                  </p>
+                }
+              >
+                <NgoBrowseMapPanelLazy
+                  listings={filteredListings}
+                  ngoCoordinates={ngoCoordinates}
+                  requestedListingIds={requestedListingIds}
+                />
+              </Suspense>
+            )
+          ) : filteredListings.length === 0 ? (
             <p className="text-body text-sm">{emptyMessage}</p>
           ) : (
             <>

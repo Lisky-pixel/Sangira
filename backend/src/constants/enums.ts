@@ -48,6 +48,7 @@ export const REQUEST_STATUS = {
   REQUESTED: 'requested',
   ACCEPTED: 'accepted',
   DECLINED: 'declined',
+  EXPIRED: 'expired',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 } as const

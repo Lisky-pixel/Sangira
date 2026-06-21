@@ -35,7 +35,6 @@ export const ngoBrowseContent = {
     searchLabel: 'Search listings',
     searchPlaceholder: 'Search by food type or donor',
     expiresToday: 'Expires today',
-    // TODO: distance/map slice — add "Within 5 km" chip and Map view toggle here
     locationHint:
       'Set your location in your profile to see distances.',
     locationHintLink: 'Profile',
@@ -73,6 +72,25 @@ export const ngoBrowseContent = {
   empty: 'No listings match your filters right now.',
   emptyAvailable: 'No surplus listings are available right now.',
   footnote: 'Donors shown are verified for food safety compliance.',
+  viewToggle: {
+    ariaLabel: 'Browse view',
+    list: 'List',
+    map: 'Map',
+  },
+  map: {
+    loading: 'Loading map…',
+    emptyMappable:
+      'No mappable listings — locations aren\u2019t available for the current results.',
+    ngoLocationLabel: 'Your location',
+    popup: {
+      verifiedDonor: 'Verified',
+      viewListing: 'View listing',
+      request: 'Request',
+      requested: 'Requested',
+      quantityLine: (quantity: number, unitLabel: string) =>
+        `${quantity} ${unitLabel}`,
+    },
+  },
   pager: {
     previous: 'Previous page',
     next: 'Next page',

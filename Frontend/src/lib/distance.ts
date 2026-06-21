@@ -105,3 +105,11 @@ export function getDistanceForListing(
 
   return haversineKm(ngoCoords, listingCoords)
 }
+
+/** Leaflet expects [latitude, longitude] */
+export type LeafletLatLng = [number, number]
+
+export function toLeafletLatLng(coords: LngLat): LeafletLatLng {
+  const [lng, lat] = coords
+  return [lat, lng]
+}

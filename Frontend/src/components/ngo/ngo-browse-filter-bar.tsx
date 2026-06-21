@@ -118,7 +118,6 @@ export function NgoBrowseFilterBar({
           }
         />
 
-        {/* TODO: distance/map slice — Within 5 km chip + Map view toggle */}
       </div>
 
       {showLocationHint ? (

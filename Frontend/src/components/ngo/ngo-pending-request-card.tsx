@@ -3,8 +3,10 @@ import { TRANSFER_RECEIPT_FROM } from '../../constants/transfer-receipt'
 import { formatRelativeTime } from '../../lib/relative-time'
 import {
   NGO_DECLINED_REASON,
+  NGO_EXPIRED_REASON,
   ngoMyRequestsContent,
 } from '../../placeholder/ngo-my-requests-content'
+import { REQUEST_STATUS } from '../../constants/request-status'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { transferReceiptPath } from '../../routes/paths'
 import type { NgoMyRequest } from '../../types/ngo-my-request'
@@ -53,24 +55,39 @@ export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
   const unitLabel =
     postListingContent.quantityUnitLabels[request.listing.quantityUnit]
   const whenLabel = formatRelativeTime(
-    request.completedAt ?? request.declinedAt ?? request.updatedAt,
+    request.completedAt ??
+      request.declinedAt ??
+      request.expiredAt ??
+      request.updatedAt,
   )
 
   const subcopy =
-    request.status === 'completed'
+    request.status === REQUEST_STATUS.COMPLETED
       ? ngoMyRequestsContent.compactRow.completed(whenLabel)
-      : ngoMyRequestsContent.compactRow.declined(
-          request.declinedReason ??
-            NGO_DECLINED_REASON.ANOTHER_ORGANISATION_ACCEPTED,
-          whenLabel,
-        )
+      : request.status === REQUEST_STATUS.EXPIRED
+        ? ngoMyRequestsContent.compactRow.expired(
+            request.expiredReason ??
+              NGO_EXPIRED_REASON.LISTING_EXPIRED_UNFULFILLED,
+            whenLabel,
+          )
+        : ngoMyRequestsContent.compactRow.declined(
+            request.declinedReason ??
+              NGO_DECLINED_REASON.ANOTHER_ORGANISATION_ACCEPTED,
+            whenLabel,
+          )
 
   const chipStatus =
-    request.status === 'completed' ? 'completed' : 'expired'
+    request.status === REQUEST_STATUS.COMPLETED
+      ? 'completed'
+      : request.status === REQUEST_STATUS.EXPIRED
+        ? 'expired'
+        : 'expired'
   const chipLabel =
-    request.status === 'completed'
+    request.status === REQUEST_STATUS.COMPLETED
       ? ngoMyRequestsContent.status.completed
-      : ngoMyRequestsContent.status.declined
+      : request.status === REQUEST_STATUS.EXPIRED
+        ? ngoMyRequestsContent.status.expired
+        : ngoMyRequestsContent.status.declined
 
   const content = (
     <>
@@ -85,7 +102,7 @@ export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
           {request.donor.organisationName} · {subcopy}
         </p>
       </div>
-      {request.status === 'completed' ? (
+      {request.status === REQUEST_STATUS.COMPLETED ? (
         <span aria-hidden="true" className="text-body shrink-0">
           ›
         </span>
@@ -93,7 +110,7 @@ export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
     </>
   )
 
-  if (request.status === 'completed') {
+  if (request.status === REQUEST_STATUS.COMPLETED) {
     return (
       <Link
         to={transferReceiptPath(

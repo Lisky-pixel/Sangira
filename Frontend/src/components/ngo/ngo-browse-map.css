@@ -1,0 +1,33 @@
+.ngo-browse-map-marker {
+  background: transparent;
+  border: none;
+}
+
+.ngo-browse-map-marker__dot {
+  display: block;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgb(26 26 26 / 0.28);
+}
+
+.ngo-browse-map-marker__dot--listing {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #c45c3e;
+}
+
+.ngo-browse-map-marker__dot--ngo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #2d6a4f;
+}
+
+.ngo-browse-map .leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+}
+
+.ngo-browse-map-popup .leaflet-popup-content {
+  margin: 0.75rem;
+}

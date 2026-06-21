@@ -18,6 +18,8 @@ export function filterNgoRequestsByTab(
       return requests.filter((r) => r.status === REQUEST_STATUS.COMPLETED)
     case NGO_REQUESTS_TAB.DECLINED:
       return requests.filter((r) => r.status === REQUEST_STATUS.DECLINED)
+    case NGO_REQUESTS_TAB.EXPIRED:
+      return requests.filter((r) => r.status === REQUEST_STATUS.EXPIRED)
     default:
       return requests
   }
@@ -44,7 +46,8 @@ export function getEarlierHistoryRequests(
     .filter(
       (request) =>
         request.status === REQUEST_STATUS.COMPLETED ||
-        request.status === REQUEST_STATUS.DECLINED,
+        request.status === REQUEST_STATUS.DECLINED ||
+        request.status === REQUEST_STATUS.EXPIRED,
     )
     .slice(0, 10)
 }

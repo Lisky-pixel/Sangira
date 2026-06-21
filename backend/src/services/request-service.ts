@@ -18,6 +18,7 @@ import {
   notifyNgoRequestAccepted,
   notifyDonorRequestAccepted,
 } from './notification-service.js'
+import { reconcileExpiredPendingRequestsForNgo } from './expire-pending-requests-service.js'
 import {
   AppError,
   conflict,
@@ -193,12 +194,14 @@ export async function ngoHasActiveRequestForListing(input: {
 export async function listMyRequestsForNgo(
   ngoId: string,
 ): Promise<SerializedNgoMyRequestsResult> {
+  await reconcileExpiredPendingRequestsForNgo(ngoId)
+
   const requests = await FoodRequest.find({ ngo: ngoId })
     .select('+confirmation.pickupPinHash +confirmation.qrToken')
     .populate({
       path: 'listing',
       select:
-        'title quantity quantityUnit photos pickupAddress pickupLocation expiresAt donor',
+        'title quantity quantityUnit photos pickupAddress pickupLocation expiresAt status donor',
       populate: {
         path: 'donor',
         model: User,

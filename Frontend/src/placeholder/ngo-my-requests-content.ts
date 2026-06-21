@@ -4,6 +4,11 @@ export const NGO_DECLINED_REASON = {
   ANOTHER_ORGANISATION_ACCEPTED: 'Another organisation was accepted',
 } as const
 
+export const NGO_EXPIRED_REASON = {
+  LISTING_EXPIRED_UNFULFILLED:
+    'Listing expired before the donor accepted a request',
+} as const
+
 export const ngoMyRequestsContent = {
   pageTitle: 'My requests',
   pageSubtitle: 'Track your food requests and pickups.',
@@ -15,6 +20,7 @@ export const ngoMyRequestsContent = {
     accepted: 'Accepted',
     completed: 'Completed',
     declined: 'Declined',
+    expired: 'Expired',
   },
   tabCount: (count: number) => `(${count})`,
   empty: {
@@ -22,6 +28,7 @@ export const ngoMyRequestsContent = {
     accepted: 'No accepted pickups right now.',
     completed: 'No completed pickups yet.',
     declined: 'No declined requests.',
+    expired: 'No expired requests.',
   },
   earlierHeading: 'Earlier',
   status: {
@@ -29,6 +36,7 @@ export const ngoMyRequestsContent = {
     pending: 'Pending',
     completed: 'Completed',
     declined: 'Declined',
+    expired: 'Expired',
   },
   acceptedCard: {
     pickupLocation: 'Pickup Location',
@@ -46,6 +54,7 @@ export const ngoMyRequestsContent = {
   compactRow: {
     completed: (when: string) => `Completed ${when}`,
     declined: (reason: string, when: string) => `${reason} · ${when}`,
+    expired: (reason: string, when: string) => `${reason} · ${when}`,
   },
   deadline: {
     pickupByToday: (time: string) => `Pick up by ${time} today`,

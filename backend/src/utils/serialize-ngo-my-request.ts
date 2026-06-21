@@ -1,7 +1,18 @@
-import type { RequestStatus } from '../constants/enums.js'
+import {
+  LISTING_STATUS,
+  REQUEST_STATUS,
+  type ListingStatus,
+  type RequestStatus,
+} from '../constants/enums.js'
 import type { QuantityUnit } from '../constants/listing-form.js'
-import { NGO_DECLINED_REASON } from '../constants/ngo-requests.js'
-import { REQUEST_STATUS } from '../constants/enums.js'
+import {
+  NGO_DECLINED_REASON,
+  NGO_EXPIRED_REASON,
+} from '../constants/ngo-requests.js'
+import {
+  isListingExpiredByTime,
+  resolveEffectiveListingStatus,
+} from './resolve-effective-listing-status.js'
 import type { SerializedPickupLocation } from './serialize-listing.js'
 
 export type SerializedNgoMyRequestListing = {
@@ -33,6 +44,8 @@ export type SerializedNgoMyRequest = {
   completedAt?: string
   declinedAt?: string
   declinedReason?: string
+  expiredAt?: string
+  expiredReason?: string
 }
 
 export type SerializedNgoMyRequestsResult = {
@@ -42,6 +55,7 @@ export type SerializedNgoMyRequestsResult = {
     accepted: number
     completed: number
     declined: number
+    expired: number
   }
 }
 
@@ -62,6 +76,7 @@ type PopulatedListingLike = {
     coordinates?: number[] | null
   } | null
   expiresAt: Date
+  status: ListingStatus
   donor: PopulatedDonorLike
 }
 
@@ -133,20 +148,47 @@ function serializeDonor(donor: PopulatedDonorLike): SerializedNgoMyRequestDonor 
   }
 }
 
+function resolveSerializedRequestStatus(
+  request: NgoMyRequestRow,
+  now = new Date(),
+): RequestStatus {
+  if (request.status !== REQUEST_STATUS.REQUESTED) {
+    return request.status
+  }
+
+  const effectiveListingStatus = resolveEffectiveListingStatus(
+    request.listing.status,
+    request.listing.expiresAt,
+    now,
+  )
+
+  if (
+    effectiveListingStatus === LISTING_STATUS.EXPIRED ||
+    isListingExpiredByTime(request.listing.expiresAt, now)
+  ) {
+    return REQUEST_STATUS.EXPIRED
+  }
+
+  return request.status
+}
+
 export function serializeNgoMyRequest(
   request: NgoMyRequestRow,
+  now = new Date(),
 ): SerializedNgoMyRequest {
+  const status = resolveSerializedRequestStatus(request, now)
+
   const serialized: SerializedNgoMyRequest = {
     _id: request._id.toString(),
     listingId: request.listing._id.toString(),
-    status: request.status,
+    status,
     createdAt: request.createdAt.toISOString(),
     updatedAt: request.updatedAt.toISOString(),
     listing: serializeListing(request.listing),
     donor: serializeDonor(request.listing.donor),
   }
 
-  if (request.status === REQUEST_STATUS.ACCEPTED) {
+  if (status === REQUEST_STATUS.ACCEPTED) {
     const handoverReady = Boolean(
       request.confirmation?.pickupPinHash && request.confirmation?.qrToken,
     )
@@ -155,16 +197,21 @@ export function serializeNgoMyRequest(
     }
   }
 
-  if (request.status === REQUEST_STATUS.COMPLETED) {
+  if (status === REQUEST_STATUS.COMPLETED) {
     const completedAt = request.confirmation?.completedAt
     if (completedAt) {
       serialized.completedAt = completedAt.toISOString()
     }
   }
 
-  if (request.status === REQUEST_STATUS.DECLINED) {
+  if (status === REQUEST_STATUS.DECLINED) {
     serialized.declinedAt = request.updatedAt.toISOString()
     serialized.declinedReason = NGO_DECLINED_REASON.ANOTHER_ORGANISATION_ACCEPTED
+  }
+
+  if (status === REQUEST_STATUS.EXPIRED) {
+    serialized.expiredAt = request.updatedAt.toISOString()
+    serialized.expiredReason = NGO_EXPIRED_REASON.LISTING_EXPIRED_UNFULFILLED
   }
 
   return serialized
@@ -178,5 +225,6 @@ export function countNgoMyRequestsByTab(
     accepted: requests.filter((r) => r.status === REQUEST_STATUS.ACCEPTED).length,
     completed: requests.filter((r) => r.status === REQUEST_STATUS.COMPLETED).length,
     declined: requests.filter((r) => r.status === REQUEST_STATUS.DECLINED).length,
+    expired: requests.filter((r) => r.status === REQUEST_STATUS.EXPIRED).length,
   }
 }

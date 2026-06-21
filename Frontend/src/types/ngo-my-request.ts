@@ -31,6 +31,8 @@ export type NgoMyRequest = {
   completedAt?: string
   declinedAt?: string
   declinedReason?: string
+  expiredAt?: string
+  expiredReason?: string
 }
 
 export type NgoMyRequestsCounts = {
@@ -38,6 +40,7 @@ export type NgoMyRequestsCounts = {
   accepted: number
   completed: number
   declined: number
+  expired: number
 }
 
 export type ListNgoMyRequestsResult = {

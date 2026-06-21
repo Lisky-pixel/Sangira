@@ -1,19 +1,35 @@
 import type { AuthUser } from '../auth/types'
-import { isValidLngLat, type LngLat } from './distance'
+import { toLngLat, type LngLat } from './distance'
 
 type ServiceLocationLike = {
   address?: string
   coordinates?: unknown
 }
 
+function readServiceLocation(user: AuthUser): ServiceLocationLike | null {
+  const serviceLocation = user.serviceLocation
+
+  if (serviceLocation === null || serviceLocation === undefined) {
+    return null
+  }
+
+  if (typeof serviceLocation !== 'object') {
+    return null
+  }
+
+  return serviceLocation as ServiceLocationLike
+}
+
 export function getNgoServiceAddress(user: AuthUser): string {
-  const serviceLocation = user.serviceLocation as ServiceLocationLike | undefined
-  return serviceLocation?.address?.trim() ?? ''
+  return readServiceLocation(user)?.address?.trim() ?? ''
 }
 
 export function getNgoServiceCoordinates(user: AuthUser): LngLat | null {
-  const serviceLocation = user.serviceLocation as ServiceLocationLike | undefined
-  const coords = serviceLocation?.coordinates
+  const coords = readServiceLocation(user)?.coordinates
+  return toLngLat(coords)
+}
 
-  return isValidLngLat(coords) ? coords : null
+/** True only when serviceLocation has a valid [lng, lat] pair — not address text alone */
+export function hasNgoServiceCoordinates(user: AuthUser): boolean {
+  return getNgoServiceCoordinates(user) !== null
 }

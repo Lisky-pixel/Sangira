@@ -8,23 +8,51 @@ type CoordinatesSource = {
   pickupCoordinates?: [number, number]
 }
 
+function parseCoordinate(value: unknown): number | null {
+  if (typeof value === 'number' && !Number.isNaN(value)) {
+    return value
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value)
+    return Number.isNaN(parsed) ? null : parsed
+  }
+
+  return null
+}
+
 export function isValidLngLat(value: unknown): value is LngLat {
   if (!Array.isArray(value) || value.length !== 2) {
     return false
   }
 
-  const [lng, lat] = value
+  const lng = parseCoordinate(value[0])
+  const lat = parseCoordinate(value[1])
 
-  return (
-    typeof lng === 'number' &&
-    typeof lat === 'number' &&
-    !Number.isNaN(lng) &&
-    !Number.isNaN(lat) &&
-    lng >= -180 &&
-    lng <= 180 &&
-    lat >= -90 &&
-    lat <= 90
-  )
+  if (lng === null || lat === null) {
+    return false
+  }
+
+  return lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90
+}
+
+export function toLngLat(value: unknown): LngLat | null {
+  if (!Array.isArray(value) || value.length !== 2) {
+    return null
+  }
+
+  const lng = parseCoordinate(value[0])
+  const lat = parseCoordinate(value[1])
+
+  if (lng === null || lat === null) {
+    return null
+  }
+
+  if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+    return null
+  }
+
+  return [lng, lat]
 }
 
 export function haversineKm(a: LngLat, b: LngLat): number {
@@ -62,7 +90,7 @@ export function getListingCoordinates(
   const coords =
     listing.pickupLocation?.coordinates ?? listing.pickupCoordinates
 
-  return isValidLngLat(coords) ? coords : null
+  return toLngLat(coords)
 }
 
 export function getDistanceForListing(

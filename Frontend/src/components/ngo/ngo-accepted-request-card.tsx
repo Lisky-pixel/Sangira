@@ -83,7 +83,7 @@ export function NgoAcceptedRequestCard({
                 <button
                   type="button"
                   onClick={() => openInMaps(request.listing)}
-                  className="text-primary mt-2 text-sm font-medium hover:underline"
+                  className="text-primary mt-2 cursor-pointer text-sm font-medium hover:underline"
                   aria-label={ngoMyRequestsContent.acceptedCard.openInMapsAria}
                 >
                   {ngoMyRequestsContent.acceptedCard.openInMaps}

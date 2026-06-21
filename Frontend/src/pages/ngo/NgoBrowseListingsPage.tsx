@@ -19,10 +19,9 @@ import { requestService } from '../../services/request-service'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 
 export function NgoBrowseListingsPage() {
-  const { state } = useAuth()
+  const { state, refreshMe } = useAuth()
   const ngoCoordinates =
     state.status === 'authed' ? getNgoServiceCoordinates(state.user) : null
-  const showLocationHint = state.status === 'authed' && ngoCoordinates === null
 
   const [listings, setListings] = useState<NgoBrowseListing[]>([])
   const [requestedListingIds, setRequestedListingIds] = useState<Set<string>>(
@@ -33,6 +32,12 @@ export function NgoBrowseListingsPage() {
   )
   const [filters, setFilters] = useState(EMPTY_NGO_BROWSE_FILTERS)
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    if (state.status === 'authed') {
+      void refreshMe()
+    }
+  }, [refreshMe, state.status])
 
   useEffect(() => {
     let cancelled = false
@@ -110,11 +115,7 @@ export function NgoBrowseListingsPage() {
         </p>
       </header>
 
-      <NgoBrowseFilterBar
-        filters={filters}
-        onChange={handleFiltersChange}
-        showLocationHint={showLocationHint}
-      />
+      <NgoBrowseFilterBar filters={filters} onChange={handleFiltersChange} />
 
       {loadState === 'loading' ? (
         <p className="text-body text-sm">{ngoBrowseContent.loading}</p>

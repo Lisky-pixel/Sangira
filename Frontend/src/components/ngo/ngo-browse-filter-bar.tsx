@@ -1,6 +1,8 @@
 import { Info, Search } from 'lucide-react'
 import { Link } from 'react-router'
+import { useAuth } from '../../auth'
 import type { FoodType, StorageCondition } from '../../constants/listing-form'
+import { hasNgoServiceCoordinates } from '../../lib/ngo-service-location'
 import { cn } from '../../lib/utils'
 import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
 import { ROUTES } from '../../routes/paths'
@@ -10,7 +12,6 @@ import { toggleFilterValue } from '../../lib/ngo-browse-filters'
 type NgoBrowseFilterBarProps = {
   filters: NgoBrowseFilters
   onChange: (next: NgoBrowseFilters) => void
-  showLocationHint?: boolean
 }
 
 function FilterChip({
@@ -42,8 +43,13 @@ function FilterChip({
 export function NgoBrowseFilterBar({
   filters,
   onChange,
-  showLocationHint = false,
 }: NgoBrowseFilterBarProps) {
+  const { state } = useAuth()
+  const showLocationHint =
+    state.status === 'authed' &&
+    state.user.role === 'ngo' &&
+    !hasNgoServiceCoordinates(state.user)
+
   const toggleFoodType = (foodType: FoodType) => {
     onChange({
       ...filters,

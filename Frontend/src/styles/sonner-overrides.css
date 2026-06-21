@@ -1,0 +1,71 @@
+@import 'sonner/dist/styles.css';
+
+/*
+ * Sangira toast dismiss — right-aligned, high-contrast close control.
+ * Overrides Sonner defaults (LTR close sits top-left, low contrast on richColors).
+ */
+[data-sonner-toaster].sangira-toaster[dir='ltr'] {
+  --toast-close-button-start: unset;
+  --toast-close-button-end: 0.75rem;
+  --toast-close-button-transform: translateY(-50%);
+}
+
+[data-sonner-toaster].sangira-toaster [data-sonner-toast][data-styled='true'] {
+  padding-right: 2.75rem;
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-sonner-toast][data-styled='true']
+  [data-close-button] {
+  top: 50%;
+  left: auto;
+  width: 1.625rem;
+  height: 1.625rem;
+  color: var(--color-charcoal);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgb(26 26 26 / 12%);
+  opacity: 1;
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-sonner-toast][data-styled='true']
+  [data-close-button]:hover {
+  background: var(--color-sand);
+  border-color: var(--color-charcoal);
+  color: var(--color-charcoal);
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-sonner-toast][data-styled='true']
+  [data-close-button]:focus-visible {
+  box-shadow: none;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-sonner-toast][data-styled='true']
+  [data-close-button]
+  svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  stroke-width: 2.25;
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-rich-colors='true'][data-sonner-toast]
+  [data-close-button] {
+  background: #ffffff;
+  border-color: rgb(255 255 255 / 72%);
+  color: var(--color-charcoal);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+}
+
+[data-sonner-toaster].sangira-toaster
+  [data-rich-colors='true'][data-sonner-toast]
+  [data-close-button]:hover {
+  background: var(--color-cream);
+  border-color: var(--color-charcoal);
+  color: var(--color-charcoal);
+}

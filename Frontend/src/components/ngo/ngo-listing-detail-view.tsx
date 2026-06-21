@@ -232,7 +232,7 @@ export function NgoListingDetailView({
                 <button
                   type="button"
                   onClick={() => openInMaps(listing)}
-                  className="text-charcoal focus-visible:outline-primary mt-2 inline-flex items-start gap-2 text-left text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="text-charcoal focus-visible:outline-primary mt-2 inline-flex cursor-pointer items-start gap-2 text-left text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                   aria-label={ngoListingDetailContent.pickup.openInMapsAria}
                 >
                   <MapPin

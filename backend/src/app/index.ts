@@ -18,6 +18,7 @@ import { ngoCapacityRouter } from '../routes/ngo-capacity.js'
 import { ngoDashboardRouter, ngoImpactRouter } from '../routes/ngo-portal.js'
 import { adminPortalRouter } from '../routes/admin-portal.js'
 import { notificationsRouter } from '../routes/notifications.js'
+import { transfersRouter } from '../routes/transfers.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
@@ -52,6 +53,7 @@ export function createApp() {
   app.use('/ngo', ngoCapacityRouter)
   app.use('/admin', adminPortalRouter)
   app.use('/notifications', notificationsRouter)
+  app.use('/transfers', transfersRouter)
   if (config.NODE_ENV !== 'production') {
     app.use('/dev/notifications', devNotificationsRouter)
   }

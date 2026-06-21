@@ -1,12 +1,13 @@
 import { Link } from 'react-router'
 import { LISTING_STATUS } from '../../constants/listing-status'
+import { TRANSFER_RECEIPT_FROM } from '../../constants/transfer-receipt'
 import { formatPickupByTime } from '../../lib/format-listing-time'
 import { resolveListingTabStatus } from '../../lib/my-listings-filters'
 import { formatRelativeTime } from '../../lib/relative-time'
 import { cn } from '../../lib/utils'
 import { myListingsContent } from '../../placeholder/my-listings-content'
 import { postListingContent } from '../../placeholder/post-listing-content'
-import { donorListingManagePath } from '../../routes/paths'
+import { donorListingManagePath, transferReceiptPath } from '../../routes/paths'
 import type { Listing } from '../../types/listing'
 import { CountdownChip } from '../ui/countdown-chip'
 import { StatusChip, type StatusChipVariant } from '../ui/status-chip'
@@ -114,13 +115,31 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
               <span>{requestLabel}</span>
             </>
           )}
-          <span aria-hidden="true">·</span>
-          <Link
-            to={donorListingManagePath(listing._id)}
-            className="text-primary font-medium hover:underline"
-          >
-            {myListingsContent.card.manage}
-          </Link>
+          {displayStatus === LISTING_STATUS.COMPLETED &&
+          listing.completedRequestId ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <Link
+                to={transferReceiptPath(
+                  listing.completedRequestId,
+                  TRANSFER_RECEIPT_FROM.DONOR_LISTINGS,
+                )}
+                className="text-primary font-medium hover:underline"
+              >
+                {myListingsContent.card.viewReceipt}
+              </Link>
+            </>
+          ) : (
+            <>
+              <span aria-hidden="true">·</span>
+              <Link
+                to={donorListingManagePath(listing._id)}
+                className="text-primary font-medium hover:underline"
+              >
+                {myListingsContent.card.manage}
+              </Link>
+            </>
+          )}
         </div>
 
         {displayStatus === LISTING_STATUS.AWAITING_PICKUP ? (

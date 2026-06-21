@@ -42,6 +42,7 @@ export const myListingsContent = {
       `${ngoName} picking up by ${time}`,
     completedAt: (label: string) => `Completed ${label}`,
     expiredAt: (label: string) => `Expired ${label}`,
+    viewReceipt: 'View receipt',
     continueHandover: 'Continue handover',
   },
   statusChip: {

@@ -38,6 +38,7 @@ export type SerializedListing = {
     ngoName: string
     pickupBy: string
   }
+  completedRequestId?: string
 }
 
 type ListingDocumentLike = {
@@ -67,6 +68,7 @@ type ListingDocumentLike = {
     ngoName: string
     pickupBy: string
   }
+  completedRequestId?: string
 }
 
 export function serializeListing(
@@ -115,5 +117,8 @@ export function serializeListing(
       ? { pendingRequestCount: listing.pendingRequestCount }
       : {}),
     ...(listing.awaitingPickup ? { awaitingPickup: listing.awaitingPickup } : {}),
+    ...(listing.completedRequestId
+      ? { completedRequestId: listing.completedRequestId }
+      : {}),
   }
 }

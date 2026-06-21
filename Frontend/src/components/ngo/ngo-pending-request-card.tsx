@@ -1,9 +1,12 @@
+import { Link } from 'react-router'
+import { TRANSFER_RECEIPT_FROM } from '../../constants/transfer-receipt'
 import { formatRelativeTime } from '../../lib/relative-time'
 import {
   NGO_DECLINED_REASON,
   ngoMyRequestsContent,
 } from '../../placeholder/ngo-my-requests-content'
 import { postListingContent } from '../../placeholder/post-listing-content'
+import { transferReceiptPath } from '../../routes/paths'
 import type { NgoMyRequest } from '../../types/ngo-my-request'
 import { StatusChip } from '../ui/status-chip'
 import { VerifiedBadge } from '../ui/verified-badge'
@@ -69,8 +72,8 @@ export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
       ? ngoMyRequestsContent.status.completed
       : ngoMyRequestsContent.status.declined
 
-  return (
-    <article className="border-border flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3">
+  const content = (
+    <>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <StatusChip status={chipStatus} label={chipLabel} />
@@ -82,9 +85,31 @@ export function NgoCompactRequestRow({ request }: NgoCompactRequestRowProps) {
           {request.donor.organisationName} · {subcopy}
         </p>
       </div>
-      <span aria-hidden="true" className="text-body shrink-0">
-        ›
-      </span>
+      {request.status === 'completed' ? (
+        <span aria-hidden="true" className="text-body shrink-0">
+          ›
+        </span>
+      ) : null}
+    </>
+  )
+
+  if (request.status === 'completed') {
+    return (
+      <Link
+        to={transferReceiptPath(
+          request._id,
+          TRANSFER_RECEIPT_FROM.NGO_REQUESTS,
+        )}
+        className="border-border flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors hover:bg-sand/40"
+      >
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <article className="border-border flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3">
+      {content}
     </article>
   )
 }

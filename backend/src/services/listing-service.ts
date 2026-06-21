@@ -199,6 +199,28 @@ export async function listDonorListings(input: {
     }
   }
 
+  const completedListingIds = listings
+    .filter((listing) => listing.status === LISTING_STATUS.COMPLETED)
+    .map((listing) => listing._id)
+
+  const completedRequestByListingId = new Map<string, string>()
+
+  if (completedListingIds.length > 0) {
+    const completedRequests = await FoodRequest.find({
+      listing: { $in: completedListingIds },
+      status: REQUEST_STATUS.COMPLETED,
+    })
+      .select('_id listing')
+      .lean<{ _id: mongoose.Types.ObjectId; listing: mongoose.Types.ObjectId }[]>()
+
+    for (const request of completedRequests) {
+      const listingId = request.listing.toString()
+      if (!completedRequestByListingId.has(listingId)) {
+        completedRequestByListingId.set(listingId, request._id.toString())
+      }
+    }
+  }
+
   return listings.map((listing) => {
     const listingId = listing._id.toString()
 
@@ -209,6 +231,7 @@ export async function listDonorListings(input: {
       requestCount: countByListingId.get(listingId) ?? 0,
       pendingRequestCount: pendingByListingId.get(listingId) ?? 0,
       awaitingPickup: acceptedByListingId.get(listingId),
+      completedRequestId: completedRequestByListingId.get(listingId),
     })
   })
 }
@@ -258,7 +281,8 @@ async function enrichListingWithRequestData(
 ): Promise<SerializedListing> {
   const listingId = listing._id
 
-  const [requestCount, pendingRequestCount, acceptedRequest] = await Promise.all([
+  const [requestCount, pendingRequestCount, acceptedRequest, completedRequest] =
+    await Promise.all([
     FoodRequest.countDocuments({ listing: listingId }),
     FoodRequest.countDocuments({
       listing: listingId,
@@ -271,6 +295,14 @@ async function enrichListingWithRequestData(
         })
           .populate({ path: 'ngo', model: User, select: 'organisationName' })
           .lean<AcceptedRequestRow | null>()
+      : Promise.resolve(null),
+    listing.status === LISTING_STATUS.COMPLETED
+      ? FoodRequest.findOne({
+          listing: listingId,
+          status: REQUEST_STATUS.COMPLETED,
+        })
+          .select('_id')
+          .lean<{ _id: mongoose.Types.ObjectId } | null>()
       : Promise.resolve(null),
   ])
 
@@ -290,6 +322,7 @@ async function enrichListingWithRequestData(
     requestCount,
     pendingRequestCount,
     awaitingPickup,
+    completedRequestId: completedRequest?._id.toString(),
   } as Parameters<typeof serializeListing>[0])
 }
 

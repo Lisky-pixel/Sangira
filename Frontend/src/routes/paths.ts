@@ -55,6 +55,7 @@ export const ROUTES = {
   ADMIN_REPORTS_NGOS: '/admin/reports/ngos',
   ADMIN_PROFILE: '/admin/profile',
   ADMIN_SETTINGS: '/admin/settings',
+  TRANSFER_RECEIPT: '/transfers/:id/receipt',
 } as const
 
 export const DONOR_ROUTE_PATTERNS = {
@@ -95,6 +96,14 @@ export function donorListingHandoverPath(id: string) {
 
 export function donorRequestReviewPath(id: string) {
   return `/donor/requests/${id}`
+}
+
+export function transferReceiptPath(
+  requestId: string,
+  from?: string,
+) {
+  const base = `/transfers/${requestId}/receipt`
+  return from ? `${base}?from=${encodeURIComponent(from)}` : base
 }
 
 export const LANDING_SECTION_IDS = {

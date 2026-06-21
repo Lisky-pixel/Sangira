@@ -35,6 +35,7 @@ import { LandingPage } from '../pages/LandingPage'
 import { SignInPage } from '../pages/SignInPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
+import { TransferReceiptPage } from '../pages/TransferReceiptPage'
 import { RegisterStep1Page } from '../pages/register/RegisterStep1Page'
 import { RegisterStep2Page } from '../pages/register/RegisterStep2Page'
 import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
@@ -125,6 +126,14 @@ export const router = createBrowserRouter([
             <VerificationStatusGate allowed={[VERIFICATION_STATUS.APPROVED]}>
               <VerificationApprovedPage />
             </VerificationStatusGate>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: ROUTES.TRANSFER_RECEIPT,
+        element: (
+          <RequireAuth>
+            <TransferReceiptPage />
           </RequireAuth>
         ),
       },

@@ -38,4 +38,5 @@ export type Listing = {
     ngoName: string
     pickupBy: string
   }
+  completedRequestId?: string
 }

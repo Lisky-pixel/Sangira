@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router'
 import { NGO_REQUESTS_TAB } from '../../constants/ngo-requests'
 import { REQUEST_ERROR_CODES } from '../../constants/request'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
 import type { FoodLabel, StorageCondition } from '../../constants/listing-form'
 import { formatMemberSince } from '../../lib/format-listing-time'
 import {
@@ -22,6 +23,7 @@ import {
   getListingCoordinates,
   type LngLat,
 } from '../../lib/distance'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { getOrgInitials } from '../../lib/org-initials'
 import { openInMaps } from '../../lib/open-in-maps'
 import { ngoListingDetailContent } from '../../placeholder/ngo-listing-detail-content'
@@ -100,6 +102,9 @@ export function NgoListingDetailView({
   )
 
   const photo = listing.photos[0]
+  const photoSrc = photo
+    ? cloudinaryDeliveryUrl(photo, CLOUDINARY_DELIVERY_WIDTH.DETAIL)
+    : null
   const unitLabel = postListingContent.quantityUnitLabels[listing.quantityUnit]
   const storageLabel =
     postListingContent.storageLabels[listing.storageCondition]
@@ -113,6 +118,11 @@ export function NgoListingDetailView({
   const memberSince = formatMemberSince(listing.donor.createdAt)
   const completedTransfers = listing.donor.completedTransfers
   const donorAvatarUrl = listing.donor.avatarUrl
+    ? cloudinaryDeliveryUrl(
+        listing.donor.avatarUrl,
+        CLOUDINARY_DELIVERY_WIDTH.AVATAR,
+      )
+    : undefined
 
   const handleConfirmRequest = async () => {
     const createPromise = requestService.createRequest({
@@ -170,9 +180,9 @@ export function NgoListingDetailView({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
         <div className="flex min-w-0 flex-col gap-5">
           <div className="bg-sand aspect-[4/3] w-full overflow-hidden rounded-2xl">
-            {photo ? (
+            {photoSrc ? (
               <img
-                src={photo}
+                src={photoSrc}
                 alt=""
                 className="size-full object-cover"
               />

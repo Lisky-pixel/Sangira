@@ -1,4 +1,6 @@
 import { getOrgInitials } from '../../lib/org-initials'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { cn } from '../../lib/utils'
 
 const sizeStyles = {
@@ -31,9 +33,13 @@ export function AccountAvatar({
   const styles = sizeStyles[size]
 
   if (avatarUrl) {
+    const deliveryUrl = cloudinaryDeliveryUrl(
+      avatarUrl,
+      CLOUDINARY_DELIVERY_WIDTH.AVATAR,
+    )
     return (
       <img
-        src={avatarUrl}
+        src={deliveryUrl}
         alt=""
         className={cn(styles.container, 'rounded-full object-cover', className)}
       />

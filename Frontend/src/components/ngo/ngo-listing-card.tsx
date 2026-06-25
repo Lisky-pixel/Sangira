@@ -1,4 +1,6 @@
 import { ngoBrowseContent } from '../../placeholder/ngo-browse-content'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { ngoListingDetailPath } from '../../routes/paths'
 import {
   formatDistanceAway,
@@ -23,6 +25,9 @@ export function NgoListingCard({
   hasRequested = false,
 }: NgoListingCardProps) {
   const photo = listing.photos[0]
+  const photoSrc = photo
+    ? cloudinaryDeliveryUrl(photo, CLOUDINARY_DELIVERY_WIDTH.CARD)
+    : null
   const foodTypeLabel = ngoBrowseContent.foodTypeLabels[listing.foodType]
   const storageLabel =
     ngoBrowseContent.storageLabels[listing.storageCondition]
@@ -33,9 +38,9 @@ export function NgoListingCard({
   return (
     <article className="border-border flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="bg-sand aspect-[4/3] w-full overflow-hidden">
-        {photo ? (
+        {photoSrc ? (
           <img
-            src={photo}
+            src={photoSrc}
             alt=""
             className="size-full object-cover"
             loading="lazy"

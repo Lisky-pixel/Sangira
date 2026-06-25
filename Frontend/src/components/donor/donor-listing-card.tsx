@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
 import { LISTING_STATUS } from '../../constants/listing-status'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
 import { TRANSFER_RECEIPT_FROM } from '../../constants/transfer-receipt'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { formatPickupByTime } from '../../lib/format-listing-time'
 import { resolveListingTabStatus } from '../../lib/my-listings-filters'
 import { formatRelativeTime } from '../../lib/relative-time'
@@ -44,6 +46,9 @@ function isMutedListing(listing: Listing) {
 
 export function DonorListingCard({ listing }: DonorListingCardProps) {
   const photo = listing.photos[0]
+  const photoSrc = photo
+    ? cloudinaryDeliveryUrl(photo, CLOUDINARY_DELIVERY_WIDTH.CARD)
+    : null
   const postedRelative = formatRelativeTime(listing.createdAt)
   const displayStatus = resolveListingTabStatus(listing)
   const requestCount = listing.requestCount ?? 0
@@ -84,9 +89,9 @@ export function DonorListingCard({ listing }: DonorListingCardProps) {
       )}
     >
       <div className="bg-sand aspect-[4/3] w-full overflow-hidden">
-        {photo ? (
+        {photoSrc ? (
           <img
-            src={photo}
+            src={photoSrc}
             alt=""
             className={cn('size-full object-cover', muted && 'opacity-90')}
             loading="lazy"

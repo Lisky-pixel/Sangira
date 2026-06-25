@@ -88,7 +88,7 @@ export function useMyListings() {
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [fetchListings, location.key])
+  }, [fetchListings])
 
   useEffect(() => {
     const handleFocus = () => {

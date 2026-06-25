@@ -2,7 +2,9 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { REQUEST_STATUS } from '../../constants/request-status'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
 import { formatRelativeTime } from '../../lib/relative-time'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { getOrgInitials } from '../../lib/org-initials'
 import { resolveListingTabStatus } from '../../lib/my-listings-filters'
 import { listingManageContent } from '../../placeholder/listing-manage-content'
@@ -93,9 +95,13 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
 
           {request.ngo.avatarUrl ? (
             <img
-              src={request.ngo.avatarUrl}
+              src={cloudinaryDeliveryUrl(
+                request.ngo.avatarUrl,
+                CLOUDINARY_DELIVERY_WIDTH.AVATAR,
+              )}
               alt=""
               className="size-12 shrink-0 rounded-xl object-cover"
+              loading="lazy"
             />
           ) : (
             <div

@@ -1,10 +1,9 @@
 import { FileSpreadsheet, FileText } from 'lucide-react'
 import {
   adminReportsEmptyMessage,
-  exportAdminReportsCsv,
-  exportAdminReportsPdf,
   hasAdminReportsExportData,
-} from '../../lib/export'
+} from '../../lib/export/export-format'
+import { exportAdminReportsCsv } from '../../lib/export/admin-reports-csv-export'
 import { adminReportsContent } from '../../placeholder/admin-reports-content'
 import { exportContent } from '../../placeholder/export-content'
 import type { AdminReportsData } from '../../types/admin-reports'
@@ -51,7 +50,9 @@ export function AdminReportsHeaderActions({
     }
 
     void toast.promise(
-      Promise.resolve().then(() => exportAdminReportsPdf(reports)),
+      import('../../lib/export/admin-reports-pdf-export').then((module) =>
+        module.exportAdminReportsPdf(reports),
+      ),
       {
         loading: exportContent.toast.adminPdf.loading,
         success: exportContent.toast.adminPdf.success,

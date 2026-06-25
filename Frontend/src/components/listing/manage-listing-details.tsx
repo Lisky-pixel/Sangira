@@ -15,6 +15,7 @@ import {
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { FOOD_LABEL, STORAGE_CONDITION } from '../../constants/listing-form'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
 import {
   canCancelListing,
   canEditListing,
@@ -22,6 +23,7 @@ import {
   shouldShowCountdownChip,
 } from '../../lib/listing-manage'
 import { openInMaps } from '../../lib/open-in-maps'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { listingManageContent } from '../../placeholder/listing-manage-content'
@@ -89,6 +91,9 @@ export function ManageListingDetails({ listing }: ManageListingDetailsProps) {
   const [isCancelling, setIsCancelling] = useState(false)
 
   const photo = listing.photos[0]
+  const photoSrc = photo
+    ? cloudinaryDeliveryUrl(photo, CLOUDINARY_DELIVERY_WIDTH.DETAIL)
+    : null
   const editable = canEditListing(listing)
   const cancellable = canCancelListing(listing)
   const StorageIcon = storageIcon(listing.storageCondition)
@@ -119,9 +124,9 @@ export function ManageListingDetails({ listing }: ManageListingDetailsProps) {
   return (
     <section className="border-border rounded-2xl border bg-white">
       <div className="bg-sand aspect-[4/3] w-full overflow-hidden rounded-t-2xl">
-        {photo ? (
+        {photoSrc ? (
           <img
-            src={photo}
+            src={photoSrc}
             alt=""
             className="size-full object-cover"
           />

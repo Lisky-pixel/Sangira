@@ -4,6 +4,8 @@ import {
   ACCEPTED_AVATAR_PHOTO_ACCEPT,
   MAX_AVATAR_PHOTO_SIZE_MB,
 } from '../../constants/avatar-photo'
+import { CLOUDINARY_DELIVERY_WIDTH } from '../../constants/cloudinary-delivery'
+import { cloudinaryDeliveryUrl } from '../../lib/cloudinary-delivery-url'
 import { getOrganisationInitials } from '../../lib/profile-format'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
@@ -66,13 +68,17 @@ export function ProfileAvatar({
     }
   }
 
+  const deliveryAvatarUrl = avatarUrl
+    ? cloudinaryDeliveryUrl(avatarUrl, CLOUDINARY_DELIVERY_WIDTH.AVATAR)
+    : undefined
+
   return (
     <div className={cn('flex flex-col items-center gap-3', className)}>
       <div className="relative">
         <div className="bg-primary flex size-24 items-center justify-center overflow-hidden rounded-full sm:size-28">
-          {avatarUrl ? (
+          {deliveryAvatarUrl ? (
             <img
-              src={avatarUrl}
+              src={deliveryAvatarUrl}
               alt=""
               className="size-full object-cover"
             />

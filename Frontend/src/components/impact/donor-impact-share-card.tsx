@@ -1,6 +1,5 @@
 import { Download } from 'lucide-react'
 import type { DonorImpactSummary } from '../../types/donor-impact'
-import { exportDonorImpactPdf } from '../../lib/export'
 import { donorImpactContent } from '../../placeholder/donor-impact-content'
 import { exportContent } from '../../placeholder/export-content'
 import { toast } from '../../lib/toast'
@@ -17,8 +16,8 @@ export function DonorImpactShareCard({
 }: DonorImpactShareCardProps) {
   const handleDownload = () => {
     void toast.promise(
-      Promise.resolve().then(() =>
-        exportDonorImpactPdf({ organisationName, impact }),
+      import('../../lib/export/donor-impact-pdf-export').then((module) =>
+        module.exportDonorImpactPdf({ organisationName, impact }),
       ),
       {
         loading: exportContent.toast.donorPdf.loading,

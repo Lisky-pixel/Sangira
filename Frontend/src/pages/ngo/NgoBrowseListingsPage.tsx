@@ -22,7 +22,7 @@ import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 import type { NgoBrowseViewMode } from '../../components/ngo/ngo-browse-view-toggle'
 
 export function NgoBrowseListingsPage() {
-  const { state, refreshMe } = useAuth()
+  const { state } = useAuth()
   const ngoCoordinates =
     state.status === 'authed' ? getNgoServiceCoordinates(state.user) : null
 
@@ -36,12 +36,6 @@ export function NgoBrowseListingsPage() {
   const [filters, setFilters] = useState(EMPTY_NGO_BROWSE_FILTERS)
   const [page, setPage] = useState(1)
   const [viewMode, setViewMode] = useState<NgoBrowseViewMode>('list')
-
-  useEffect(() => {
-    if (state.status === 'authed') {
-      void refreshMe()
-    }
-  }, [refreshMe, state.status])
 
   useEffect(() => {
     let cancelled = false

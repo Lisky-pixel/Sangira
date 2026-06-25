@@ -31,7 +31,6 @@ import {
   type SerializedBrowseListing,
 } from '../utils/serialize-browse-listing.js'
 import { ngoHasActiveRequestForListing } from './request-service.js'
-import { aggregateDonorImpact } from './donor-impact-service.js'
 import { maybeNotifyNgosNewListing } from './notification-service.js'
 
 export type ListingWriteResult = {
@@ -501,6 +500,18 @@ export async function browseActiveListingsForNgo(input?: {
   })
 }
 
+async function countDonorCompletedTransfers(donorId: string): Promise<number> {
+  const donorListingIds = await Listing.find({ donor: donorId }).distinct('_id')
+  if (donorListingIds.length === 0) {
+    return 0
+  }
+
+  return FoodRequest.countDocuments({
+    listing: { $in: donorListingIds },
+    status: REQUEST_STATUS.COMPLETED,
+  })
+}
+
 export async function getBrowseListingForNgo(input: {
   listingId: string
   ngoId: string
@@ -540,12 +551,12 @@ export async function getBrowseListingForNgo(input: {
 
   const donorId = donor._id.toString()
 
-  const [hasRequested, impact] = await Promise.all([
+  const [hasRequested, donorCompletedTransfers] = await Promise.all([
     ngoHasActiveRequestForListing({
       listingId,
       ngoId,
     }),
-    aggregateDonorImpact(donorId),
+    countDonorCompletedTransfers(donorId),
   ])
 
   return {
@@ -554,7 +565,7 @@ export async function getBrowseListingForNgo(input: {
       donor: listing.donor,
       donorOrganisationName: donor.organisationName?.trim() || 'Verified donor',
       donorCreatedAt: donor.createdAt,
-      donorCompletedTransfers: impact.totals.completedTransfers,
+      donorCompletedTransfers,
       donorAvatarUrl: donorWithLegacy.avatarUrl,
       donorLegacyProfileImageUrl: donorWithLegacy.profileImageUrl,
     }),

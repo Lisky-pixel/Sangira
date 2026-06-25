@@ -6,56 +6,60 @@ import {
   RequireVerification,
   VerificationStatusGate,
 } from '../auth'
-import { DonorComingSoon, DonorPortalLayout } from '../components/donor'
-import { DonorHandoverPage } from '../pages/donor/DonorHandoverPage'
-import { NgoComingSoon, NgoPortalLayout } from '../components/ngo'
 import { VERIFICATION_STATUS } from '../constants/verification-status'
-import { RegistrationWizard } from '../features/registration'
-import { TermsPage } from '../pages/TermsPage'
-import { ComingSoon } from '../pages/ComingSoon'
-import { DonorDashboardPage } from '../pages/donor/DonorDashboardPage'
-import { DonorImpactPage } from '../pages/donor/DonorImpactPage'
-import { DonorActivityPage } from '../pages/donor/DonorActivityPage'
-import { DonorChangePasswordPage } from '../pages/donor/DonorChangePasswordPage'
-import { DonorProfilePage } from '../pages/donor/DonorProfilePage'
-import { DonorSettingsPage } from '../pages/donor/DonorSettingsPage'
-import { EditListingPage } from '../pages/donor/EditListingPage'
-import { ManageListingPage } from '../pages/donor/ManageListingPage'
-import { MyListingsPage } from '../pages/donor/MyListingsPage'
-import { PostListingPage } from '../pages/donor/PostListingPage'
-import { NgoBrowseListingsPage } from '../pages/ngo/NgoBrowseListingsPage'
-import { NgoChangePasswordPage } from '../pages/ngo/NgoChangePasswordPage'
-import { NgoConfirmPickupPage } from '../pages/ngo/NgoConfirmPickupPage'
-import { NgoCapacityPage } from '../pages/ngo/NgoCapacityPage'
-import { NgoDashboardPage } from '../pages/ngo/NgoDashboardPage'
-import { NgoListingDetailPage } from '../pages/ngo/NgoListingDetailPage'
-import { NgoMyRequestsPage } from '../pages/ngo/NgoMyRequestsPage'
-import { NgoProfilePage } from '../pages/ngo/NgoProfilePage'
-import { NgoSettingsPage } from '../pages/ngo/NgoSettingsPage'
 import { LandingPage } from '../pages/LandingPage'
-import { SignInPage } from '../pages/SignInPage'
-import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
-import { ResetPasswordPage } from '../pages/ResetPasswordPage'
-import { TransferReceiptPage } from '../pages/TransferReceiptPage'
-import { RegisterStep1Page } from '../pages/register/RegisterStep1Page'
-import { RegisterStep2Page } from '../pages/register/RegisterStep2Page'
-import { RegisterStep3Page } from '../pages/register/RegisterStep3Page'
-import { RegisterPendingPage } from '../pages/register/RegisterPendingPage'
-import { RegisterRejectedPage } from '../pages/register/RegisterRejectedPage'
-import { VerificationApprovedPage } from '../pages/register/VerificationApprovedPage'
-import { AdminActivityPage } from '../pages/admin/AdminActivityPage'
-import { AdminOverviewPage } from '../pages/admin/AdminOverviewPage'
-import { AdminVerificationsPage } from '../pages/admin/AdminVerificationsPage'
-import { AdminListingsPage } from '../pages/admin/AdminListingsPage'
-import { AdminProfilePage } from '../pages/admin/AdminProfilePage'
-import { AdminChangePasswordPage } from '../pages/admin/AdminChangePasswordPage'
-import { AdminReportsPage } from '../pages/admin/AdminReportsPage'
-import { AdminReportsDonorsPage } from '../pages/admin/AdminReportsDonorsPage'
-import { AdminReportsNgosPage } from '../pages/admin/AdminReportsNgosPage'
-import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage'
-import { AdminUsersPage } from '../pages/admin/AdminUsersPage'
-import { AdminProtectedLayout } from '../pages/admin/AdminProtectedLayout'
-import { AdminSignInPage } from '../pages/admin/AdminSignInPage'
+import {
+  AdminActivityPage,
+  AdminChangePasswordPage,
+  AdminListingsPage,
+  AdminOverviewPage,
+  AdminProfilePage,
+  AdminProtectedLayout,
+  AdminReportsDonorsPage,
+  AdminReportsNgosPage,
+  AdminReportsPage,
+  AdminSettingsPage,
+  AdminSignInPage,
+  AdminUsersPage,
+  AdminVerificationsPage,
+  ComingSoonPage,
+  DonorActivityPage,
+  DonorChangePasswordPage,
+  DonorComingSoon,
+  DonorDashboardPage,
+  DonorHandoverPage,
+  DonorImpactPage,
+  DonorPortalLayout,
+  DonorProfilePage,
+  DonorSettingsPage,
+  EditListingPage,
+  ForgotPasswordPage,
+  ManageListingPage,
+  MyListingsPage,
+  NgoBrowseListingsPage,
+  NgoCapacityPage,
+  NgoChangePasswordPage,
+  NgoComingSoon,
+  NgoConfirmPickupPage,
+  NgoDashboardPage,
+  NgoListingDetailPage,
+  NgoMyRequestsPage,
+  NgoPortalLayout,
+  NgoProfilePage,
+  NgoSettingsPage,
+  PostListingPage,
+  RegisterPendingPage,
+  RegisterRejectedPage,
+  RegisterStep1Page,
+  RegisterStep2Page,
+  RegisterStep3Page,
+  RegistrationWizard,
+  ResetPasswordPage,
+  SignInPage,
+  TermsPage,
+  TransferReceiptPage,
+  VerificationApprovedPage,
+} from './lazy-pages'
 import { COMING_SOON_PATHS, ROUTES } from './paths'
 
 export const router = createBrowserRouter([
@@ -356,7 +360,7 @@ export const router = createBrowserRouter([
       },
       ...COMING_SOON_PATHS.map((path) => ({
         path,
-        element: <ComingSoon />,
+        element: <ComingSoonPage />,
       })),
     ],
   },

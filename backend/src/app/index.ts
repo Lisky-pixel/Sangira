@@ -23,14 +23,26 @@ import { publicRouter } from '../routes/public.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
+function parseClientOrigins() {
+  const origins = config.CLIENT_URL.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+  return origins.length === 1 ? origins[0] : origins
+}
+
 export function createApp() {
   const app = express()
+
+  if (config.NODE_ENV === 'production') {
+    app.set('trust proxy', 1)
+  }
 
   app.use(helmet())
 
   app.use(
     cors({
-      origin: config.CLIENT_URL,
+      origin: parseClientOrigins(),
       credentials: true,
     }),
   )

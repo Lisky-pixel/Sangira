@@ -12,7 +12,33 @@ const envSchema = z
       .default('development'),
     PORT: z.coerce.number().int().positive().default(5000),
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
-    CLIENT_URL: z.string().url('CLIENT_URL must be a valid URL'),
+    CLIENT_URL: z
+      .string()
+      .min(1, 'CLIENT_URL is required')
+      .superRefine((value, ctx) => {
+        const origins = value
+          .split(',')
+          .map((origin) => origin.trim())
+          .filter(Boolean)
+
+        if (origins.length === 0) {
+          ctx.addIssue({
+            code: 'custom',
+            message: 'CLIENT_URL is required',
+          })
+          return
+        }
+
+        for (const origin of origins) {
+          const parsed = z.string().url().safeParse(origin)
+          if (!parsed.success) {
+            ctx.addIssue({
+              code: 'custom',
+              message: `CLIENT_URL contains an invalid URL origin: ${origin}`,
+            })
+          }
+        }
+      }),
     BREVO_API_KEY: z.string().min(1, 'BREVO_API_KEY is required'),
     EMAIL_FROM_ADDRESS: z
       .string()

@@ -6,7 +6,7 @@
   "description": "Sangira API server",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
+    "start": "node dist/server.js",
     "build": "tsc",
     "lint": "eslint .",
     "migrate:avatar-url": "tsx scripts/migrate-avatar-url.ts",

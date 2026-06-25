@@ -14,10 +14,18 @@ import {
 } from './verification-events.js'
 import { authenticateSocketCookieHeader } from './socket-auth.js'
 
+function parseClientOrigins() {
+  const origins = config.CLIENT_URL.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+  return origins.length === 1 ? origins[0] : origins
+}
+
 export function initSocketServer(httpServer: HttpServer): Server {
   const io = new Server(httpServer, {
     cors: {
-      origin: config.CLIENT_URL,
+      origin: parseClientOrigins(),
       credentials: true,
     },
   })

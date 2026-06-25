@@ -12,13 +12,13 @@ export async function patchProfile(
   next: NextFunction,
 ) {
   try {
-    const user = await updateProfileForUser({
+    const result = await updateProfileForUser({
       userId: req.auth!.userId,
       role: req.auth!.role,
       patch: req.body as PatchProfileInput,
     })
 
-    return sendSuccess(res, { user })
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

@@ -48,11 +48,11 @@ export const ADMIN_USER_LIST_VERIFICATION_STATUSES = [
   VERIFICATION_STATUS.REVOKED,
 ] as const
 
+import { SUPPORT_EMAIL } from './support.js'
+
 export const ADMIN_USER_ENFORCEMENT = {
-  SUSPENDED_MESSAGE:
-    'Your account is suspended — contact support',
-  REVOKED_MESSAGE:
-    'Your verification was revoked — contact support',
+  SUSPENDED_MESSAGE: `Your account is suspended — contact support at ${SUPPORT_EMAIL}.`,
+  REVOKED_MESSAGE: `Your verification was revoked — contact support at ${SUPPORT_EMAIL}.`,
   SUSPENDED_CODE: 'ACCOUNT_SUSPENDED',
   REVOKED_CODE: 'VERIFICATION_REVOKED',
 } as const

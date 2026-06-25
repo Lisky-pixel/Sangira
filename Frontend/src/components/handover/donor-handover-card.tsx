@@ -2,7 +2,7 @@ import { formatHandoverPin } from '../../lib/format-handover-pin'
 import { donorHandoverContent } from '../../placeholder/donor-handover-content'
 import type { HandoverListing, HandoverParty } from '../../types/handover'
 import { VerifiedBadge } from '../ui/verified-badge'
-import { Button } from '../ui/button'
+import { ParticipantActionButton } from '../participant/participant-action-control'
 import { DonorHandoverChecklist } from './donor-handover-checklist'
 import { HandoverQrCode } from './handover-qr-code'
 
@@ -75,7 +75,7 @@ export function DonorHandoverCard({
             disabled={isConfirming}
           />
 
-          <Button
+          <ParticipantActionButton
             type="button"
             variant="primary"
             size="lg"
@@ -84,7 +84,7 @@ export function DonorHandoverCard({
             onClick={onConfirm}
           >
             {donorHandoverContent.confirmButton}
-          </Button>
+          </ParticipantActionButton>
         </div>
       ) : null}
     </article>

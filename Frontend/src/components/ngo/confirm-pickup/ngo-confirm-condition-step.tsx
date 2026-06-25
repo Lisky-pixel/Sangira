@@ -3,7 +3,7 @@ import { HANDOVER_CONDITION, type HandoverCondition } from '../../../constants/h
 import { ngoConfirmPickupContent } from '../../../placeholder/ngo-confirm-pickup-content'
 import { postListingContent } from '../../../placeholder/post-listing-content'
 import type { HandoverListing, HandoverParty } from '../../../types/handover'
-import { Button } from '../../ui/button'
+import { ParticipantActionButton } from '../../participant/participant-action-control'
 import { VerifiedBadge } from '../../ui/verified-badge'
 
 const CONDITION_OPTIONS = [
@@ -117,7 +117,7 @@ export function NgoConfirmConditionStep({
         />
       </div>
 
-      <Button
+      <ParticipantActionButton
         type="button"
         variant="primary"
         size="lg"
@@ -126,7 +126,7 @@ export function NgoConfirmConditionStep({
         onClick={onConfirm}
       >
         {ngoConfirmPickupContent.conditionStep.confirmButton}
-      </Button>
+      </ParticipantActionButton>
 
       <p className="text-body/70 mt-3 text-center text-sm">
         {ngoConfirmPickupContent.conditionStep.confirmSubcopy}

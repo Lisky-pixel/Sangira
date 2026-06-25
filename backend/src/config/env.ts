@@ -1,5 +1,6 @@
 import { config as loadEnv } from 'dotenv'
 import { z } from 'zod'
+import { GOOGLE_MAPS_API_KEY_MISSING_MESSAGE } from '../constants/geocoder.js'
 import { RATE_LIMIT_DEFAULTS } from '../constants/rate-limit.js'
 
 loadEnv()
@@ -85,6 +86,15 @@ const envSchema = z
       .int()
       .positive()
       .default(RATE_LIMIT_DEFAULTS.AUTH_READ_MAX_DEVELOPMENT),
+  })
+  .superRefine((env, ctx) => {
+    if (env.GEOCODER === 'google' && !env.GOOGLE_MAPS_API_KEY?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        message: GOOGLE_MAPS_API_KEY_MISSING_MESSAGE,
+        path: ['GOOGLE_MAPS_API_KEY'],
+      })
+    }
   })
   .transform((env) => {
     const isProduction = env.NODE_ENV === 'production'

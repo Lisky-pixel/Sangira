@@ -46,9 +46,9 @@ export const ADMIN_USER_LIST_ROLE_FILTER = {
 export type AdminUserListRoleFilter =
   (typeof ADMIN_USER_LIST_ROLE_FILTER)[keyof typeof ADMIN_USER_LIST_ROLE_FILTER]
 
+import { SUPPORT_EMAIL } from './support'
+
 export const ADMIN_USER_ENFORCEMENT = {
-  SUSPENDED_MESSAGE:
-    'Your account is suspended — you can browse but cannot post or request food. Contact support if you need help.',
-  REVOKED_MESSAGE:
-    'Your verification was revoked — you can browse but cannot post or request food. Contact support to resubmit.',
+  SUSPENDED_MESSAGE: `Your account is suspended — you can browse but cannot post or request food. Contact support at ${SUPPORT_EMAIL}.`,
+  REVOKED_MESSAGE: `Your verification was revoked — you can browse but cannot post or request food. Contact support at ${SUPPORT_EMAIL} to resubmit.`,
 } as const

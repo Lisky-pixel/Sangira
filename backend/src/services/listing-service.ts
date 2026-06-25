@@ -34,6 +34,11 @@ import { ngoHasActiveRequestForListing } from './request-service.js'
 import { aggregateDonorImpact } from './donor-impact-service.js'
 import { maybeNotifyNgosNewListing } from './notification-service.js'
 
+export type ListingWriteResult = {
+  listing: SerializedListing
+  geocodeResolved: boolean
+}
+
 type CreateListingFile = {
   buffer: Buffer
   originalname: string
@@ -59,7 +64,7 @@ export async function createListingForDonor(input: {
   donorId: string
   data: CreateListingInput
   photo: CreateListingFile
-}): Promise<SerializedListing> {
+}): Promise<ListingWriteResult> {
   const photoUpload = await uploadListingPhoto(
     input.photo.buffer,
     input.photo.originalname,
@@ -68,6 +73,7 @@ export async function createListingForDonor(input: {
   })
 
   const geocoded = await geocodeAddress(input.data.pickupAddress)
+  const geocodeResolved = geocoded !== null
 
   const pickupLocation = geocoded
     ? {
@@ -109,12 +115,15 @@ export async function createListingForDonor(input: {
     quantityUnit: input.data.quantityUnit,
   })
 
-  return serializeListing({
-    ...listing.toObject(),
-    _id: listing._id,
-    donor: listing.donor,
-    requestCount: 0,
-  })
+  return {
+    listing: serializeListing({
+      ...listing.toObject(),
+      _id: listing._id,
+      donor: listing.donor,
+      requestCount: 0,
+    }),
+    geocodeResolved,
+  }
 }
 
 export async function listDonorListings(input: {
@@ -339,7 +348,7 @@ export async function updateListingForDonor(input: {
   listingId: string
   data: UpdateListingInput
   photo?: CreateListingFile
-}): Promise<SerializedListing> {
+}): Promise<ListingWriteResult> {
   const listing = await getOwnedListingOrThrow(input.listingId, input.donorId)
 
   if (
@@ -366,9 +375,11 @@ export async function updateListingForDonor(input: {
   }
 
   const addressChanged = listing.pickupAddress !== input.data.pickupAddress
+  let geocodeResolved = true
 
   if (addressChanged) {
     const geocoded = await geocodeAddress(input.data.pickupAddress)
+    geocodeResolved = geocoded !== null
 
     const pickupLocation = geocoded
       ? {
@@ -409,7 +420,10 @@ export async function updateListingForDonor(input: {
 
   await listing.save()
 
-  return enrichListingWithRequestData(listing.toObject())
+  return {
+    listing: await enrichListingWithRequestData(listing.toObject()),
+    geocodeResolved,
+  }
 }
 
 export async function cancelListingForDonor(input: {

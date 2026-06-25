@@ -9,3 +9,7 @@ export const OSM_TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 
 export const NGO_BROWSE_MAP_HEIGHT_PX = 480
+
+export const NGO_PICKUP_MINI_MAP_HEIGHT_PX = 200
+
+export const NGO_PICKUP_MINI_MAP_ZOOM = 15

@@ -9,7 +9,7 @@ import {
   Utensils,
   type LucideIcon,
 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState, Suspense, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { NGO_REQUESTS_TAB } from '../../constants/ngo-requests'
 import { REQUEST_ERROR_CODES } from '../../constants/request'
@@ -19,6 +19,7 @@ import { formatMemberSince } from '../../lib/format-listing-time'
 import {
   formatDistanceAway,
   getDistanceForListing,
+  getListingCoordinates,
   type LngLat,
 } from '../../lib/distance'
 import { getOrgInitials } from '../../lib/org-initials'
@@ -30,11 +31,13 @@ import { requestService } from '../../services/request-service'
 import { ApiError } from '../../services/api-error'
 import { toast } from '../../lib/toast'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
-import { Button, ButtonLink } from '../ui/button'
+import { ButtonLink } from '../ui/button'
+import { ParticipantActionButton } from '../participant/participant-action-control'
 import { CountdownChip } from '../ui/countdown-chip'
 import { StatusChip } from '../ui/status-chip'
 import { VerifiedBadge } from '../ui/verified-badge'
 import { NgoConfirmRequestDialog } from './ngo-confirm-request-dialog'
+import { NgoPickupMiniMapLazy } from './ngo-pickup-mini-map-lazy'
 
 type NgoListingDetailViewProps = {
   listing: NgoBrowseListing
@@ -105,6 +108,7 @@ export function NgoListingDetailView({
   const distanceKm = getDistanceForListing(ngoCoordinates, listing)
   const distanceAway =
     distanceKm !== null ? formatDistanceAway(distanceKm) : null
+  const pickupCoordinates = getListingCoordinates(listing)
   const donorInitials = getOrgInitials(listing.donor.organisationName)
   const memberSince = formatMemberSince(listing.donor.createdAt)
   const completedTransfers = listing.donor.completedTransfers
@@ -216,7 +220,6 @@ export function NgoListingDetailView({
                 {ngoListingDetailContent.pickup.locationHeading}
               </h2>
 
-              {/* TODO: distance/map slice — embedded map preview below distance label */}
               {distanceAway ? (
                 <p className="text-body mt-2 text-sm">
                   {pickupAddress
@@ -241,6 +244,21 @@ export function NgoListingDetailView({
                   />
                   <span>{pickupAddress}</span>
                 </button>
+              ) : null}
+
+              {pickupCoordinates ? (
+                <Suspense
+                  fallback={
+                    <p className="text-body mt-4 text-sm">
+                      {ngoListingDetailContent.pickup.miniMapLoading}
+                    </p>
+                  }
+                >
+                  <NgoPickupMiniMapLazy
+                    pickupCoordinates={pickupCoordinates}
+                    ngoCoordinates={ngoCoordinates}
+                  />
+                </Suspense>
               ) : null}
             </div>
           </section>
@@ -293,7 +311,7 @@ export function NgoListingDetailView({
           </section>
 
           <section className="border-border rounded-2xl border bg-white p-5 shadow-sm">
-            <Button
+            <ParticipantActionButton
               type="button"
               className="w-full"
               disabled={hasRequested}
@@ -307,7 +325,7 @@ export function NgoListingDetailView({
               {hasRequested
                 ? ngoListingDetailContent.request.requested
                 : ngoListingDetailContent.request.requestFood}
-            </Button>
+            </ParticipantActionButton>
             {hasRequested ? (
               <div className="mt-3 text-center">
                 <ButtonLink

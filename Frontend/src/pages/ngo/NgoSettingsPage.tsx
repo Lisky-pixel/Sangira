@@ -12,6 +12,7 @@ import { normalizeNotificationPrefs } from '../../lib/notification-preferences'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
 import { ngoSettingsContent } from '../../placeholder/ngo-settings-content'
+import { ParticipantActionBlockNote } from '../../components/participant/participant-action-control'
 import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
 import { ApiError } from '../../services/api-error'
 import { notificationPreferencesService } from '../../services/notification-preferences-service'
@@ -154,6 +155,7 @@ export function NgoSettingsPage() {
             )
           })}
         </ul>
+        {editsBlocked ? <ParticipantActionBlockNote className="mt-4" /> : null}
       </SettingsCard>
 
       <SettingsCard title={ngoSettingsContent.account.title}>

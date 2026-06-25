@@ -1,7 +1,6 @@
 import 'leaflet/dist/leaflet.css'
 import './ngo-browse-map.css'
 
-import L from 'leaflet'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
@@ -24,22 +23,7 @@ import { postListingContent } from '../../placeholder/post-listing-content'
 import { ngoListingDetailPath } from '../../routes/paths'
 import type { NgoBrowseListing } from '../../types/ngo-browse-listing'
 import { VerifiedBadge } from '../ui/verified-badge'
-
-const LISTING_MARKER_ICON = L.divIcon({
-  className: 'ngo-browse-map-marker',
-  html: '<span class="ngo-browse-map-marker__dot ngo-browse-map-marker__dot--listing" aria-hidden="true"></span>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-  popupAnchor: [0, -10],
-})
-
-const NGO_MARKER_ICON = L.divIcon({
-  className: 'ngo-browse-map-marker',
-  html: '<span class="ngo-browse-map-marker__dot ngo-browse-map-marker__dot--ngo" aria-hidden="true"></span>',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-  popupAnchor: [0, -12],
-})
+import { LISTING_MARKER_ICON, NGO_MARKER_ICON } from './ngo-leaflet-markers'
 
 type NgoBrowseMapPanelProps = {
   listings: NgoBrowseListing[]

@@ -72,6 +72,7 @@ export const NOTIFICATION_TYPE = {
   PICKUP_CONFIRMED: 'pickup_confirmed',
   LISTING_EXPIRED: 'listing_expired',
   ACCOUNT_FLAGGED: 'account_flagged',
+  ACCOUNT_UNFLAGGED: 'account_unflagged',
   ACCOUNT_SUSPENDED: 'account_suspended',
   ACCOUNT_REACTIVATED: 'account_reactivated',
   VERIFICATION_REVOKED: 'verification_revoked',

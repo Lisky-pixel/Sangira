@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { DonorActivityFeed, DonorListingCard } from '../../components/donor'
 import { ButtonLink } from '../../components/ui/button'
+import { ParticipantActionLink } from '../../components/participant/participant-action-control'
 import { StatusChip } from '../../components/ui/status-chip'
 import { VerifiedBadge } from '../../components/ui/verified-badge'
 import { useAuth } from '../../auth'
@@ -93,10 +94,11 @@ export function DonorDashboardPage() {
         </section>
 
         <section>
-          <ButtonLink
+          <ParticipantActionLink
             to={ROUTES.POST_LISTING}
             size="lg"
             className="bg-primary hover:bg-primary-hover flex w-full items-center justify-between rounded-2xl px-5 py-5 text-left text-white shadow-sm"
+            showBlockNote
           >
             <span className="flex items-center gap-4">
               <span className="flex size-10 items-center justify-center rounded-full bg-white/15">
@@ -112,7 +114,7 @@ export function DonorDashboardPage() {
               </span>
             </span>
             <ArrowRight aria-hidden="true" className="size-5 shrink-0" />
-          </ButtonLink>
+          </ParticipantActionLink>
         </section>
 
         <section>
@@ -141,9 +143,9 @@ export function DonorDashboardPage() {
               <p className="text-body text-sm">
                 {donorDashboardContent.activeListings.empty}
               </p>
-              <ButtonLink to={ROUTES.POST_LISTING}>
+              <ParticipantActionLink to={ROUTES.POST_LISTING}>
                 {donorDashboardContent.activeListings.emptyCta}
-              </ButtonLink>
+              </ParticipantActionLink>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">

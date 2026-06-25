@@ -1,3 +1,5 @@
+import { SUPPORT_EMAIL } from '../constants/support.js'
+
 type EmailTemplate = {
   subject: string
   html: string
@@ -168,7 +170,7 @@ export function accountSuspended(input: {
       <p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;">
         <strong>Reason:</strong> ${reason}
       </p>
-      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">Contact support if you believe this is a mistake.</p>
+      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">Contact support at ${escapeHtml(SUPPORT_EMAIL)} if you believe this is a mistake.</p>
     </div>
   </body>
 </html>`,
@@ -177,7 +179,7 @@ export function accountSuspended(input: {
 Organisation: ${input.organisationName}
 Reason: ${input.reason}
 
-Contact support if you believe this is a mistake.`,
+Contact support at ${SUPPORT_EMAIL} if you believe this is a mistake.`,
   }
 }
 
@@ -234,7 +236,65 @@ export function verificationRevoked(input: {
 Organisation: ${input.organisationName}
 Reason: ${input.reason}
 
-You may resubmit documents through the normal verification flow.`,
+You may resubmit documents through the normal verification flow. Contact ${SUPPORT_EMAIL} with questions.`,
+  }
+}
+
+export function accountFlagged(input: {
+  organisationName: string
+  reason?: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+  const reasonBlock = input.reason?.trim()
+    ? `<p style="margin:12px 0 0;font-size:14px;line-height:20px;color:#3b3b3b;"><strong>Note:</strong> ${escapeHtml(input.reason.trim())}</p>`
+    : ''
+
+  return {
+    subject: 'Your Sangira account has been flagged for review',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Account flagged for review</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        <strong>${org}</strong> has been flagged for review on Sangira. You can still use Sangira normally.
+      </p>
+      ${reasonBlock}
+      <p style="margin:16px 0 0;font-size:12px;color:#6b6b6b;">Contact ${escapeHtml(SUPPORT_EMAIL)} with questions.</p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Account flagged for review
+
+Organisation: ${input.organisationName}
+${input.reason?.trim() ? `Note: ${input.reason.trim()}\n` : ''}
+You can still use Sangira normally. Contact ${SUPPORT_EMAIL} with questions.`,
+  }
+}
+
+export function accountUnflagged(input: {
+  organisationName: string
+}): EmailTemplate {
+  const org = escapeHtml(input.organisationName)
+
+  return {
+    subject: 'Your Sangira account flag has been cleared',
+    html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f1e7;font-family:ui-sans-serif,system-ui,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:24px;">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#1a1a1a;">Account flag cleared</h1>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#3b3b3b;">
+        The review flag on <strong>${org}</strong> has been cleared. Your account is in good standing and you can continue using Sangira normally.
+      </p>
+    </div>
+  </body>
+</html>`,
+    text: `Sangira — Account flag cleared
+
+Organisation: ${input.organisationName}
+
+Your account flag has been cleared. Your account is in good standing.`,
   }
 }
 

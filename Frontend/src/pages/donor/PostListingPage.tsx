@@ -12,7 +12,8 @@ import {
   type PostListingStep,
 } from '../../components/listing/post-listing-stepper'
 import { SingleSelectPills } from '../../components/listing/single-select-pills'
-import { Button } from '../../components/ui/button'
+import { ParticipantActionButton } from '../../components/participant/participant-action-control'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { Checkbox } from '../../components/ui/checkbox'
 import { InfoBanner } from '../../components/ui/info-banner'
 import {
@@ -43,6 +44,7 @@ import {
 } from '../../lib/preset-datetime'
 import { toast } from '../../lib/toast'
 import { cn } from '../../lib/utils'
+import { geocodeContent } from '../../placeholder/geocode-content'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { donorListingManagePath, ROUTES } from '../../routes/paths'
 import { MY_LISTINGS_LOCATION_STATE } from '../../routes/my-listings-location-state'
@@ -102,6 +104,7 @@ function SectionHeader({
 export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
   const navigate = useNavigate()
   const { state } = useAuth()
+  const { blocked: actionsBlocked } = useParticipantEditBlocked()
   const isEditMode = Boolean(editListingId)
   const [unitOverridden, setUnitOverridden] = useState(false)
   const [activeSectionId, setActiveSectionId] = useState<string>(
@@ -316,15 +319,20 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
           payload.photo = values.photo
         }
 
+        const updatePromise = listingService.updateListing(editListingId, payload)
+
         try {
-          await toast.promise(
-            listingService.updateListing(editListingId, payload),
-            {
-              loading: postListingContent.edit.toast.saving,
-              success: postListingContent.edit.toast.success,
-              error: postListingContent.edit.toast.error,
-            },
-          )
+          void toast.promise(updatePromise, {
+            loading: postListingContent.edit.toast.saving,
+            success: postListingContent.edit.toast.success,
+            error: postListingContent.edit.toast.error,
+          })
+
+          const result = await updatePromise
+
+          if (result.geocodeResolved === false) {
+            toast.warning(geocodeContent.addressSavedNoMapWarning)
+          }
 
           navigate(donorListingManagePath(editListingId))
         } catch {
@@ -356,7 +364,11 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
           error: postListingContent.toast.error,
         })
 
-        const { listing: createdListing } = await createPromise
+        const { listing: createdListing, geocodeResolved } = await createPromise
+
+        if (!geocodeResolved) {
+          toast.warning(geocodeContent.addressSavedNoMapWarning)
+        }
 
         setUnitOverridden(false)
         setSelectedPresetId(null)
@@ -375,7 +387,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
     },
   )
 
-  const canSubmit = isValid && !isSubmitting
+  const canSubmit = isValid && !isSubmitting && !actionsBlocked
 
   if (state.status !== 'authed') {
     return null
@@ -662,7 +674,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
           <ListingReviewSummary values={watched} />
 
           <div className="flex flex-col gap-3">
-            <Button
+            <ParticipantActionButton
               type="submit"
               size="lg"
               disabled={!canSubmit}
@@ -671,7 +683,7 @@ export function PostListingPage({ editListingId }: PostListingPageProps = {}) {
               {isEditMode
                 ? postListingContent.edit.submit
                 : postListingContent.submit.publish}
-            </Button>
+            </ParticipantActionButton>
             <p className="text-body flex items-start justify-center gap-2 text-center text-sm">
               <Sparkles
                 aria-hidden="true"

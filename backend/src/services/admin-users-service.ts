@@ -1,10 +1,16 @@
 import mongoose from 'mongoose'
 import {
+  sendAccountFlaggedEmail,
   sendAccountReactivatedEmail,
   sendAccountSuspendedEmail,
+  sendAccountUnflaggedEmail,
   sendVerificationApprovedEmail,
   sendVerificationRevokedEmail,
 } from '../notifications/index.js'
+import {
+  ACCOUNT_FLAGGED_NOTIFICATION,
+  ACCOUNT_UNFLAGGED_NOTIFICATION,
+} from '../constants/account-notification-messages.js'
 import {
   ACCOUNT_STATUS,
   NGO_SECTOR,
@@ -532,18 +538,23 @@ async function notifyAccountChange(input: {
     | typeof NOTIFICATION_TYPE.ACCOUNT_SUSPENDED
     | typeof NOTIFICATION_TYPE.ACCOUNT_REACTIVATED
     | typeof NOTIFICATION_TYPE.VERIFICATION_REVOKED
+    | typeof NOTIFICATION_TYPE.ACCOUNT_FLAGGED
+    | typeof NOTIFICATION_TYPE.ACCOUNT_UNFLAGGED
   body: string
+  title?: string
 }) {
   const titles: Record<string, string> = {
     [NOTIFICATION_TYPE.ACCOUNT_SUSPENDED]: 'Account suspended',
     [NOTIFICATION_TYPE.ACCOUNT_REACTIVATED]: 'Account reactivated',
     [NOTIFICATION_TYPE.VERIFICATION_REVOKED]: 'Verification revoked',
+    [NOTIFICATION_TYPE.ACCOUNT_FLAGGED]: ACCOUNT_FLAGGED_NOTIFICATION.TITLE,
+    [NOTIFICATION_TYPE.ACCOUNT_UNFLAGGED]: ACCOUNT_UNFLAGGED_NOTIFICATION.TITLE,
   }
 
   await createInAppNotificationForUser({
     userId: input.userId,
     type: input.type,
-    title: titles[input.type] ?? 'Account update',
+    title: input.title ?? titles[input.type] ?? 'Account update',
     body: input.body,
   })
 }
@@ -561,6 +572,10 @@ export async function flagAdminUser(input: {
     throw conflict('Organisation is already flagged', 'ALREADY_FLAGGED')
   }
 
+  const organisationName =
+    (user as { organisationName?: string }).organisationName?.trim() ||
+    'Organisation'
+
   user.accountStatus = ACCOUNT_STATUS.FLAGGED
   appendAuditTrail(user, {
     action: ADMIN_USER_ACTION.FLAG,
@@ -570,6 +585,19 @@ export async function flagAdminUser(input: {
   })
 
   await user.save()
+
+  await sendAccountFlaggedEmail({
+    to: user.email,
+    organisationName,
+    reason: input.payload.reason,
+  })
+
+  await notifyAccountChange({
+    userId: user._id.toString(),
+    organisationName,
+    type: NOTIFICATION_TYPE.ACCOUNT_FLAGGED,
+    body: ACCOUNT_FLAGGED_NOTIFICATION.BODY,
+  })
 
   return {
     user: await serializeAdminUserDetail(
@@ -590,6 +618,10 @@ export async function unflagAdminUser(input: {
     throw conflict('Organisation is not flagged', 'NOT_FLAGGED')
   }
 
+  const organisationName =
+    (user as { organisationName?: string }).organisationName?.trim() ||
+    'Organisation'
+
   user.accountStatus = ACCOUNT_STATUS.ACTIVE
   appendAuditTrail(user, {
     action: ADMIN_USER_ACTION.UNFLAG,
@@ -598,6 +630,18 @@ export async function unflagAdminUser(input: {
   })
 
   await user.save()
+
+  await sendAccountUnflaggedEmail({
+    to: user.email,
+    organisationName,
+  })
+
+  await notifyAccountChange({
+    userId: user._id.toString(),
+    organisationName,
+    type: NOTIFICATION_TYPE.ACCOUNT_UNFLAGGED,
+    body: ACCOUNT_UNFLAGGED_NOTIFICATION.BODY,
+  })
 
   return {
     user: await serializeAdminUserDetail(

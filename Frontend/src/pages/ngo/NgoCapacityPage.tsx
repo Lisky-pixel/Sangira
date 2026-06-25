@@ -22,6 +22,7 @@ import {
 } from '../../features/ngo-capacity/ngo-capacity-schema'
 import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { toast } from '../../lib/toast'
+import { ParticipantActionBlockNote } from '../../components/participant/participant-action-control'
 import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
 import { ngoCapacityContent } from '../../placeholder/ngo-capacity-content'
 import { ApiError } from '../../services/api-error'
@@ -268,6 +269,9 @@ export function NgoCapacityPage() {
             <p className="text-body text-center text-sm">
               {ngoCapacityContent.save.footnote}
             </p>
+            {editsBlocked ? (
+              <ParticipantActionBlockNote className="text-center" />
+            ) : null}
           </div>
           </fieldset>
         </form>

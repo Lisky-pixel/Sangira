@@ -19,6 +19,7 @@ import { ngoDashboardRouter, ngoImpactRouter } from '../routes/ngo-portal.js'
 import { adminPortalRouter } from '../routes/admin-portal.js'
 import { notificationsRouter } from '../routes/notifications.js'
 import { transfersRouter } from '../routes/transfers.js'
+import { publicRouter } from '../routes/public.js'
 
 const JSON_BODY_LIMIT = '1mb'
 
@@ -42,6 +43,7 @@ export function createApp() {
   app.use(healthRouter)
   app.use(globalRateLimiter)
 
+  app.use('/public', publicRouter)
   app.use('/auth', authRouter)
   app.use('/listings', listingsRouter)
   app.use('/requests', requestsRouter)

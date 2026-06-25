@@ -1,19 +1,22 @@
 import { Schema } from 'mongoose'
 import { VERIFICATION_STATUS } from '../../constants/enums.js'
 
+/** NGO service location — address always; coordinates optional when geocoding fails */
 export const geoPointSchema = new Schema(
   {
     type: {
       type: String,
       enum: ['Point'],
-      default: 'Point',
-      required: true,
+      required: false,
     },
     coordinates: {
       type: [Number],
-      required: true,
+      required: false,
       validate: {
-        validator(value: number[]) {
+        validator(value: number[] | undefined) {
+          if (value === undefined || value === null) {
+            return true
+          }
           return (
             Array.isArray(value) &&
             value.length === 2 &&
@@ -29,6 +32,7 @@ export const geoPointSchema = new Schema(
     address: {
       type: String,
       trim: true,
+      required: true,
     },
   },
   { _id: false },

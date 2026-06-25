@@ -14,6 +14,7 @@ import {
   computeMonthOverMonthChangePercent,
   getCalendarMonthRange,
 } from '../utils/calendar-month.js'
+import { aggregatePlatformImpactTotals } from './platform-stats-service.js'
 
 const COMPLETED_REQUEST_FILTER = {
   status: REQUEST_STATUS.COMPLETED,
@@ -21,12 +22,6 @@ const COMPLETED_REQUEST_FILTER = {
 } as const
 
 const READ_PRIMARY = { readPreference: MONGO_READ_PREFERENCE_PRIMARY } as const
-
-type ImpactTotalsRow = {
-  mealsRedistributed: number
-  wastePreventedKg: number
-  completedTransfers: number
-}
 
 type MealsMonthRow = {
   meals: number
@@ -92,35 +87,8 @@ function formatOrganisationName(value: string | null | undefined) {
   return trimmed || 'Organisation'
 }
 
-async function aggregateAllTimeImpactTotals(): Promise<ImpactTotalsRow> {
-  const [row] = await FoodRequest.aggregate<{
-    mealsRedistributed: number
-    wastePreventedKg: number
-    completedTransfers: number
-  }>(
-    [
-      { $match: COMPLETED_REQUEST_FILTER },
-      {
-        $group: {
-          _id: null,
-          mealsRedistributed: {
-            $sum: { $ifNull: ['$mealsRedistributed', 0] },
-          },
-          wastePreventedKg: {
-            $sum: { $ifNull: ['$wasteKgPrevented', 0] },
-          },
-          completedTransfers: { $sum: 1 },
-        },
-      },
-    ],
-    READ_PRIMARY,
-  )
-
-  return {
-    mealsRedistributed: row?.mealsRedistributed ?? 0,
-    wastePreventedKg: row?.wastePreventedKg ?? 0,
-    completedTransfers: row?.completedTransfers ?? 0,
-  }
+async function aggregateAllTimeImpactTotals() {
+  return aggregatePlatformImpactTotals()
 }
 
 async function sumMealsCompletedBetween(

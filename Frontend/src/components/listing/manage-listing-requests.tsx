@@ -14,7 +14,12 @@ import { LISTING_STATUS } from '../../constants/listing-status'
 import type { DonorListingRequest } from '../../types/request'
 import type { Listing } from '../../types/listing'
 import { VerifiedBadge } from '../ui/verified-badge'
-import { Button, ButtonLink } from '../ui/button'
+import { Button } from '../ui/button'
+import {
+  ParticipantActionButton,
+  ParticipantActionLink,
+} from '../participant/participant-action-control'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 
 type ManageListingRequestsProps = {
   listing: Listing
@@ -30,6 +35,7 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isAccepting, setIsAccepting] = useState(false)
   const navigate = useNavigate()
+  const { blocked: actionsBlocked } = useParticipantEditBlocked()
   const initials = getOrgInitials(request.ngo.organisationName)
   const requestedLabel = formatRelativeTime(request.createdAt)
   const isAccepted = request.status === REQUEST_STATUS.ACCEPTED
@@ -102,22 +108,22 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
         </div>
 
         {isAccepted ? (
-          <ButtonLink
+          <ParticipantActionLink
             to={donorListingHandoverPath(request.listingId)}
             state={{ requestId: request._id }}
             variant="primary"
             className="mt-4 w-full"
           >
             {listingManageContent.requests.continueHandover}
-          </ButtonLink>
+          </ParticipantActionLink>
         ) : (
-          <Button
+          <ParticipantActionButton
             type="button"
             className="mt-4 w-full"
             onClick={() => setConfirmOpen(true)}
           >
             {listingManageContent.requests.accept}
-          </Button>
+          </ParticipantActionButton>
         )}
       </article>
 
@@ -142,7 +148,7 @@ function RequestCard({ request, listingTitle, onAccepted }: RequestCardProps) {
               </Dialog.Close>
               <Button
                 type="button"
-                disabled={isAccepting}
+                disabled={isAccepting || actionsBlocked}
                 onClick={() => void handleAccept()}
               >
                 {listingManageContent.requests.acceptConfirm}

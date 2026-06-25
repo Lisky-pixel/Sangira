@@ -8,7 +8,7 @@ import { ngoMyRequestsContent } from '../../placeholder/ngo-my-requests-content'
 import { postListingContent } from '../../placeholder/post-listing-content'
 import { ngoRequestConfirmPath } from '../../routes/paths'
 import type { NgoMyRequest } from '../../types/ngo-my-request'
-import { ButtonLink } from '../ui/button'
+import { ParticipantActionLink } from '../participant/participant-action-control'
 import { StatusChip } from '../ui/status-chip'
 import { VerifiedBadge } from '../ui/verified-badge'
 
@@ -123,12 +123,12 @@ export function NgoAcceptedRequestCard({
           </div>
         </div>
 
-        <ButtonLink
+        <ParticipantActionLink
           to={ngoRequestConfirmPath(request._id)}
           className="mt-5 w-full"
         >
           {ngoMyRequestsContent.acceptedCard.confirmPickup}
-        </ButtonLink>
+        </ParticipantActionLink>
       </div>
     </article>
   )

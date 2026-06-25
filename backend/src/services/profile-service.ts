@@ -22,6 +22,11 @@ type AvatarFile = {
   originalname: string
 }
 
+export type ProfileUpdateResult = {
+  user: ReturnType<typeof serializeUser>
+  geocodeResolved?: boolean
+}
+
 function isDuplicateKeyError(error: unknown): boolean {
   return (
     typeof error === 'object' &&
@@ -62,8 +67,9 @@ async function getNgoOrThrow(userId: string) {
 export async function updateProfileForDonor(input: {
   userId: string
   patch: PatchProfileInput
-}) {
+}): Promise<ProfileUpdateResult> {
   const user = await getDonorOrThrow(input.userId)
+  let geocodeResolved: boolean | undefined
 
   if (input.patch.organisationName !== undefined) {
     user.organisationName = input.patch.organisationName
@@ -95,6 +101,7 @@ export async function updateProfileForDonor(input: {
     user.pickupAddress = address
 
     const geocoded = await geocodeAddress(address)
+    geocodeResolved = geocoded !== null
     if (geocoded) {
       user.pickupLocation = {
         type: 'Point',
@@ -115,14 +122,18 @@ export async function updateProfileForDonor(input: {
     throw error
   }
 
-  return serializeUser(user)
+  return {
+    user: serializeUser(user),
+    ...(geocodeResolved !== undefined ? { geocodeResolved } : {}),
+  }
 }
 
 export async function updateProfileForNgo(input: {
   userId: string
   patch: PatchProfileInput
-}) {
+}): Promise<ProfileUpdateResult> {
   const user = await getNgoOrThrow(input.userId)
+  let geocodeResolved: boolean | undefined
 
   if (input.patch.organisationName !== undefined) {
     user.organisationName = input.patch.organisationName
@@ -152,6 +163,7 @@ export async function updateProfileForNgo(input: {
   if (input.patch.address !== undefined) {
     const address = input.patch.address
     const geocoded = await geocodeAddress(address)
+    geocodeResolved = geocoded !== null
     if (geocoded) {
       user.serviceLocation = {
         type: 'Point',
@@ -167,10 +179,7 @@ export async function updateProfileForNgo(input: {
           address,
         }
       } else {
-        throw badRequest(
-          'Enter a recognizable address',
-          'INVALID_ADDRESS',
-        )
+        user.serviceLocation = { address }
       }
     }
   }
@@ -184,14 +193,17 @@ export async function updateProfileForNgo(input: {
     throw error
   }
 
-  return serializeUser(user)
+  return {
+    user: serializeUser(user),
+    ...(geocodeResolved !== undefined ? { geocodeResolved } : {}),
+  }
 }
 
 export async function updateProfileForUser(input: {
   userId: string
   role: string
   patch: PatchProfileInput
-}) {
+}): Promise<ProfileUpdateResult> {
   if (input.role === ROLES.DONOR) {
     return updateProfileForDonor({ userId: input.userId, patch: input.patch })
   }

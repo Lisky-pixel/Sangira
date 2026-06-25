@@ -7,19 +7,20 @@ import { AVATAR_PHOTO_FIELD } from '../constants/avatar-photo'
 
 type ProfilePatchResponse = {
   user: AuthUser
+  geocodeResolved?: boolean
 }
 
 export const profileService = {
   async patchField(
     field: ProfileFieldKey,
     value: string,
-  ): Promise<AuthUser> {
+  ): Promise<ProfilePatchResponse> {
     const response = await apiClient.patch<ApiEnvelope<ProfilePatchResponse>>(
       '/auth/me/profile',
       { [field]: value },
     )
 
-    return unwrapApiResponse(response).user
+    return unwrapApiResponse(response)
   },
 
   async uploadAvatar(file: File): Promise<AuthUser> {

@@ -7,7 +7,9 @@ import { ApiError } from '../../services/api-error'
 import { profileService } from '../../services/profile-service'
 import { toast } from '../../lib/toast'
 import { donorProfileContent } from '../../placeholder/donor-profile-content'
+import { geocodeContent } from '../../placeholder/geocode-content'
 import { participantEnforcementContent } from '../../placeholder/participant-enforcement-content'
+import { useParticipantEditBlocked } from '../../hooks/use-participant-edit-blocked'
 import { cn } from '../../lib/utils'
 import {
   contactNameSchema,
@@ -47,6 +49,7 @@ export function ProfileInlineFieldRow({
 }: ProfileInlineFieldRowProps) {
   const [editing, setEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const { blocked: editsBlocked, message: blockMessage } = useParticipantEditBlocked()
   const schema = schemaByField[fieldName]
 
   const {
@@ -81,9 +84,12 @@ export function ProfileInlineFieldRow({
 
     setIsSaving(true)
     try {
-      await profileService.patchField(fieldName, nextValue)
+      const result = await profileService.patchField(fieldName, nextValue)
       await onSaved()
       toast.success(donorProfileContent.toast.fieldSaved)
+      if (result.geocodeResolved === false) {
+        toast.warning(geocodeContent.addressSavedNoMapWarning)
+      }
       setEditing(false)
     } catch (error) {
       if (
@@ -128,8 +134,8 @@ export function ProfileInlineFieldRow({
                 {String(fieldError.message ?? '')}
               </p>
             ) : null}
-            <div className="flex flex-wrap gap-2">
-              <Button type="submit" size="default" disabled={isSaving}>
+            <div className="flex flex-col gap-2">
+              <Button type="submit" size="default" disabled={isSaving || editsBlocked}>
                 {donorProfileContent.inlineEdit.save}
               </Button>
               <Button
@@ -141,6 +147,11 @@ export function ProfileInlineFieldRow({
               >
                 {donorProfileContent.inlineEdit.cancel}
               </Button>
+              {editsBlocked && blockMessage ? (
+                <p className="text-body text-xs leading-relaxed" role="note">
+                  {blockMessage}
+                </p>
+              ) : null}
             </div>
           </form>
         ) : (
@@ -148,7 +159,25 @@ export function ProfileInlineFieldRow({
         )}
       </div>
 
-      {!editing && !readOnly ? (
+      {!editing && readOnly && editsBlocked ? (
+        <span title={blockMessage ?? undefined} className="shrink-0">
+          <button
+            type="button"
+            disabled
+            className="text-primary shrink-0 text-sm font-medium opacity-50"
+            aria-describedby={
+              blockMessage ? `profile-field-${fieldName}-block-reason` : undefined
+            }
+          >
+            {donorProfileContent.inlineEdit.edit}
+          </button>
+          {blockMessage ? (
+            <span id={`profile-field-${fieldName}-block-reason`} className="sr-only">
+              {blockMessage}
+            </span>
+          ) : null}
+        </span>
+      ) : !editing && !readOnly ? (
         <button
           type="button"
           onClick={startEditing}

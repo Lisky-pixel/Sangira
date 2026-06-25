@@ -9,10 +9,12 @@ import { unwrapApiResponse } from './api-response'
 
 export type CreateListingResult = {
   listing: Listing
+  geocodeResolved: boolean
 }
 
 export type GetListingResult = {
   listing: Listing
+  geocodeResolved: boolean
 }
 
 type ListMineListingsResponse = {

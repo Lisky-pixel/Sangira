@@ -1,7 +1,9 @@
 import { sendEmail as sendBrevoEmail, type SendEmailInput } from '../config/brevo.js'
 import {
+  accountFlagged,
   accountReactivated,
   accountSuspended,
+  accountUnflagged,
   verificationApproved,
   verificationCode,
   verificationRejected,
@@ -106,6 +108,42 @@ export async function sendAccountReactivatedEmail(input: {
     html: template.html,
     text: template.text,
     tags: ['account', 'reactivated'],
+  })
+}
+
+export async function sendAccountFlaggedEmail(input: {
+  to: string
+  organisationName: string
+  reason?: string
+}) {
+  const template = accountFlagged({
+    organisationName: input.organisationName,
+    reason: input.reason,
+  })
+
+  return sendEmail({
+    to: input.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    tags: ['account', 'flagged'],
+  })
+}
+
+export async function sendAccountUnflaggedEmail(input: {
+  to: string
+  organisationName: string
+}) {
+  const template = accountUnflagged({
+    organisationName: input.organisationName,
+  })
+
+  return sendEmail({
+    to: input.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+    tags: ['account', 'unflagged'],
   })
 }
 

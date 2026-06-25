@@ -34,7 +34,7 @@ export async function createListing(
       photo,
     })
 
-    return sendSuccess(res, { listing }, 201)
+    return sendSuccess(res, listing, 201)
   } catch (error) {
     return next(error)
   }
@@ -131,14 +131,14 @@ export async function updateListing(
 ) {
   try {
     const params = req.validatedParams as ListingIdParam
-    const listing = await updateListingForDonor({
+    const result = await updateListingForDonor({
       donorId: req.auth!.userId,
       listingId: params.id,
       data: req.body as UpdateListingInput,
       photo: req.file,
     })
 
-    return sendSuccess(res, { listing })
+    return sendSuccess(res, result)
   } catch (error) {
     return next(error)
   }

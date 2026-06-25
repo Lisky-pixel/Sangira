@@ -10,6 +10,7 @@
     "build": "tsc",
     "lint": "eslint .",
     "migrate:avatar-url": "tsx scripts/migrate-avatar-url.ts",
+    "geocode:backfill": "tsx scripts/geocode-backfill.ts",
     "seed:admin": "tsx scripts/seed-admin.ts"
   },
   "engines": {

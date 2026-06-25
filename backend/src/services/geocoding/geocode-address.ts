@@ -3,6 +3,7 @@ import {
   GEOCODER_PROVIDER,
   NOMINATIM_MIN_INTERVAL_MS,
 } from '../../constants/geocoder.js'
+import { normalizeGeocodeAddress } from '../../utils/normalize-geocode-address.js'
 import { geocodeWithGoogle } from './google.js'
 import { geocodeWithNominatim } from './nominatim.js'
 import type { GeocodeResult } from './types.js'
@@ -27,9 +28,11 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
     return null
   }
 
+  const normalized = normalizeGeocodeAddress(trimmed)
+
   if (config.GEOCODER === GEOCODER_PROVIDER.GOOGLE) {
-    return geocodeWithGoogle(trimmed)
+    return geocodeWithGoogle(normalized)
   }
 
-  return rateLimitedNominatim(trimmed)
+  return rateLimitedNominatim(normalized)
 }

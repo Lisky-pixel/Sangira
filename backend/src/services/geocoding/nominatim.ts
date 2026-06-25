@@ -4,6 +4,7 @@ import {
   GEOCODER_USER_AGENT_VERSION,
   NOMINATIM_BASE_URL,
   NOMINATIM_COUNTRY_BIAS,
+  NOMINATIM_KIGALI_VIEWBOX,
   NOMINATIM_REQUEST_TIMEOUT_MS,
 } from '../../constants/geocoder.js'
 import type { GeocodeResult } from './types.js'
@@ -30,6 +31,8 @@ export async function geocodeWithNominatim(
     format: 'json',
     limit: '1',
     countrycodes: NOMINATIM_COUNTRY_BIAS,
+    viewbox: NOMINATIM_KIGALI_VIEWBOX,
+    bounded: '0',
   })
 
   const controller = new AbortController()

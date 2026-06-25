@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils'
 import { donorDashboardContent } from '../../placeholder/donor-dashboard-content'
 import { ROUTES } from '../../routes/paths'
 import { useAuth } from '../../auth'
-import { ButtonLink } from '../ui/button'
+import { ParticipantActionLink } from '../participant/participant-action-control'
 import { VerifiedBadge } from '../ui/verified-badge'
 import { AvatarMenu } from './avatar-menu'
 import { DonorNotificationsBell } from './donor-notifications-bell'
@@ -146,20 +146,20 @@ export function DonorTopNav({ className }: DonorTopNavProps) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <ButtonLink
+          <ParticipantActionLink
             to={ROUTES.POST_LISTING}
             className="hidden gap-2 sm:inline-flex"
           >
             {donorDashboardContent.topNav.postListing}
-          </ButtonLink>
+          </ParticipantActionLink>
 
-          <ButtonLink
+          <ParticipantActionLink
             to={ROUTES.POST_LISTING}
             className="inline-flex px-3 sm:hidden"
             aria-label={donorDashboardContent.topNav.postListing}
           >
             <Plus aria-hidden="true" className="size-4" />
-          </ButtonLink>
+          </ParticipantActionLink>
 
           <DonorNotificationsBell />
 
